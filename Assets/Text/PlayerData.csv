@@ -1,0 +1,4 @@
+Id,Name,Health,Energy,Move,Accuracy,Avoid,WeaponIdList,UnitType
+int,string,int,int,int,int,int,int(.),UnitType
+101,Player1,100,50,8,90,10,301.401,0
+201,Enemy1,200,70,6,100,0,302.402,1
