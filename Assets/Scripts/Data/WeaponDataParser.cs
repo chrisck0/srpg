@@ -14,13 +14,13 @@ public class WeaponDataParser : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(LoadWeaponDataRoutine());
+        StartCoroutine(LoadDataRoutine());
     }
 
     /// <summary>
     /// WeaponData 로드
     /// </summary>
-    public IEnumerator LoadWeaponDataRoutine()
+    public IEnumerator LoadDataRoutine()
     {
         UnityWebRequest www = UnityWebRequest.Get(_weaponDataUrl);
         www.timeout = 5;

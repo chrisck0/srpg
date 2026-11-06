@@ -14,13 +14,13 @@ public class UnitDataParser : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(LoadUnitDataRoutine());
+        StartCoroutine(LoadDataRoutine());
     }
 
     /// <summary>
     /// UnitData 로드
     /// </summary>
-    public IEnumerator LoadUnitDataRoutine()
+    public IEnumerator LoadDataRoutine()
     {
         UnityWebRequest www = UnityWebRequest.Get(_unitDataUrl);
         www.timeout = 5;
