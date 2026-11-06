@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(UnitStat))]
 public class PlayerUnit : UnitBase
 {
     [SerializeField] private InputActionReference _playerAction;
@@ -10,7 +11,6 @@ public class PlayerUnit : UnitBase
 
     private void Action(InputAction.CallbackContext context)
     {
-        Debug.Log($"{name} Actioned");
         OnPlayerActioned?.Invoke();
     }
 

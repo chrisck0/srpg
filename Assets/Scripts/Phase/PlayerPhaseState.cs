@@ -6,8 +6,6 @@ public class PlayerPhaseState : StateBase
     private PhaseStateController _phaseStateController;
     private List<PlayerUnit> _playerUnitList;
     private Queue<PlayerUnit> _activePlayerUnit = new();
-    private Queue<PlayerUnit> _inactivePlayerUnit = new();
-
     private PlayerUnit _currentPlayerUnit;
 
     public PlayerPhaseState(PhaseStateController phaseStateController)
@@ -21,9 +19,9 @@ public class PlayerPhaseState : StateBase
         foreach (PlayerUnit playerUnit in _playerUnitList)
         {
             _activePlayerUnit.Enqueue(playerUnit);
+            playerUnit.UnitStat.AddEnergy(5);
         }
         Debug.Log("PlayerPhase Start");
-        _currentPlayerUnit = null;
     }
 
     public override void Update()
@@ -42,7 +40,6 @@ public class PlayerPhaseState : StateBase
             else
             {
                 PlayerPhaseEnd();
-
             }
         }
     }
@@ -50,7 +47,11 @@ public class PlayerPhaseState : StateBase
     public override void Exit()
     {
         _activePlayerUnit.Clear();
-        _inactivePlayerUnit.Clear();
+
+        if (_currentPlayerUnit != null)
+        {
+            UnbindCurrentPlayerUnit();
+        }
     }
 
     private void PlayerPhaseEnd()
@@ -58,7 +59,7 @@ public class PlayerPhaseState : StateBase
         _phaseStateController.SetState(_phaseStateController.EnemyPhaseState);
     }
 
-    private void PlayerActioned()
+    private void UnbindCurrentPlayerUnit()
     {
         UnbindPlayerUnitEvents();
         _currentPlayerUnit.UnbindInputEvents();
@@ -67,11 +68,11 @@ public class PlayerPhaseState : StateBase
 
     private void BindPlayerUnitEvents()
     {
-        _currentPlayerUnit.OnPlayerActioned += PlayerActioned;
+        _currentPlayerUnit.OnPlayerActioned += UnbindCurrentPlayerUnit;
     }
 
     private void UnbindPlayerUnitEvents()
     {
-        _currentPlayerUnit.OnPlayerActioned -= PlayerActioned;
+        _currentPlayerUnit.OnPlayerActioned -= UnbindCurrentPlayerUnit;
     }
 }
