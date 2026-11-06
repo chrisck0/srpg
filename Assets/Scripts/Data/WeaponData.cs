@@ -18,11 +18,11 @@ public class WeaponData : ScriptableObject
     public int Attack => _attack;
     public int EnergyCost => _energyCost;
     public WeaponType WeaponType => _weaponType;
+    public WeaponRangeShape WeaponRangeShape => _weaponRangeShape;
     public int MinRange => _minRange;
     public int MaxRange => _maxRange;
-    public WeaponRangeShape WeaponRangeShape => _weaponRangeShape;
 
-    public void SetData(int id, string name, int attack, int energyCost, WeaponType weaponType, int minRange, int maxRange, WeaponRangeShape weaponRangeShape)
+    public void SetData(int id, string name, int attack, int energyCost, WeaponType weaponType, WeaponRangeShape weaponRangeShape, int minRange, int maxRange)
     {
         _id = id;
         _name = name;
