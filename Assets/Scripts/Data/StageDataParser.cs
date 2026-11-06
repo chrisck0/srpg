@@ -1,35 +1,43 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class StageDataParser : MonoBehaviour
+public class StageDataParser : DataParserBase
 {
     [SerializeField] private List<string> _stageDataUrlList;
     [SerializeField] private List<TextAsset> _stageDataFileList;
     [SerializeField] private List<StageData> _stageDataList;
+
+    private List<UniTask> _loadingTasks = new();
     private const int STAGE_INFO_ROW_INDEX = 2;
     private const int START_ROW_INDEX = 5;
     private const int START_COLUMN_INDEX = 1;
     private const int UNIT_POSITION_START_ROW_OFFSET = 3;
 
-    private void Start()
+    public int StageCount => _stageDataUrlList.Count;
+
+    public override async UniTask LoadData()
     {
         for (int i = 0; i < _stageDataUrlList.Count; i++)
         {
-            StartCoroutine(LoadStageDataRoutine(i));
+            _loadingTasks.Add(LoadStageData(i));
         }
+
+        await UniTask.WhenAll(_loadingTasks);
+        Debug.Log("StageData Loaded");
     }
 
     /// <summary>
     /// StageData 로드
     /// </summary>
-    public IEnumerator LoadStageDataRoutine(int index)
+    public async UniTask LoadStageData(int index)
     {
         UnityWebRequest www = UnityWebRequest.Get(_stageDataUrlList[index]);
         www.timeout = 5;
-        yield return www.SendWebRequest();
+        await www.SendWebRequest();
 
         string text;
 
@@ -43,7 +51,6 @@ public class StageDataParser : MonoBehaviour
         }
 
         ParseCSV(text, index);
-        Debug.Log($"StageData {index} Parsed");
     }
 
     private void ParseCSV(string text, int index)

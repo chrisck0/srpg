@@ -1,10 +1,11 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class WeaponDataParser : MonoBehaviour
+public class WeaponDataParser : DataParserBase
 {
     [SerializeField] private string _weaponDataUrl;
     [SerializeField] private TextAsset _weaponDataFile;
@@ -12,19 +13,14 @@ public class WeaponDataParser : MonoBehaviour
     private const int COLUMN = 8;
     private const int START_ROW_INDEX = 2;
 
-    private void Start()
-    {
-        StartCoroutine(LoadDataRoutine());
-    }
-
     /// <summary>
     /// WeaponData 로드
     /// </summary>
-    public IEnumerator LoadDataRoutine()
+    public override async UniTask LoadData()
     {
         UnityWebRequest www = UnityWebRequest.Get(_weaponDataUrl);
         www.timeout = 5;
-        yield return www.SendWebRequest();
+        await www.SendWebRequest();
 
         string text;
 
@@ -38,7 +34,7 @@ public class WeaponDataParser : MonoBehaviour
         }
 
         ParseCSV(text);
-        Debug.Log("WeaponData Parsed");
+        Debug.Log("WeaponData Loaded");
     }
 
     private void ParseCSV(string text)

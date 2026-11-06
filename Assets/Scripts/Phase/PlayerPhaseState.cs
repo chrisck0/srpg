@@ -22,6 +22,7 @@ public class PlayerPhaseState : StateBase
         {
             _activePlayerUnit.Enqueue(playerUnit);
         }
+        Debug.Log("PlayerPhase Start");
         _currentPlayerUnit = null;
     }
 
@@ -29,17 +30,20 @@ public class PlayerPhaseState : StateBase
     {
         if (_currentPlayerUnit == null)
         {
-            _currentPlayerUnit = _activePlayerUnit.Dequeue();
+            if (_activePlayerUnit.Count != 0)
+            {
+                _currentPlayerUnit = _activePlayerUnit.Dequeue();
 
-            Debug.Log($"Current turn is {_currentPlayerUnit.UnitStat.UnitData.Name}");
+                Debug.Log($"Current turn : {_currentPlayerUnit.UnitStat.UnitData.Name}");
 
-            if (_currentPlayerUnit == null)
+                _currentPlayerUnit.BindInputEvents();
+                BindPlayerUnitEvents();
+            }
+            else
             {
                 PlayerPhaseEnd();
-                return;
+
             }
-            _currentPlayerUnit.BindInputEvents();
-            BindPlayerUnitEvents();
         }
     }
 

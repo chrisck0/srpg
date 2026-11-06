@@ -1,10 +1,10 @@
+using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class UnitDataParser : MonoBehaviour
+public class UnitDataParser : DataParserBase
 {
     [SerializeField] private string _unitDataUrl;
     [SerializeField] private TextAsset _unitDataFile;
@@ -12,19 +12,14 @@ public class UnitDataParser : MonoBehaviour
     private const int COLUMN = 9;
     private const int START_ROW_INDEX = 2;
 
-    private void Start()
-    {
-        StartCoroutine(LoadDataRoutine());
-    }
-
     /// <summary>
     /// UnitData 로드
     /// </summary>
-    public IEnumerator LoadDataRoutine()
+    public override async UniTask LoadData()
     {
         UnityWebRequest www = UnityWebRequest.Get(_unitDataUrl);
         www.timeout = 5;
-        yield return www.SendWebRequest();
+        await www.SendWebRequest();
 
         string text;
 
@@ -38,7 +33,7 @@ public class UnitDataParser : MonoBehaviour
         }
 
         ParseCSV(text);
-        Debug.Log("UnitData Parsed");
+        Debug.Log("UnitData Loaded");
     }
 
     private void ParseCSV(string text)

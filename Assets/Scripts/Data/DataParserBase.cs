@@ -1,7 +1,7 @@
-using System.Collections;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public abstract class DataParserBase : MonoBehaviour
 {
-    public abstract IEnumerator LoadDataRoutine();
+    public virtual async UniTask LoadData() { }
 }

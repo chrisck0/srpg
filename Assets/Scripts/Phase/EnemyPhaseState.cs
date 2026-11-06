@@ -12,7 +12,6 @@ public class EnemyPhaseState : StateBase
 
     public override void Enter()
     {
-        _phaseStateController.TestPhaseTransition.OnEnemyPhaseEnd += EnemyPhaseEnd;
         Debug.Log("EnemyPhase Start");
     }
 
@@ -23,7 +22,6 @@ public class EnemyPhaseState : StateBase
 
     public override void Exit()
     {
-        _phaseStateController.TestPhaseTransition.OnEnemyPhaseEnd -= EnemyPhaseEnd;
         Debug.Log("EnemyPhase End");
     }
 

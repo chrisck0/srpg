@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(StateMachine))]
 public sealed class PhaseStateController : MonoBehaviour, IStateEvent
 {
     [SerializeField] private List<PlayerUnit> _playerUnitList;
     [SerializeField] private List<EnemyUnit> _enemyUnitList;
-    [SerializeField] private TestPhaseTransition _testPhaseTransition;
+    [SerializeField] private Button _endTurnButton;
 
     private StateBase _playerPhaseState;
     private StateBase _enemyPhaseState;
@@ -17,13 +18,14 @@ public sealed class PhaseStateController : MonoBehaviour, IStateEvent
 
     public List<PlayerUnit> PlayerUnitList => _playerUnitList;
     public List<EnemyUnit> EnemyUnitList => _enemyUnitList;
-    public TestPhaseTransition TestPhaseTransition => _testPhaseTransition;
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
     public PhaseType PhaseType => _phaseType;
 
     private void Awake() => InitPhaseStates();
+    private void OnEnable() => BindButtonEvents();
     private void Start() => StartPlayerPhase();
+    private void OnDisable() => UnbindButtonEvents();
 
     private void InitPhaseStates()
     {
@@ -36,6 +38,11 @@ public sealed class PhaseStateController : MonoBehaviour, IStateEvent
         SetState(_playerPhaseState);
     }
 
+    private void StartEnemyPhase()
+    {
+        SetState(_enemyPhaseState);
+    }
+
     public void SetState(StateBase state)
     {
         OnStateChanged?.Invoke(state);
@@ -44,5 +51,15 @@ public sealed class PhaseStateController : MonoBehaviour, IStateEvent
     public void SetPhaseType(PhaseType phaseType)
     {
         _phaseType = phaseType;
+    }
+    
+    private void BindButtonEvents()
+    {
+        _endTurnButton.onClick.AddListener(StartEnemyPhase);
+    }
+    
+    private void UnbindButtonEvents()
+    {
+        _endTurnButton.onClick.RemoveListener(StartEnemyPhase);
     }
 }

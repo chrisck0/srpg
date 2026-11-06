@@ -10,6 +10,7 @@ public class PlayerUnit : UnitBase
 
     private void Action(InputAction.CallbackContext context)
     {
+        Debug.Log($"{name} Actioned");
         OnPlayerActioned?.Invoke();
     }
 
