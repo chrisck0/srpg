@@ -1,0 +1,6 @@
+Id,Name,Attack,EnergyCost,WeaponType,MinRange,MaxRange,WeaponRangeShape
+int,string,int,int,WeaponType,int,int,WeaponRangeShape
+301,SingleTargetWeapon1,30,5,0,1,1,0
+302,SingleTargetWeapon2,50,10,0,2,4,0
+401,AreaofEffectWeapon1,30,15,1,4,4,1
+402,AreaofEffectWeapon2,50,30,1,4,4,1
