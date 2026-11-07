@@ -4,28 +4,17 @@ using UnityEngine;
 public sealed class PlayerPhaseState : StateBase
 {
     private PhaseStateController _phaseStateController;
-    private List<PlayerUnit> _playerUnitList;
+    private List<UnitBase> _playerUnitList;
     private Queue<PlayerUnit> _activePlayerUnit = new();
     private PlayerUnit _currentPlayerUnit;
 
-    public PlayerPhaseState(PhaseStateController phaseStateController)
+    public PlayerPhaseState(PhaseStateController phaseStateController, Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
         _phaseStateController = phaseStateController;
-        _playerUnitList = phaseStateController.PlayerUnitList;
 
-        // TODO: Unit 소환하는 클래스로 옮기기
-        Dictionary<int, WeaponData> weaponDataDict = _phaseStateController.DataManager.WeaponDataDict;
+        if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
 
-        foreach (PlayerUnit playerUnit in _playerUnitList)
-        {
-            foreach (int weaponId in playerUnit.UnitStat.UnitData.WeaponIdList)
-            {
-                if (weaponDataDict.TryGetValue(weaponId, out WeaponData weaponData))
-                {
-                    playerUnit.UnitStat.AddWeapon(weaponData);
-                }
-            }
-        }
+        _playerUnitList = playerUnitList;
     }
 
     public override void Enter()

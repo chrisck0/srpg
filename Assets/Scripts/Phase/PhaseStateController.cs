@@ -6,9 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(StateMachine))]
 public class PhaseStateController : MonoBehaviour, IStateEvent
 {
-    [SerializeField] private DataManager _dataManager;
-    [SerializeField] private List<PlayerUnit> _playerUnitList;
-    [SerializeField] private List<EnemyUnit> _enemyUnitList;
+    [SerializeField] private SpawnManager _spawnManager;
     [SerializeField] private Button _endTurnButton;
 
     private StateBase _playerPhaseState;
@@ -17,26 +15,32 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     public Action<StateBase> OnStateChanged { get; set; }
 
-    public DataManager DataManager => _dataManager;
-    public List<PlayerUnit> PlayerUnitList => _playerUnitList;
-    public List<EnemyUnit> EnemyUnitList => _enemyUnitList;
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
     public PhaseType PhaseType => _phaseType;
 
-    private void OnEnable() => BindButtonEvents();
-    private void Start()
+    private void OnEnable()
     {
-        InitPhaseStates();
+        BindButtonEvents();
+        BindSpawnEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnbindButtonEvents();
+        UnbindSpawnEvents();
+    }
+
+    private void StartPhase()
+    {
+        InitPhaseStates(_spawnManager.SpawnedUnitDict);
         StartPlayerPhase();
     }
 
-    private void OnDisable() => UnbindButtonEvents();
-
-    private void InitPhaseStates()
+    private void InitPhaseStates(Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
-        _playerPhaseState = new PlayerPhaseState(this);
-        _enemyPhaseState = new EnemyPhaseState(this);
+        _playerPhaseState = new PlayerPhaseState(this, spawnedUnitDict);
+        _enemyPhaseState = new EnemyPhaseState(this, spawnedUnitDict);
     }
 
     private void StartPlayerPhase()
@@ -67,5 +71,15 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     private void UnbindButtonEvents()
     {
         _endTurnButton.onClick.RemoveListener(StartEnemyPhase);
+    }
+
+    private void BindSpawnEvents()
+    {
+        _spawnManager.OnStageLoaded += StartPhase;
+    }
+
+    private void UnbindSpawnEvents()
+    {
+        _spawnManager.OnStageLoaded -= StartPhase;
     }
 }
