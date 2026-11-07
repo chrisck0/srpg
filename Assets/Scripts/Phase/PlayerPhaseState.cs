@@ -4,14 +4,18 @@ using UnityEngine;
 public sealed class PlayerPhaseState : StateBase
 {
     private PhaseStateController _controller;
+    private UnitCommandStateController _unitCommandStateController;
     private List<UnitBase> _playerUnitList;
-    private Queue<PlayerUnit> _activePlayerUnit = new();
     private PlayerUnit _currentPlayerUnit;
+    private int _activePlayerUnit;
 
     public PlayerPhaseState(PhaseStateController controller,
-        Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
+        UnitCommandStateController unitCommandStateController,
+        Dictionary<UnitType,
+        List<UnitBase>> spawnedUnitDict)
     {
         _controller = controller;
+        _unitCommandStateController = unitCommandStateController;
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
 
@@ -22,40 +26,28 @@ public sealed class PlayerPhaseState : StateBase
     {
         foreach (PlayerUnit playerUnit in _playerUnitList)
         {
-            _activePlayerUnit.Enqueue(playerUnit);
+            playerUnit.InitAction();
             playerUnit.UnitStat.AddEnergy(5);
         }
+        _activePlayerUnit = _playerUnitList.Count;
+        BindCommandEvents();
         Debug.Log("PlayerPhase Start");
     }
 
     public override void Update()
     {
-        if (_currentPlayerUnit == null)
-        {
-            if (_activePlayerUnit.Count != 0)
-            {
-                _currentPlayerUnit = _activePlayerUnit.Dequeue();
-
-                Debug.Log($"Current turn : {_currentPlayerUnit.UnitStat.UnitData.Name}");
-
-                _currentPlayerUnit.BindInputEvents();
-                BindPlayerUnitEvents();
-            }
-            else
-            {
-                PlayerPhaseEnd();
-            }
-        }
     }
 
     public override void Exit()
     {
-        _activePlayerUnit.Clear();
+        UnbindCommandEvents();
+    }
 
-        if (_currentPlayerUnit != null)
-        {
-            UnbindCurrentPlayerUnit();
-        }
+    private void UnitCommandEnd()
+    {
+        _activePlayerUnit--;
+        if (_activePlayerUnit == 0) PlayerPhaseEnd();
+        else _unitCommandStateController.StartUnitCommand();
     }
 
     private void PlayerPhaseEnd()
@@ -63,20 +55,13 @@ public sealed class PlayerPhaseState : StateBase
         _controller.StartEnemyPhase();
     }
 
-    private void UnbindCurrentPlayerUnit()
+    private void BindCommandEvents()
     {
-        UnbindPlayerUnitEvents();
-        _currentPlayerUnit.UnbindInputEvents();
-        _currentPlayerUnit = null;
+        _unitCommandStateController.OnUnitCommandEnd += UnitCommandEnd;
     }
 
-    private void BindPlayerUnitEvents()
+    private void UnbindCommandEvents()
     {
-        _currentPlayerUnit.OnPlayerActioned += UnbindCurrentPlayerUnit;
-    }
-
-    private void UnbindPlayerUnitEvents()
-    {
-        _currentPlayerUnit.OnPlayerActioned -= UnbindCurrentPlayerUnit;
+        _unitCommandStateController.OnUnitCommandEnd -= UnitCommandEnd;
     }
 }

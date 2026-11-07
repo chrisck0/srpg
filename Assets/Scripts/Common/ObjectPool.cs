@@ -7,6 +7,7 @@ public class ObjectPool<T> where T : Component, IPoolable
     private Transform _parent;
     private Dictionary<T, Stack<T>> _objectPoolDict = new();
     private Dictionary<T, T> _prefabDict = new();
+    private Dictionary<T, T> _objectPrefabDict = new();
     private Dictionary<T, Transform> _poolParentDict = new();
     private Dictionary<T, int> _poolCount = new();
 
@@ -44,6 +45,7 @@ public class ObjectPool<T> where T : Component, IPoolable
                 _poolCount[prefab] = _poolCount[prefab] + 1;
                 newObj.gameObject.name = $"{newObj.gameObject.name} {_poolCount[prefab]}";
                 newObj.Activate();
+                _objectPrefabDict[newObj] = prefab;
                 return newObj;
             }
         }
@@ -56,11 +58,12 @@ public class ObjectPool<T> where T : Component, IPoolable
     /// <param name="poolable"> IPoolable 오브젝트 </param>
     public void Return(T obj)
     {
-        if (!_objectPoolDict.ContainsKey(obj)) return;
+        if (!_objectPrefabDict.TryGetValue(obj, out T prefab)
+            || !_objectPoolDict.ContainsKey(prefab)) return;
 
-        _objectPoolDict[obj].Push(obj);
+        _objectPoolDict[prefab].Push(obj);
 
-        obj.transform.SetParent(_poolParentDict[obj]);
+        obj.transform.SetParent(_poolParentDict[prefab]);
         obj.Deactivate();
     }
 
@@ -95,10 +98,11 @@ public class ObjectPool<T> where T : Component, IPoolable
 
             for (int i = 0; i < INITIAL_POOL_SIZE; i++)
             {
-                T newObject = Object.Instantiate(prefab, newPoolParentTransform);
-                newObject.Deactivate();
-                newObject.name = $"{newObject.name} {i + 1}";
-                objectPoolStack.Push(newObject);
+                T newObj = Object.Instantiate(prefab, newPoolParentTransform);
+                newObj.Deactivate();
+                newObj.name = $"{newObj.name} {i + 1}";
+                objectPoolStack.Push(newObj);
+                _objectPrefabDict[newObj] = prefab;
             }
             _poolCount[prefab] = INITIAL_POOL_SIZE;
         }

@@ -5,20 +5,17 @@ public sealed class UnitCommandState : StateBase
 {
     private UnitCommandStateController _controller;
     private MapManager _mapManager => _controller.MapManager;
-    private InputActionReference _selectAction;
     private InputActionReference _cancelAction;
     private UnitCommandUI _unitCommandUI;
     private AttackCommandUI _attackCommandUI;
     private bool _isAttackSelected;
 
     public UnitCommandState(UnitCommandStateController controller,
-        InputActionReference selectAction,
         InputActionReference cancelAction,
         UnitCommandUI unitCommandUI,
         AttackCommandUI attackCommandUI)
     {
         _controller = controller;
-        _selectAction = selectAction;
         _cancelAction = cancelAction;
         _unitCommandUI = unitCommandUI;
         _attackCommandUI = attackCommandUI;
@@ -29,6 +26,8 @@ public sealed class UnitCommandState : StateBase
         BindInputActions();
         BindCommandEvents();
         _unitCommandUI.gameObject.SetActive(true);
+
+        if (_isAttackSelected) Attack();
         Debug.Log("Unit Command");
     }
 
@@ -42,6 +41,7 @@ public sealed class UnitCommandState : StateBase
         UnbindCommandEvents();
         _unitCommandUI.gameObject.SetActive(false);
         _attackCommandUI.gameObject.SetActive(false);
+        _controller.HideCursor();
     }
 
     private void Cancel(InputAction.CallbackContext context)

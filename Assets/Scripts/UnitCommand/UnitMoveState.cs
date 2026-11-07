@@ -41,7 +41,7 @@ public sealed class UnitMoveState : StateBase
 
         if (!Physics.Raycast(ray, out hit, Mathf.Infinity, _ground))
         {
-            HideCursor();
+            _controller.HideCursor();
             _currentTile = null;
             return;
         }
@@ -53,23 +53,12 @@ public sealed class UnitMoveState : StateBase
         _currentTile = tile;
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
-        ShowCursor(coord);
+        _controller.ShowCursor(coord);
     }
 
     public override void Exit()
     {
         UnbindInputActions();
-    }
-
-    private void ShowCursor(Vector2Int coord)
-    {
-        _tileCursor.SetPosition(coord);
-        _tileCursor.gameObject.SetActive(true);
-    }
-
-    private void HideCursor()
-    {
-        _tileCursor.gameObject.SetActive(false);
     }
 
     private void Select(InputAction.CallbackContext context)

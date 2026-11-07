@@ -40,7 +40,7 @@ public sealed class UnitSelectState : StateBase
 
         if (!Physics.Raycast(ray, out hit, Mathf.Infinity, _ground))
         {
-            HideCursor();
+            _controller.HideCursor();
             _currentTile = null;
             return;
         }
@@ -52,23 +52,12 @@ public sealed class UnitSelectState : StateBase
         _currentTile = tile;
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
-        ShowCursor(coord);
+        _controller.ShowCursor(coord);
     }
 
     public override void Exit()
     {
         UnbindInputActions();
-    }
-
-    private void ShowCursor(Vector2Int coord)
-    {
-        _tileCursor.SetPosition(coord);
-        _tileCursor.gameObject.SetActive(true);
-    }
-
-    private void HideCursor()
-    {
-        _tileCursor.gameObject.SetActive(false);
     }
 
     private void Select(InputAction.CallbackContext context)
@@ -84,11 +73,10 @@ public sealed class UnitSelectState : StateBase
             unit.ShowInfo(); // TODO: UI 추가
             PlayerUnit playerUnit = (unit as PlayerUnit);
 
-            if (playerUnit != null)
-            {
-                _controller.SetSelectedPlayerUnit(playerUnit);
-                _controller.SetState(_controller.UnitMoveState);
-            }
+            if (playerUnit == null || !playerUnit.CanAction) return;
+
+            _controller.SetSelectedPlayerUnit(playerUnit);
+            _controller.SetState(_controller.UnitMoveState);
         }
         else
         {

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(StateMachine))]
 public class PhaseStateController : MonoBehaviour, IStateEvent
 {
+    [SerializeField] private UnitCommandStateController _unitCommandStateController;
     [SerializeField] private SpawnManager _spawnManager;
     [SerializeField] private Button _endTurnButton;
 
@@ -14,6 +15,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     public Action<StateBase> OnStateChanged { get; set; }
     public event Action OnPlayerPhaseStarted;
+    public event Action OnEnemyPhaseStarted;
 
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
@@ -38,7 +40,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private void InitPhaseStates(Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
-        _playerPhaseState = new PlayerPhaseState(this, spawnedUnitDict);
+        _playerPhaseState = new PlayerPhaseState(this, _unitCommandStateController, spawnedUnitDict);
         _enemyPhaseState = new EnemyPhaseState(this, spawnedUnitDict);
     }
 
@@ -51,6 +53,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     public void StartEnemyPhase()
     {
         SetState(_enemyPhaseState);
+        OnEnemyPhaseStarted?.Invoke();
     }
 
     public void SetState(StateBase state)

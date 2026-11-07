@@ -45,5 +45,7 @@ public class AttackCommandUI : MonoBehaviour
         {
             _weaponContainerObjectPool.Return(weaponContainer);
         }
+
+        _activatedWeaponContainers.Clear();
     }
 }

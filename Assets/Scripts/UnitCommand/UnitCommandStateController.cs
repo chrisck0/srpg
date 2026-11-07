@@ -25,6 +25,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private WeaponData _selectedWeaponData;
 
     public Action<StateBase> OnStateChanged { get; set; }
+    public Action OnUnitCommandEnd;
 
     public MapManager MapManager => _mapManager;
     public StateBase UnitSelectState => _unitSelectState;
@@ -48,8 +49,9 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _unitMoveState = new UnitMoveState(
             this, _selectAction, _cancelAction, _cursorPosition, _ground, _tileCursor);
         _unitCommandState = new UnitCommandState(
-            this, _selectAction, _cancelAction, _unitCommandUI, _attackCommandUI);
-        _targetSelectState = new TargetSelectState(this);
+            this, _cancelAction, _unitCommandUI, _attackCommandUI);
+        _targetSelectState = new TargetSelectState(
+            this, _selectAction, _cancelAction, _cursorPosition, _ground, _tileCursor);
         _commandEndState = new CommandEndState(this);
     }
 
@@ -60,9 +62,14 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _attackCommandUI.gameObject.SetActive(false);
     }
 
-    private void StartUnitCommand()
+    public void StartUnitCommand()
     {
         SetState(_unitSelectState);
+    }
+
+    private void EndUnitCommand()
+    {
+        SetState(_commandEndState);
     }
 
     public void SetState(StateBase state)
@@ -81,13 +88,26 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _selectedWeaponData = weaponData;
     }
 
+    public void ShowCursor(Vector2Int coord)
+    {
+        _tileCursor.SetPosition(coord);
+        _tileCursor.gameObject.SetActive(true);
+    }
+
+    public void HideCursor()
+    {
+        _tileCursor.gameObject.SetActive(false);
+    }
+
     private void BindPhaseEvents()
     {
         _phaseStateController.OnPlayerPhaseStarted += StartUnitCommand;
+        _phaseStateController.OnEnemyPhaseStarted += EndUnitCommand;
     }
 
     private void UnbindPhaseEvents()
     {
         _phaseStateController.OnPlayerPhaseStarted -= StartUnitCommand;
+        _phaseStateController.OnEnemyPhaseStarted -= EndUnitCommand;
     }
 }
