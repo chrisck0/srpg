@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public class UnitSelectState : StateBase
+public sealed class UnitSelectState : StateBase
 {
     private UnitCommandStateController _controller;
     private TileCursor _tileCursor;

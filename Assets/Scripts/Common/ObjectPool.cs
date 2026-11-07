@@ -11,11 +11,13 @@ public class ObjectPool<T> where T : Component, IPoolable
     private Dictionary<T, int> _poolCount = new();
 
     private const int INITIAL_POOL_SIZE = 1;
+    private bool _hasPoolParent;
 
-    public ObjectPool(List<T> prefabList, Transform parent)
+    public ObjectPool(List<T> prefabList, Transform parent, bool hasPoolParent = true)
     {
         _prefabList = prefabList;
         _parent = parent;
+        _hasPoolParent = hasPoolParent;
         CreatePool();
     }
 
@@ -33,11 +35,12 @@ public class ObjectPool<T> where T : Component, IPoolable
             if (stack.Count > 0)
             {
                 T obj = _objectPoolDict[prefab].Pop();
+                obj.Activate();
                 return obj;
             }
             else
             {
-                T newObj = Object.Instantiate(_prefabDict[prefab], _poolParentDict[prefab].transform);
+                T newObj = Object.Instantiate(_prefabDict[prefab], _poolParentDict[prefab]);
                 _poolCount[prefab] = _poolCount[prefab] + 1;
                 newObj.gameObject.name = $"{newObj.gameObject.name} {_poolCount[prefab]}";
                 newObj.Activate();
@@ -74,18 +77,26 @@ public class ObjectPool<T> where T : Component, IPoolable
                 _prefabDict[prefab] = prefab;
             }
 
-            GameObject newPoolParent = new GameObject
-            {
-                name = $"{prefab.name} Pool"
-            };
+            Transform newPoolParentTransform = _parent;
 
-            newPoolParent.transform.SetParent(_parent);
-            _poolParentDict[prefab] = newPoolParent.transform;
+            if (_hasPoolParent)
+            {
+                GameObject newPoolParent = new GameObject
+                {
+                    name = $"{prefab.name} Pool"
+                };
+
+                newPoolParentTransform = newPoolParent.transform;
+
+                newPoolParentTransform.SetParent(_parent);
+            }
+
+            _poolParentDict[prefab] = newPoolParentTransform;
 
             for (int i = 0; i < INITIAL_POOL_SIZE; i++)
             {
-                T newObject = Object.Instantiate(prefab, newPoolParent.transform);
-                newObject.Activate();
+                T newObject = Object.Instantiate(prefab, newPoolParentTransform);
+                newObject.Deactivate();
                 newObject.name = $"{newObject.name} {i + 1}";
                 objectPoolStack.Push(newObject);
             }

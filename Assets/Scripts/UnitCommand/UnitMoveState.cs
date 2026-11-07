@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class UnitMoveState : StateBase
+public sealed class UnitMoveState : StateBase
 {
     private UnitCommandStateController _controller;
     private TileCursor _tileCursor;
