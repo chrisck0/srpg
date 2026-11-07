@@ -58,6 +58,7 @@ public sealed class UnitSelectState : StateBase
     public override void Exit()
     {
         UnbindInputActions();
+        _controller.HideCursor();
     }
 
     private void Select(InputAction.CallbackContext context)
