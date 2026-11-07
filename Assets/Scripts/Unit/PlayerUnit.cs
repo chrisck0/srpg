@@ -6,6 +6,8 @@ public class PlayerUnit : UnitBase
 {
     [SerializeField] private InputActionReference _playerAction;
 
+    public override UnitType UnitType => UnitType.Player;
+
     public event Action OnPlayerActioned;
 
     private void Action(InputAction.CallbackContext context)

@@ -13,10 +13,9 @@ public class UnitStat : MonoBehaviour
     public int Health => _health;
     public int Energy => _energy;
 
-    private void Awake() => InitStat();
-
-    private void InitStat()
+    public void InitStat(UnitData unitData)
     {
+        _unitData = unitData;
         _health = _unitData.Health;
         _energy = _unitData.Energy;
     }

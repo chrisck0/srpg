@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class EnemyUnit : UnitBase
 {
     [SerializeField] private InputActionReference _enemyAction;
+    public override UnitType UnitType => UnitType.Enemy;
 
     public event Action OnEnemyActioned;
 
