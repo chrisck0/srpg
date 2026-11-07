@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7323339193062940775}
   - component: {fileID: 4900976811758019106}
-  m_Layer: 0
+  - component: {fileID: 6039756051844617281}
+  m_Layer: 6
   m_Name: ForestTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,6 +46,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88c38c7b9e7ba9489ecb87c00ed3290, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ForestTile
+--- !u!65 &6039756051844617281
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1890203155302582132}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1 &8456400632504997894
 GameObject:
   m_ObjectHideFlags: 0
@@ -56,7 +78,6 @@ GameObject:
   - component: {fileID: 1739300264629178164}
   - component: {fileID: 3664998551463512054}
   - component: {fileID: 4254825104063859225}
-  - component: {fileID: 5380090536878139138}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -136,24 +157,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5380090536878139138
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8456400632504997894}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}

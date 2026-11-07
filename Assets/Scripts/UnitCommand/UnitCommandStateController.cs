@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 public class UnitCommandStateController : MonoBehaviour, IStateEvent
 {
     [SerializeField] private PhaseStateController _phaseStateController;
-    [SerializeField] private DataManager _dataManager;
     [SerializeField] private MapManager _mapManager;
+    [SerializeField] private TileCursor _tileCursor;
     [SerializeField] private InputActionReference _selectAction;
     [SerializeField] private InputActionReference _cursorPosition;
     [SerializeField] private LayerMask _ground;
@@ -20,7 +20,6 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
 
     public Action<StateBase> OnStateChanged { get; set; }
 
-    public DataManager DataManager => _dataManager;
     public MapManager MapManager => _mapManager;
     public StateBase UnitSelectState => _unitSelectState;
     public StateBase UnitMoveState => _unitMoveState;
@@ -34,7 +33,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
 
     private void InitUnitCommandStates()
     {
-        _unitSelectState = new UnitSelectState(this, _selectAction, _cursorPosition, _ground);
+        _unitSelectState = new UnitSelectState(this, _selectAction, _cursorPosition, _ground, _tileCursor);
         _unitMoveState = new UnitMoveState(this);
     }
 

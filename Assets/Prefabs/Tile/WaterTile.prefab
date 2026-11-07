@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2908967994924848945}
   - component: {fileID: 777953856279782334}
   - component: {fileID: 5397356105796539642}
-  - component: {fileID: 8075319216891576293}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -91,27 +90,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8075319216891576293
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2235654399543809937}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8677977353704694201
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,7 +100,8 @@ GameObject:
   m_Component:
   - component: {fileID: 774711127165962775}
   - component: {fileID: 2933750852658659689}
-  m_Layer: 0
+  - component: {fileID: 8812960000089339847}
+  m_Layer: 6
   m_Name: WaterTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,3 +136,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d051fdc1d17464469f940fdc8bcda75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterTile
+--- !u!65 &8812960000089339847
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8677977353704694201}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.5, z: 0}
