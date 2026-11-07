@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(UnitStat))]
 public abstract class UnitBase : MonoBehaviour
 {
     protected UnitStat _unitStat;

@@ -4,8 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(StateMachine))]
-public sealed class PhaseStateController : MonoBehaviour, IStateEvent
+public class PhaseStateController : MonoBehaviour, IStateEvent
 {
+    [SerializeField] private DataManager _dataManager;
     [SerializeField] private List<PlayerUnit> _playerUnitList;
     [SerializeField] private List<EnemyUnit> _enemyUnitList;
     [SerializeField] private Button _endTurnButton;
@@ -16,15 +17,20 @@ public sealed class PhaseStateController : MonoBehaviour, IStateEvent
 
     public Action<StateBase> OnStateChanged { get; set; }
 
+    public DataManager DataManager => _dataManager;
     public List<PlayerUnit> PlayerUnitList => _playerUnitList;
     public List<EnemyUnit> EnemyUnitList => _enemyUnitList;
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
     public PhaseType PhaseType => _phaseType;
 
-    private void Awake() => InitPhaseStates();
     private void OnEnable() => BindButtonEvents();
-    private void Start() => StartPlayerPhase();
+    private void Start()
+    {
+        InitPhaseStates();
+        StartPlayerPhase();
+    }
+
     private void OnDisable() => UnbindButtonEvents();
 
     private void InitPhaseStates()

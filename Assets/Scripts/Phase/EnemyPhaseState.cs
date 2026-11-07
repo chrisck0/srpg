@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyPhaseState : StateBase
+public sealed class EnemyPhaseState : StateBase
 {
     private PhaseStateController _phaseStateController;
     private List<EnemyUnit> _enemyUnitList;
@@ -14,6 +13,20 @@ public class EnemyPhaseState : StateBase
     {
         _phaseStateController = phaseStateController;
         _enemyUnitList = phaseStateController.EnemyUnitList;
+
+        // TODO: Unit 소환하는 클래스로 옮기기
+        Dictionary<int, WeaponData> weaponDataDict = _phaseStateController.DataManager.WeaponDataDict;
+
+        foreach (EnemyUnit enemyUnit in _enemyUnitList)
+        {
+            foreach (int weaponId in enemyUnit.UnitStat.UnitData.WeaponIdList)
+            {
+                if (weaponDataDict.TryGetValue(weaponId, out WeaponData weaponData))
+                {
+                    enemyUnit.UnitStat.AddWeapon(weaponData);
+                }
+            }
+        }
     }
 
     public override void Enter()

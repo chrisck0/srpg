@@ -7,9 +7,15 @@ public class DataManager : MonoBehaviour
     [SerializeField] private List<WeaponData> _weaponDataList;
     [SerializeField] private List<StageData> _stageDataList;
 
-    private Dictionary<int, UnitData> _unitDataDict;
-    private Dictionary<int, WeaponData> _weaponDataDict;
-    private Dictionary<int, StageData> _stageDataDict;
+    private Dictionary<int, UnitData> _unitDataDict = new();
+    private Dictionary<int, WeaponData> _weaponDataDict = new();
+    private Dictionary<int, StageData> _stageDataDict = new();
+
+    public Dictionary<int, UnitData> UnitDataDict => _unitDataDict;
+    public Dictionary<int, WeaponData> WeaponDataDict => _weaponDataDict;
+    public Dictionary<int, StageData> StageDataDict => _stageDataDict;
+
+    private void Awake() => InitDictionary();
 
     private void InitDictionary()
     {

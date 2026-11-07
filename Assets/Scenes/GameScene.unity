@@ -286,7 +286,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: 2a58bbd38346ea44d972a1bf6e36f3f4, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!114 &482243474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -506,7 +508,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: 034dc1604b9e9c6449cb13ba5294a930, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!114 &1057334923
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,7 +583,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: b427464e86eea07429d43ac625ec15a7, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!1 &1093429020
 GameObject:
   m_ObjectHideFlags: 0
@@ -639,7 +645,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: 37ef9c688cb01d846961b2bfe1b1564b, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!1 &1112290908
 GameObject:
   m_ObjectHideFlags: 0
@@ -686,7 +694,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: 1571ac2411c6f1c4aaa065427969b2f8, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!114 &1112290911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -975,7 +985,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: dafbf3c5ff769f24fa573253dafe2656, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!114 &1729287315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1019,6 +1031,67 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1887944870}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1781648644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1781648646}
+  - component: {fileID: 1781648645}
+  m_Layer: 0
+  m_Name: DataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1781648645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1781648644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 175ac8e1afdb1f0428d0c90946f61c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DataManager
+  _unitDataList:
+  - {fileID: 11400000, guid: 37ef9c688cb01d846961b2bfe1b1564b, type: 2}
+  - {fileID: 11400000, guid: ec45e0e3324b230409bcb1f61d3ade50, type: 2}
+  - {fileID: 11400000, guid: 5d73cafc6dd24c74cb10e91c9a8a797e, type: 2}
+  - {fileID: 11400000, guid: b427464e86eea07429d43ac625ec15a7, type: 2}
+  - {fileID: 11400000, guid: dafbf3c5ff769f24fa573253dafe2656, type: 2}
+  - {fileID: 11400000, guid: 1571ac2411c6f1c4aaa065427969b2f8, type: 2}
+  - {fileID: 11400000, guid: 034dc1604b9e9c6449cb13ba5294a930, type: 2}
+  - {fileID: 11400000, guid: 2a58bbd38346ea44d972a1bf6e36f3f4, type: 2}
+  _weaponDataList:
+  - {fileID: 11400000, guid: 8b6c6ec33b798fd4599df73ec42032c1, type: 2}
+  - {fileID: 11400000, guid: 4f05e7bf046a1c145a50e87cab3647b0, type: 2}
+  - {fileID: 11400000, guid: 4bb8fa1f6eff69f418a16c9f1d8a5e85, type: 2}
+  - {fileID: 11400000, guid: d2eb1e5da50c24f44b3072bde55f715e, type: 2}
+  _stageDataList:
+  - {fileID: 11400000, guid: 9a5e4202814396d4d9fa3327c571b73c, type: 2}
+  - {fileID: 11400000, guid: 2e6b3f4380ceb304887d7ce28f1d6842, type: 2}
+--- !u!4 &1781648646
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1781648644}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1808501584
@@ -1080,7 +1153,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: 5d73cafc6dd24c74cb10e91c9a8a797e, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!1 &1887944869
 GameObject:
   m_ObjectHideFlags: 0
@@ -1126,6 +1201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c2b7a97628a83b408f8f8474b571870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhaseStateController
+  _dataManager: {fileID: 1781648645}
   _playerUnitList:
   - {fileID: 1729287315}
   - {fileID: 1112290911}
@@ -1287,7 +1363,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unitData: {fileID: 11400000, guid: ec45e0e3324b230409bcb1f61d3ade50, type: 2}
-  _weaponData: []
+  _weaponDataList: []
+  _health: 0
+  _energy: 0
 --- !u!1 &2109614899
 GameObject:
   m_ObjectHideFlags: 0
@@ -1470,3 +1548,4 @@ SceneRoots:
   - {fileID: 1019762794}
   - {fileID: 1585979962}
   - {fileID: 2012098560}
+  - {fileID: 1781648646}
