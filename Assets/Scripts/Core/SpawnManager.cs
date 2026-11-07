@@ -13,8 +13,13 @@ public class SpawnManager : MonoBehaviour
     private Dictionary<UnitType, UnitBase> _unitPrefabDict = new();
     private Dictionary<TileType, TileBase> _tilePrefabDict = new();
     private Dictionary<UnitType, List<UnitBase>> _spawnedUnitDict = new();
+    private TileType[,] _tileMap;
+    private UnitBase[,] _unitMap;
 
     public Dictionary<UnitType, List<UnitBase>> SpawnedUnitDict => _spawnedUnitDict;
+    public TileType[,] TileMap => _tileMap;
+    public UnitBase[,] UnitMap => _unitMap;
+
     public event Action OnStageLoaded;
 
     private void Awake()
@@ -47,6 +52,7 @@ public class SpawnManager : MonoBehaviour
     {
         if (!_dataManager.StageDataDict.TryGetValue(stageId, out StageData stageData)) return;
 
+        _tileMap = stageData.Map;
         SpawnMap(stageData.Map);
         SpawnUnits(stageData.UnitPositionList);
         OnStageLoaded?.Invoke();
@@ -54,9 +60,9 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnMap(TileType[,] map)
     {
-        for (int i = 0; i < map.GetLength(0); i++) // y좌표
+        for (int i = 0; i < map.GetLength(0); i++)
         {
-            for (int j = 0; j < map.GetLength(1); j++) // x좌표
+            for (int j = 0; j < map.GetLength(1); j++)
             {
                 if (!_tilePrefabDict.TryGetValue(map[j, i], out TileBase tilePrefab)) continue;
 
@@ -66,6 +72,7 @@ public class SpawnManager : MonoBehaviour
                 tile.transform.position = coord.CoordToWorld(-1f);
             }
         }
+        _unitMap = new UnitBase[map.GetLength(1), map.GetLength(0)];
     }
 
     private void SpawnUnits(List<UnitPosition> unitPositionList)
@@ -93,6 +100,7 @@ public class SpawnManager : MonoBehaviour
                 }
             }
 
+            _unitMap[coord.x, coord.y] = unit;
             AddSpawnedUnit(unitData.UnitType, unit);
         }
     }

@@ -11,13 +11,12 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private StateBase _playerPhaseState;
     private StateBase _enemyPhaseState;
-    private PhaseType _phaseType;
 
     public Action<StateBase> OnStateChanged { get; set; }
+    public event Action OnPlayerPhaseStarted;
 
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
-    public PhaseType PhaseType => _phaseType;
 
     private void OnEnable()
     {
@@ -43,12 +42,13 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         _enemyPhaseState = new EnemyPhaseState(this, spawnedUnitDict);
     }
 
-    private void StartPlayerPhase()
+    public void StartPlayerPhase()
     {
         SetState(_playerPhaseState);
+        OnPlayerPhaseStarted?.Invoke();
     }
 
-    private void StartEnemyPhase()
+    public void StartEnemyPhase()
     {
         SetState(_enemyPhaseState);
     }
@@ -56,11 +56,6 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     public void SetState(StateBase state)
     {
         OnStateChanged?.Invoke(state);
-    }
-
-    public void SetPhaseType(PhaseType phaseType)
-    {
-        _phaseType = phaseType;
     }
     
     private void BindButtonEvents()

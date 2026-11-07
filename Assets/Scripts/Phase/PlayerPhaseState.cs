@@ -3,14 +3,15 @@ using UnityEngine;
 
 public sealed class PlayerPhaseState : StateBase
 {
-    private PhaseStateController _phaseStateController;
+    private PhaseStateController _controller;
     private List<UnitBase> _playerUnitList;
     private Queue<PlayerUnit> _activePlayerUnit = new();
     private PlayerUnit _currentPlayerUnit;
 
-    public PlayerPhaseState(PhaseStateController phaseStateController, Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
+    public PlayerPhaseState(PhaseStateController controller,
+        Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
-        _phaseStateController = phaseStateController;
+        _controller = controller;
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
 
@@ -59,7 +60,7 @@ public sealed class PlayerPhaseState : StateBase
 
     private void PlayerPhaseEnd()
     {
-        _phaseStateController.SetState(_phaseStateController.EnemyPhaseState);
+        _controller.StartEnemyPhase();
     }
 
     private void UnbindCurrentPlayerUnit()
