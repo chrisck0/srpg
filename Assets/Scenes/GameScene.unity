@@ -1228,6 +1228,7 @@ MonoBehaviour:
   _mapManager: {fileID: 1410229973}
   _tileCursor: {fileID: 927113039}
   _selectAction: {fileID: 6248903269001061691, guid: 1fb15236ea930174ebfda5b423948a3e, type: 3}
+  _cancelAction: {fileID: -4994087293449069386, guid: 1fb15236ea930174ebfda5b423948a3e, type: 3}
   _cursorPosition: {fileID: 4657336191350346649, guid: 1fb15236ea930174ebfda5b423948a3e, type: 3}
   _ground:
     serializedVersion: 2

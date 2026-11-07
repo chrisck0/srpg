@@ -24,12 +24,12 @@ public class UnitSelectState : StateBase
         _cursorPosition = cursorPosition;
         _ground = ground;
         _tileCursor = tileCursor;
-        BindInputActions();
     }
 
     public override void Enter()
     {
         Debug.Log("Select Unit");
+        BindInputActions();
     }
 
     public override void Update()
@@ -73,6 +73,8 @@ public class UnitSelectState : StateBase
 
     private void Select(InputAction.CallbackContext context)
     {
+        if (_currentTile == null) return;
+
         Vector2Int coord = _currentTile.transform.position.WorldToCoord();
 
         UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
