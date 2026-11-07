@@ -5,25 +5,17 @@ using UnityEngine.InputSystem;
 public class PlayerUnit : UnitBase
 {
     [SerializeField] private InputActionReference _playerAction;
-
+    private bool _canAction;
+    public bool CanAction => _canAction;
     public override UnitType UnitType => UnitType.Player;
 
-    public event Action OnPlayerActioned;
-
-    private void Action(InputAction.CallbackContext context)
+    public void InitAction()
     {
-        OnPlayerActioned?.Invoke();
+        _canAction = true;
     }
 
-    public void BindInputEvents()
+    public void Action()
     {
-        _playerAction.action.Enable();
-        _playerAction.action.performed += Action;
-    }
-
-    public void UnbindInputEvents()
-    {
-        _playerAction.action.Disable();
-        _playerAction.action.performed -= Action;
+        _canAction = false;
     }
 }

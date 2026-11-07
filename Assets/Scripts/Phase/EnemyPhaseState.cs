@@ -54,7 +54,7 @@ public sealed class EnemyPhaseState : StateBase
 
     private void EnemyPhaseEnd()
     {
-        _phaseStateController.SetState(_phaseStateController.PlayerPhaseState);
+        _phaseStateController.StartPlayerPhase();
     }
 
     private void PlayerActioned()

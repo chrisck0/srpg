@@ -21,6 +21,11 @@ public abstract class UnitBase : MonoBehaviour, IPoolable
         _unitStat = GetComponent<UnitStat>();
     }
 
+    public void ShowInfo()
+    {
+        Debug.Log($"Selected Unit is {gameObject.name}");
+    }
+
     public void Activate()
     {
         gameObject.SetActive(true);

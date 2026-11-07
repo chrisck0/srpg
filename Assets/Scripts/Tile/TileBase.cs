@@ -7,6 +7,11 @@ public abstract class TileBase : MonoBehaviour, IPoolable
     public abstract TileType TileType { get; }
     public abstract int MoveCost { get; }
 
+    public void ShowInfo()
+    {
+        Debug.Log($"Selected Tile is {gameObject.name}");
+    }
+
     public void Activate()
     {
         gameObject.SetActive(true);

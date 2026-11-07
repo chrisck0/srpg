@@ -7,15 +7,18 @@ public class ObjectPool<T> where T : Component, IPoolable
     private Transform _parent;
     private Dictionary<T, Stack<T>> _objectPoolDict = new();
     private Dictionary<T, T> _prefabDict = new();
+    private Dictionary<T, T> _objectPrefabDict = new();
     private Dictionary<T, Transform> _poolParentDict = new();
     private Dictionary<T, int> _poolCount = new();
 
     private const int INITIAL_POOL_SIZE = 1;
+    private bool _hasPoolParent;
 
-    public ObjectPool(List<T> prefabList, Transform parent)
+    public ObjectPool(List<T> prefabList, Transform parent, bool hasPoolParent = true)
     {
         _prefabList = prefabList;
         _parent = parent;
+        _hasPoolParent = hasPoolParent;
         CreatePool();
     }
 
@@ -33,14 +36,16 @@ public class ObjectPool<T> where T : Component, IPoolable
             if (stack.Count > 0)
             {
                 T obj = _objectPoolDict[prefab].Pop();
+                obj.Activate();
                 return obj;
             }
             else
             {
-                T newObj = Object.Instantiate(_prefabDict[prefab], _poolParentDict[prefab].transform);
+                T newObj = Object.Instantiate(_prefabDict[prefab], _poolParentDict[prefab]);
                 _poolCount[prefab] = _poolCount[prefab] + 1;
                 newObj.gameObject.name = $"{newObj.gameObject.name} {_poolCount[prefab]}";
                 newObj.Activate();
+                _objectPrefabDict[newObj] = prefab;
                 return newObj;
             }
         }
@@ -53,11 +58,12 @@ public class ObjectPool<T> where T : Component, IPoolable
     /// <param name="poolable"> IPoolable 오브젝트 </param>
     public void Return(T obj)
     {
-        if (!_objectPoolDict.ContainsKey(obj)) return;
+        if (!_objectPrefabDict.TryGetValue(obj, out T prefab)
+            || !_objectPoolDict.ContainsKey(prefab)) return;
 
-        _objectPoolDict[obj].Push(obj);
+        _objectPoolDict[prefab].Push(obj);
 
-        obj.transform.SetParent(_poolParentDict[obj]);
+        obj.transform.SetParent(_poolParentDict[prefab]);
         obj.Deactivate();
     }
 
@@ -74,20 +80,29 @@ public class ObjectPool<T> where T : Component, IPoolable
                 _prefabDict[prefab] = prefab;
             }
 
-            GameObject newPoolParent = new GameObject
-            {
-                name = $"{prefab.name} Pool"
-            };
+            Transform newPoolParentTransform = _parent;
 
-            newPoolParent.transform.SetParent(_parent);
-            _poolParentDict[prefab] = newPoolParent.transform;
+            if (_hasPoolParent)
+            {
+                GameObject newPoolParent = new GameObject
+                {
+                    name = $"{prefab.name} Pool"
+                };
+
+                newPoolParentTransform = newPoolParent.transform;
+
+                newPoolParentTransform.SetParent(_parent);
+            }
+
+            _poolParentDict[prefab] = newPoolParentTransform;
 
             for (int i = 0; i < INITIAL_POOL_SIZE; i++)
             {
-                T newObject = Object.Instantiate(prefab, newPoolParent.transform);
-                newObject.Activate();
-                newObject.name = $"{newObject.name} {i + 1}";
-                objectPoolStack.Push(newObject);
+                T newObj = Object.Instantiate(prefab, newPoolParentTransform);
+                newObj.Deactivate();
+                newObj.name = $"{newObj.name} {i + 1}";
+                objectPoolStack.Push(newObj);
+                _objectPrefabDict[newObj] = prefab;
             }
             _poolCount[prefab] = INITIAL_POOL_SIZE;
         }
