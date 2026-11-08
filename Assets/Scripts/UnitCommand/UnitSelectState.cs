@@ -6,7 +6,6 @@ using UnityEngine.UIElements;
 public sealed class UnitSelectState : StateBase
 {
     private UnitCommandStateController _controller;
-    private TileCursor _tileCursor;
     private MapManager _mapManager => _controller.MapManager;
     private InputActionReference _selectAction;
     private InputActionReference _cursorPosition;
@@ -16,14 +15,12 @@ public sealed class UnitSelectState : StateBase
     public UnitSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
         InputActionReference cursorPosition,
-        LayerMask ground,
-        TileCursor tileCursor)
+        LayerMask ground)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
-        _tileCursor = tileCursor;
     }
 
     public override void Enter()

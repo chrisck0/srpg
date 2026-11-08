@@ -11,13 +11,13 @@ public class SpawnManager : MonoBehaviour
     private ObjectPool<UnitBase> _unitObjectPool;
     private ObjectPool<TileBase> _tileObjectPool;
     private Dictionary<UnitType, UnitBase> _unitPrefabDict = new();
-    private Dictionary<TileType, TileBase> _tilePrefabDict = new();
+    private Dictionary<TileData, TileBase> _tilePrefabDict = new();
     private Dictionary<UnitType, List<UnitBase>> _spawnedUnitDict = new();
-    private TileType[,] _tileMap;
+    private TileBase[,] _tileMap;
     private UnitBase[,] _unitMap;
 
     public Dictionary<UnitType, List<UnitBase>> SpawnedUnitDict => _spawnedUnitDict;
-    public TileType[,] TileMap => _tileMap;
+    public TileBase[,] TileMap => _tileMap;
     public UnitBase[,] UnitMap => _unitMap;
 
     public event Action OnStageLoaded;
@@ -44,7 +44,7 @@ public class SpawnManager : MonoBehaviour
 
         foreach (TileBase tilePrefab in _tilePrefabs)
         {
-            _tilePrefabDict[tilePrefab.TileType] = tilePrefab;
+            _tilePrefabDict[tilePrefab.TileData] = tilePrefab;
         }
     }
 
@@ -52,32 +52,36 @@ public class SpawnManager : MonoBehaviour
     {
         if (!_dataManager.StageDataDict.TryGetValue(stageId, out StageData stageData)) return;
 
-        _tileMap = stageData.Map;
-        SpawnMap(stageData.Map);
-        SpawnUnits(stageData.UnitPositionList);
+        CreateMapAndSpawnMap(stageData.Map);
+        CreateMapAndSpawnUnits(stageData.UnitPositionList);
         OnStageLoaded?.Invoke();
     }
 
-    private void SpawnMap(TileType[,] map)
+    private void CreateMapAndSpawnMap(TileType[,] map)
     {
+        _tileMap = new TileBase[map.GetLength(1), map.GetLength(0)];
+
         for (int i = 0; i < map.GetLength(0); i++)
         {
             for (int j = 0; j < map.GetLength(1); j++)
             {
-                if (!_tilePrefabDict.TryGetValue(map[j, i], out TileBase tilePrefab)) continue;
+                if (!_dataManager.TileDataDict.TryGetValue(map[j, i], out TileData tileData)) continue;
+
+                if (!_tilePrefabDict.TryGetValue(tileData, out TileBase tilePrefab)) continue;
 
                 TileBase tile = _tileObjectPool.Take(tilePrefab);
                 Vector2Int coord = new Vector2Int(j, i);
+                _tileMap[j, i] = tile;
 
                 tile.transform.position = coord.CoordToWorld(-1f);
             }
         }
-        _unitMap = new UnitBase[map.GetLength(1), map.GetLength(0)];
     }
 
-    private void SpawnUnits(List<UnitPosition> unitPositionList)
+    private void CreateMapAndSpawnUnits(List<UnitPosition> unitPositionList)
     {
         Dictionary<int, UnitData> unitDataDict = _dataManager.UnitDataDict;
+        _unitMap = new UnitBase[_tileMap.GetLength(1), _tileMap.GetLength(0)];
 
         foreach (UnitPosition unitPosition in unitPositionList)
         {

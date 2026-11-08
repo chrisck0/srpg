@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 public sealed class UnitMoveState : StateBase
 {
     private UnitCommandStateController _controller;
-    private TileCursor _tileCursor;
     private MapManager _mapManager => _controller.MapManager;
     private InputActionReference _selectAction;
     private InputActionReference _cancelAction;
@@ -16,15 +15,13 @@ public sealed class UnitMoveState : StateBase
         InputActionReference selectAction,
         InputActionReference cancelAction,
         InputActionReference cursorPosition,
-        LayerMask ground,
-        TileCursor tileCursor)
+        LayerMask ground)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cancelAction = cancelAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
-        _tileCursor = tileCursor;
     }
 
     public override void Enter()
@@ -66,9 +63,10 @@ public sealed class UnitMoveState : StateBase
     {
         if (_currentTile == null) return;
         PlayerUnit selectedUnit = _controller.SelectedPlayerUnit;
-        Vector2Int coord = _currentTile.transform.position.WorldToCoord();
+        Vector2Int currentCoord = selectedUnit.transform.position.WorldToCoord();
+        Vector2Int nextCoord = _currentTile.transform.position.WorldToCoord();
 
-        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+        UnitBase unit = _mapManager.UnitMap[nextCoord.x, nextCoord.y];
 
         if (unit != null)
         {
@@ -77,9 +75,9 @@ public sealed class UnitMoveState : StateBase
         else
         {
             Debug.Log("Move Unit");
-            MoveUnit(selectedUnit,
-                selectedUnit.transform.position.WorldToCoord(),
-                _currentTile.transform.position.WorldToCoord());
+            _mapManager.UnitMovement.Dijkstra(currentCoord, selectedUnit.UnitStat.UnitData.Move);
+
+            MoveUnit(selectedUnit, currentCoord, nextCoord);
         }
     }
 

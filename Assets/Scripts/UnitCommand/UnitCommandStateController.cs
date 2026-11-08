@@ -45,13 +45,13 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private void InitUnitCommandStates()
     {
         _unitSelectState = new UnitSelectState(
-            this, _selectAction, _cursorPosition, _ground, _tileCursor);
+            this, _selectAction, _cursorPosition, _ground);
         _unitMoveState = new UnitMoveState(
-            this, _selectAction, _cancelAction, _cursorPosition, _ground, _tileCursor);
+            this, _selectAction, _cancelAction, _cursorPosition, _ground);
         _unitCommandState = new UnitCommandState(
             this, _cancelAction, _unitCommandUI, _attackCommandUI);
         _targetSelectState = new TargetSelectState(
-            this, _selectAction, _cancelAction, _cursorPosition, _ground, _tileCursor);
+            this, _selectAction, _cancelAction, _cursorPosition, _ground);
         _commandEndState = new CommandEndState(this);
     }
 
