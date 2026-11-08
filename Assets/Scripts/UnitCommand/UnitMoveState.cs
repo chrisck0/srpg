@@ -16,18 +16,21 @@ public sealed class UnitMoveState : StateBase
     private Stack<Vector2Int> _pathCoordStack = new();
     private bool _hasSelected;
     private Vector2Int _targetCoord;
+    private float _moveSpeed;
 
     public UnitMoveState(UnitCommandStateController controller,
         InputActionReference selectAction,
         InputActionReference cancelAction,
         InputActionReference cursorPosition,
-        LayerMask ground)
+        LayerMask ground,
+        float moveSpeed)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cancelAction = cancelAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
+        _moveSpeed = moveSpeed;
     }
 
     public override void Enter()
@@ -132,10 +135,9 @@ public sealed class UnitMoveState : StateBase
     {
         if (Vector3.Distance(_selectedUnit.transform.position, _targetCoord.CoordToWorld()) >= 0.1f)
         {
-            _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * 3f);
+            _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * _moveSpeed);
             return;
         }
-        Debug.Log($"Target Coord : {_targetCoord}");
 
         if (_pathCoordStack.Count == 0)
         {
@@ -147,7 +149,7 @@ public sealed class UnitMoveState : StateBase
 
         _targetCoord = _pathCoordStack.Pop();
         _selectedUnit.transform.LookAt(_targetCoord.CoordToWorld());
-        _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * 3f);
+        _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * _moveSpeed);
     }
 
     private void Cancel(InputAction.CallbackContext context)
