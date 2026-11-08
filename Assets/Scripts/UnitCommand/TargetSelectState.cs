@@ -6,7 +6,6 @@ using UnityEngine.UIElements;
 public class TargetSelectState : StateBase
 {
     private UnitCommandStateController _controller;
-    private TileCursor _tileCursor;
     private MapManager _mapManager => _controller.MapManager;
     private InputActionReference _selectAction;
     private InputActionReference _cancelAction;
@@ -18,15 +17,13 @@ public class TargetSelectState : StateBase
         InputActionReference selectAction,
         InputActionReference cancelAction,
         InputActionReference cursorPosition,
-        LayerMask ground,
-        TileCursor tileCursor)
+        LayerMask ground)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cancelAction = cancelAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
-        _tileCursor = tileCursor;
     }
 
     public override void Enter()

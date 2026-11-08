@@ -1,39 +1,79 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public sealed class UnitMoveState : StateBase
 {
     private UnitCommandStateController _controller;
-    private TileCursor _tileCursor;
     private MapManager _mapManager => _controller.MapManager;
     private InputActionReference _selectAction;
     private InputActionReference _cancelAction;
     private InputActionReference _cursorPosition;
     private LayerMask _ground;
+    private PlayerUnit _selectedUnit;
     private TileBase _currentTile;
+    private TileCost[,] _tileCostMap;
+    private Stack<Vector2Int> _pathCoordStack = new();
+    private bool _hasSelected;
+    private Vector2Int _targetCoord;
+    private float _moveSpeed;
 
     public UnitMoveState(UnitCommandStateController controller,
         InputActionReference selectAction,
         InputActionReference cancelAction,
         InputActionReference cursorPosition,
         LayerMask ground,
-        TileCursor tileCursor)
+        float moveSpeed)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cancelAction = cancelAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
-        _tileCursor = tileCursor;
+        _moveSpeed = moveSpeed;
     }
 
     public override void Enter()
     {
         Debug.Log("Move Selected Unit");
         BindInputActions();
+        ShowMovableTiles();
     }
 
     public override void Update()
+    {
+        if (_hasSelected) MoveUnit();
+        else RaycastTiles();
+    }
+
+    public override void Exit()
+    {
+        UnbindInputActions();
+        InitTiles();
+        _controller.HideCursor();
+    }
+
+    private void InitTiles()
+    {
+        TileBase[,] tileMap = _mapManager.TileMap;
+
+        for (int i = 0; i < _mapManager.TileMap.GetLength(0); i++)
+        {
+            for (int j = 0; j < _mapManager.TileMap.GetLength(1); j++)
+            {
+                tileMap[j, i].InitDistance();
+            }
+        }
+    }
+
+    private void ShowMovableTiles()
+    {
+        _selectedUnit = _controller.SelectedPlayerUnit;
+        Vector2Int currentCoord = _selectedUnit.transform.position.WorldToCoord();
+        _tileCostMap = _mapManager.UnitMovement.Dijkstra(currentCoord, _selectedUnit.UnitStat.UnitData.Move);
+    }
+
+    private void RaycastTiles()
     {
         Vector2 screen = _cursorPosition.action.ReadValue<Vector2>();
         Ray ray = Camera.main.ScreenPointToRay(screen);
@@ -56,44 +96,65 @@ public sealed class UnitMoveState : StateBase
         _controller.ShowCursor(coord);
     }
 
-    public override void Exit()
-    {
-        UnbindInputActions();
-        _controller.HideCursor();
-    }
-
     private void Select(InputAction.CallbackContext context)
     {
         if (_currentTile == null) return;
-        PlayerUnit selectedUnit = _controller.SelectedPlayerUnit;
-        Vector2Int coord = _currentTile.transform.position.WorldToCoord();
+        Vector2Int currentCoord = _selectedUnit.transform.position.WorldToCoord();
+        Vector2Int nextCoord = _currentTile.transform.position.WorldToCoord();
 
-        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+        UnitBase unit = _mapManager.UnitMap[nextCoord.x, nextCoord.y];
 
-        if (unit != null)
+        if (unit != null || !_mapManager.TileMap[nextCoord.x, nextCoord.y].CanMove)
         {
             Debug.Log("Cannot Move Unit");
         }
         else
         {
-            Debug.Log("Move Unit");
-            MoveUnit(selectedUnit,
-                selectedUnit.transform.position.WorldToCoord(),
-                _currentTile.transform.position.WorldToCoord());
+            MoveToDestination(currentCoord, nextCoord);
         }
     }
 
-    private void MoveUnit(PlayerUnit playerUnit, Vector2Int prevCoord, Vector2Int nextCoord)
+    private void MoveToDestination(Vector2Int currentCoord, Vector2Int destinationCoord)
     {
-        playerUnit.transform.position = nextCoord.CoordToWorld();
-        _mapManager.UnitMap[prevCoord.x, prevCoord.y] = null;
-        _mapManager.UnitMap[nextCoord.x, nextCoord.y] = playerUnit;
+        _hasSelected = true;
 
-        _controller.SetState(_controller.UnitCommandState);
+        _mapManager.UnitMap[currentCoord.x, currentCoord.y] = null;
+
+        Vector2Int pathCoord = destinationCoord;
+        while (pathCoord != currentCoord)
+        {
+            _pathCoordStack.Push(pathCoord);
+
+            pathCoord = _tileCostMap[pathCoord.x, pathCoord.y].PrevTileCost.Coord;
+        }
+
+        _targetCoord = currentCoord;
+    }
+
+    private void MoveUnit()
+    {
+        if (Vector3.Distance(_selectedUnit.transform.position, _targetCoord.CoordToWorld()) >= 0.1f)
+        {
+            _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * _moveSpeed);
+            return;
+        }
+
+        if (_pathCoordStack.Count == 0)
+        {
+            _mapManager.UnitMap[_targetCoord.x, _targetCoord.y] = _selectedUnit;
+            _hasSelected = false;
+            _controller.SetState(_controller.UnitCommandState);
+            return;
+        }
+
+        _targetCoord = _pathCoordStack.Pop();
+        _selectedUnit.transform.LookAt(_targetCoord.CoordToWorld());
+        _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * _moveSpeed);
     }
 
     private void Cancel(InputAction.CallbackContext context)
     {
+        if (_hasSelected) return;
         _controller.SetState(_controller.UnitSelectState);
     }
 

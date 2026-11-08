@@ -1,11 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MapManager : MonoBehaviour
 {
     [SerializeField] private SpawnManager _spawnManager;
-    [SerializeField] private TileType[,] _tileMap;
+    private UnitMovement _unitMovement;
+    private TileBase[,] _tileMap;
     private UnitBase[,] _unitMap;
 
+    public UnitMovement UnitMovement => _unitMovement;
+    public TileBase[,] TileMap => _tileMap;
     public UnitBase[,] UnitMap => _unitMap;
 
     private void OnEnable() => BindSpawnEvents();
@@ -15,6 +19,8 @@ public class MapManager : MonoBehaviour
     {
         _tileMap = _spawnManager.TileMap;
         _unitMap = _spawnManager.UnitMap;
+
+        _unitMovement = new(_tileMap, _unitMap);
     }
 
     private void BindSpawnEvents()

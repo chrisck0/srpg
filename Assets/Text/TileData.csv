@@ -1,0 +1,6 @@
+TileType,Name,Cost
+0,None,2147483647
+1,Grass,1
+2,Forest,2
+3,Obstacle,2147483647
+4,Water,2147483647

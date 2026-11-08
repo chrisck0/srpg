@@ -351,6 +351,7 @@ GameObject:
   - component: {fileID: 403394736}
   - component: {fileID: 403394732}
   - component: {fileID: 403394734}
+  - component: {fileID: 403394737}
   - component: {fileID: 403394735}
   m_Layer: 0
   m_Name: DataLoader
@@ -452,7 +453,28 @@ MonoBehaviour:
   _dataParsers:
   - {fileID: 403394732}
   - {fileID: 403394734}
+  - {fileID: 403394737}
   - {fileID: 403394735}
+--- !u!114 &403394737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403394731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03411e527afda2f429aecb1764ad68cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TileDataParser
+  _tileDataUrl: https://docs.google.com/spreadsheets/d/1bIZSTrHnG_7GN54o67o-1mHnkGwrN_21b4mPkCntOoc/export?format=csv&gid=289221209
+  _tileDataFile: {fileID: 4900000, guid: 2485e80434ce18443b6e1340064d535d, type: 3}
+  _tileDataList:
+  - {fileID: 11400000, guid: 5b43e775aa7bfd54e911bcf106e48412, type: 2}
+  - {fileID: 11400000, guid: 922f8ce7a43e768479f0cca59fdcbf78, type: 2}
+  - {fileID: 11400000, guid: 8bca44156da4d064eb1852b89e33535f, type: 2}
+  - {fileID: 11400000, guid: b94f4f6ac333ff04dbf8744172d879b8, type: 2}
+  - {fileID: 11400000, guid: acd244e71ea28bc44bad6337305842e6, type: 2}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
