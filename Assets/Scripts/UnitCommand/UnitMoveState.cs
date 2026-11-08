@@ -154,6 +154,7 @@ public sealed class UnitMoveState : StateBase
 
     private void Cancel(InputAction.CallbackContext context)
     {
+        if (_hasSelected) return;
         _controller.SetState(_controller.UnitSelectState);
     }
 

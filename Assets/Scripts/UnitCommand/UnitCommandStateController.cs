@@ -14,7 +14,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     [SerializeField] private InputActionReference _cancelAction;
     [SerializeField] private InputActionReference _cursorPosition;
     [SerializeField] private LayerMask _ground;
-    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _moveSpeed = 8f;
 
     private StateBase _unitSelectState;
     private StateBase _unitMoveState;
