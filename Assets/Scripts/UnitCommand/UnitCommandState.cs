@@ -27,7 +27,6 @@ public sealed class UnitCommandState : StateBase
         BindCommandEvents();
         _unitCommandUI.gameObject.SetActive(true);
 
-        if (_isAttackSelected) Attack();
         Debug.Log("Unit Command");
     }
 
