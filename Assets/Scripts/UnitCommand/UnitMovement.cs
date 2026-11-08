@@ -44,7 +44,7 @@ public class UnitMovement
         _priorityQueueIndex.Clear();
     }
 
-    public void Dijkstra(Vector2Int startCoord, int move)
+    public TileCost[,] Dijkstra(Vector2Int startCoord, int move)
     {
         Init();
 
@@ -96,6 +96,8 @@ public class UnitMovement
                 else PriorityQueueCompareWithParent(nextTileCost);
             }
         }
+
+        return _tileCostMap;
     }
 
     /// <summary>
