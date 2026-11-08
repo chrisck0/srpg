@@ -29,7 +29,7 @@ public class UnitMovement
         }
     }
 
-    public void InitMap()
+    private void Init()
     {
         for (int i = 0; i < _tileMap.GetLength(0); i++)
         {
@@ -39,11 +39,14 @@ public class UnitMovement
                 _tileCostMap[j, i].InitData();
             }
         }
+
+        _priorityQueue.Clear();
+        _priorityQueueIndex.Clear();
     }
 
     public void Dijkstra(Vector2Int startCoord, int move)
     {
-        _priorityQueue.Clear();
+        Init();
 
         TileCost startTileCost = _tileCostMap[startCoord.x, startCoord.y];
         startTileCost.SetData(_tileMap[startCoord.x, startCoord.y].TileData, null, 0);
@@ -57,7 +60,8 @@ public class UnitMovement
 
             if (currentTileCost.Distance > move) break;
 
-            _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+            if (!_unitMap[currentCoord.x, currentCoord.y])
+                _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
 
             _visitedMap[currentCoord.x, currentCoord.y] = true;
 

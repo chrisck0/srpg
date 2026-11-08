@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -28,6 +29,7 @@ public sealed class UnitMoveState : StateBase
     {
         Debug.Log("Move Selected Unit");
         BindInputActions();
+        ShowMovableTiles();
     }
 
     public override void Update()
@@ -56,7 +58,28 @@ public sealed class UnitMoveState : StateBase
     public override void Exit()
     {
         UnbindInputActions();
+        InitTiles();
         _controller.HideCursor();
+    }
+
+    private void InitTiles()
+    {
+        TileBase[,] tileMap = _mapManager.TileMap;
+
+        for (int i = 0; i < _mapManager.TileMap.GetLength(0); i++)
+        {
+            for (int j = 0; j < _mapManager.TileMap.GetLength(1); j++)
+            {
+                tileMap[j, i].InitDistance();
+            }
+        }
+    }
+
+    private void ShowMovableTiles()
+    {
+        PlayerUnit selectedUnit = _controller.SelectedPlayerUnit;
+        Vector2Int currentCoord = selectedUnit.transform.position.WorldToCoord();
+        _mapManager.UnitMovement.Dijkstra(currentCoord, selectedUnit.UnitStat.UnitData.Move);
     }
 
     private void Select(InputAction.CallbackContext context)
@@ -68,15 +91,12 @@ public sealed class UnitMoveState : StateBase
 
         UnitBase unit = _mapManager.UnitMap[nextCoord.x, nextCoord.y];
 
-        if (unit != null)
+        if (unit != null || !_mapManager.TileMap[nextCoord.x, nextCoord.y].CanMove)
         {
             Debug.Log("Cannot Move Unit");
         }
         else
         {
-            Debug.Log("Move Unit");
-            _mapManager.UnitMovement.Dijkstra(currentCoord, selectedUnit.UnitStat.UnitData.Move);
-
             MoveUnit(selectedUnit, currentCoord, nextCoord);
         }
     }
