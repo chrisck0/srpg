@@ -111,7 +111,7 @@ public class TileRange
         return _tileCostMap;
     }
 
-    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange)
+    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool isWeaponRange = true, List<Vector2Int> coordList = null)
     {
         Init();
 
@@ -129,8 +129,15 @@ public class TileRange
 
             if (currentTileCost.Distance >= minRange
                 && currentTileCost.Distance <= maxRange)
-                _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
-
+            {
+                if (isWeaponRange) _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                else
+                {
+                    _tileMap[currentCoord.x, currentCoord.y].ShowRange();
+                    coordList.Add(currentCoord);
+                }
+            }
+                
             _visitedMap[currentCoord.x, currentCoord.y] = true;
 
             foreach (Vector2Int direction in _directions)

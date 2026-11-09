@@ -29,13 +29,13 @@ public abstract class TileBase : MonoBehaviour, IPoolable
     public void ShowRange()
     {
         _redTransparentTile.gameObject.SetActive(true);
-        _canSelect = true;
+        _blueTransparentTile.gameObject.SetActive(false);
     }
 
     public void HideRange()
     {
         _redTransparentTile.gameObject.SetActive(false);
-        _canSelect = false;
+        if (_canSelect == true) _blueTransparentTile.gameObject.SetActive(true);
     }
 
     public void InitTile()

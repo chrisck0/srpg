@@ -18,8 +18,6 @@ public class TargetSelectState : StateBase
     private List<Vector2Int> _globalTargetCoords = new();
     private WeaponDirection _prevWeaponDirection = WeaponDirection.None;
 
-    private bool _isWeaponSelectDirection => _controller.SelectedWeaponData.WeaponType == WeaponType.SelectDirection;
-
     public TargetSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
         InputActionReference cancelAction,
@@ -72,11 +70,22 @@ public class TargetSelectState : StateBase
         Vector2Int playerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
 
         WeaponDirection weaponDirection = GetWeaponDirection(playerCoord, coord);
+        WeaponData weaponData = _controller.SelectedWeaponData;
 
-        if (_isWeaponSelectDirection && _prevWeaponDirection != weaponDirection)
+        switch (weaponData.WeaponType)
         {
-            HidePreviousSelectDirectionRange();
-            ShowSelectDirectionRange(playerCoord, weaponDirection);
+            case WeaponType.SelectTarget:
+                HidePreviousGlobalTargetRange();
+                ShowMultiTargetRange(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
+                break;
+
+            case WeaponType.SelectDirection:
+                if (_prevWeaponDirection != weaponDirection)
+                {
+                    HidePreviousGlobalTargetRange();
+                    ShowSelectDirectionRange(playerCoord, weaponDirection);
+                }
+                break;
         }
 
         _controller.ShowCursor(coord);
@@ -86,6 +95,8 @@ public class TargetSelectState : StateBase
     {
         UnbindInputActions();
         _mapManager.TileRange.InitTiles();
+        _localTargetCoords.Clear();
+        _globalTargetCoords.Clear();
         _controller.HideCursor();
         _prevWeaponDirection = WeaponDirection.None;
     }
@@ -123,7 +134,7 @@ public class TargetSelectState : StateBase
         switch (weaponData.WeaponType)
         {
             case WeaponType.SelectTarget:
-                ShowSelectTargetRange(coord, weaponData.MinRange, weaponData.MaxRange);
+                ShowSelectTargetRange(coord, weaponData.MinRange, weaponData.MaxRange, true);
                 break;
             case WeaponType.SelectDirection:
                 SetLocalTargetCoords(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
@@ -131,14 +142,9 @@ public class TargetSelectState : StateBase
         }
     }
 
-    private void ShowExplosionRange()
+    private void ShowSelectTargetRange(Vector2Int coord, int minRange, int maxRange, bool isWeaponRange)
     {
-
-    }
-
-    private void ShowSelectTargetRange(Vector2Int coord, int minRange, int maxRange)
-    {
-        TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(coord, minRange, maxRange);
+        TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(coord, minRange, maxRange, isWeaponRange);
     }
 
     private void SetLocalTargetCoords(Vector2Int coord, WeaponRangeShape weaponRangeShape, int explosionRange)
@@ -229,7 +235,7 @@ public class TargetSelectState : StateBase
         }
     }
 
-    private void HidePreviousSelectDirectionRange()
+    private void HidePreviousGlobalTargetRange()
     {
         foreach (Vector2Int coord in _globalTargetCoords)
         {
@@ -237,41 +243,46 @@ public class TargetSelectState : StateBase
         }
     }
 
-    private void ShowMultiTargetRange(Vector2Int coord, WeaponRangeShape weaponRangeShape, int minRange, int maxRange)
+    private void ShowMultiTargetRange(Vector2Int targetCoord, WeaponRangeShape weaponRangeShape, int explosionRange)
     {
+        _globalTargetCoords.Clear();
+
+        TileBase tile = _mapManager.TileMap[targetCoord.x, targetCoord.y];
+        UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
+        EnemyUnit enemyUnit = unit as EnemyUnit;
+
+        if (!tile.CanSelect || enemyUnit == null) return;
+
         switch (weaponRangeShape)
         {
-            
+            case WeaponRangeShape.Single:
+                _mapManager.TileMap[targetCoord.x, targetCoord.y].ShowRange();
+                _globalTargetCoords.Add(targetCoord);
+
+                break;
+
+            case WeaponRangeShape.Explosion:
+                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, false, _globalTargetCoords);
+                break;
         }
     }
 
     private void Select(InputAction.CallbackContext context)
     {
+        if (_globalTargetCoords.Count == 0) return;
+
         WeaponData weaponData = _controller.SelectedWeaponData;
+        _controller.SelectedPlayerUnit.ConsumeEnergy(weaponData.EnergyCost);
 
-        switch (weaponData.WeaponType)
+        foreach (Vector2Int coord in _globalTargetCoords)
         {
-            case WeaponType.SelectTarget:
-                break;
-
-            case WeaponType.SelectDirection:
-
-                _controller.SelectedPlayerUnit.ConsumeEnergy(weaponData.EnergyCost);
-                
-                foreach (Vector2Int coord in _globalTargetCoords)
-                {
-                    AttackTarget(weaponData, coord);
-                }
-                _controller.SetState(_controller.CommandEndState);
-                break;
-            
+            AttackTarget(weaponData, coord);
         }
+        _controller.SetState(_controller.CommandEndState);
     }
 
     private void AttackTarget(WeaponData weaponData, Vector2Int targetCoord)
     {
-        if (!_mapManager.TileMap[targetCoord.x, targetCoord.y].CanSelect) return;
-
         UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
 
         if (unit != null)
