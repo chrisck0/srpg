@@ -40,6 +40,7 @@ public sealed class UnitCommandState : StateBase
         _unitCommandUI.Hide();
         _attackCommandUI.Hide();
         _controller.HideCursor();
+        _isAttackSelected = false;
     }
 
     private void Cancel(InputAction.CallbackContext context)
@@ -56,7 +57,7 @@ public sealed class UnitCommandState : StateBase
             playerUnit.transform.position.WorldToCoord(),
             _controller.PreviousPlayerCoord);
 
-        _controller.SetState(_controller.UnitMoveState);
+        _controller.SetState(_controller.UnitSelectState);
     }
 
     private void MoveUnit(PlayerUnit playerUnit, Vector2Int prevCoord, Vector2Int nextCoord)

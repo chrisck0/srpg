@@ -40,7 +40,6 @@ public class TargetSelectState : StateBase
     {
         BindInputActions();
         ShowSelectRange(_controller.SelectedWeaponData);
-        Debug.Log("Target Select");
     }
 
     public override void Update()
