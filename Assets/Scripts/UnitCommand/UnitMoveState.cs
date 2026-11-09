@@ -92,7 +92,7 @@ public sealed class UnitMoveState : StateBase
 
         if (unit != null || !_mapManager.TileMap[nextCoord.x, nextCoord.y].CanSelect)
         {
-            Debug.Log("Cannot Move Unit");
+            _controller.SetState(_controller.UnitSelectState);
         }
         else
         {
