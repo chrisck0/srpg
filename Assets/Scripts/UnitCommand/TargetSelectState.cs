@@ -305,7 +305,9 @@ public class TargetSelectState : StateBase
             if (enemyUnit == null) return;
 
             bool isHit = ProbabilityCalculator.AttackProbability(
-                0,
+                _controller.Turn,
+                _controller.TotalPlayerUnits,
+                _controller.CurrentTurnCount,
                 _controller.SelectedPlayerUnit.UnitStat,
                 weaponData,
                 enemyUnit.UnitStat

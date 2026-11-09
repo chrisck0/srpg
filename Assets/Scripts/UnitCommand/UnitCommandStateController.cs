@@ -23,6 +23,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private PlayerUnit _selectedPlayerUnit;
     private Vector2Int _previousPlayerCoord;
     private WeaponData _selectedWeaponData;
+    private int _currentTurnCount;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public Action OnUnitCommandEnd;
@@ -36,6 +37,9 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public PlayerUnit SelectedPlayerUnit => _selectedPlayerUnit;
     public Vector2Int PreviousPlayerCoord => _previousPlayerCoord;
     public WeaponData SelectedWeaponData => _selectedWeaponData;
+    public int Turn => _phaseStateController.Turn;
+    public int TotalPlayerUnits => _phaseStateController.TotalPlayerUnits;
+    public int CurrentTurnCount => _currentTurnCount;
 
     private void Awake() => InitUnitCommandStates();
     private void OnEnable() => BindPhaseEvents();
@@ -61,8 +65,17 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _commandUIController.DeactivateAll();
     }
 
+    public void InitUnitCommand()
+    {
+        _currentTurnCount = 0;
+        Debug.Log($"Turn: {Turn}");
+        StartUnitCommand();
+    }
+
     public void StartUnitCommand()
     {
+        _currentTurnCount++;
+        Debug.Log($"Current Turn count: {_currentTurnCount}");
         SetState(_unitSelectState);
     }
 
@@ -100,13 +113,13 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
 
     private void BindPhaseEvents()
     {
-        _phaseStateController.OnPlayerPhaseStarted += StartUnitCommand;
+        _phaseStateController.OnPlayerPhaseStarted += InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted += EndUnitCommand;
     }
 
     private void UnbindPhaseEvents()
     {
-        _phaseStateController.OnPlayerPhaseStarted -= StartUnitCommand;
+        _phaseStateController.OnPlayerPhaseStarted -= InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted -= EndUnitCommand;
     }
 }

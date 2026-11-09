@@ -12,10 +12,14 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private StateBase _playerPhaseState;
     private StateBase _enemyPhaseState;
+    private int _turn;
+    private int _totalPlayerUnits;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public event Action OnPlayerPhaseStarted;
     public event Action OnEnemyPhaseStarted;
+    public int Turn => _turn;
+    public int TotalPlayerUnits => _totalPlayerUnits;
 
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
@@ -42,10 +46,14 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         _playerPhaseState = new PlayerPhaseState(this, _unitCommandStateController, spawnedUnitDict);
         _enemyPhaseState = new EnemyPhaseState(this, spawnedUnitDict);
+
+        if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
+        _totalPlayerUnits = playerUnitList.Count;
     }
 
     public void StartPlayerPhase()
     {
+        _turn++;
         SetState(_playerPhaseState);
         OnPlayerPhaseStarted?.Invoke();
     }

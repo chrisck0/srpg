@@ -2,7 +2,8 @@ using UnityEngine;
 
 public static class ProbabilityCalculator
 {
-    public static bool AttackProbability(int turn, UnitStat ownerStat, WeaponData weaponData, UnitStat targetStat)
+    public static bool AttackProbability(int turn, int totalPlayerUnits, int currentTurnCount,
+        UnitStat ownerStat, WeaponData weaponData, UnitStat targetStat)
     {
         float probability = ((float)ownerStat.UnitData.Accuracy / 100) * (1 - (float)targetStat.UnitData.Avoid / 100);
 
@@ -10,11 +11,10 @@ public static class ProbabilityCalculator
             + ownerStat.Health + ownerStat.Energy
             + weaponData.Attack + weaponData.EnergyCost
             + targetStat.Health + targetStat.Energy
-            + turn;
+            + turn * totalPlayerUnits + currentTurnCount;
 
         System.Random rand = new System.Random(seed);
         float randomValue = (float)rand.NextDouble();
-        Debug.Log(randomValue);
         return (randomValue <= probability);
     }
 }
