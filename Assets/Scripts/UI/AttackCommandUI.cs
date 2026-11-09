@@ -48,4 +48,14 @@ public class AttackCommandUI : MonoBehaviour
 
         _activatedWeaponContainers.Clear();
     }
+
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
 }

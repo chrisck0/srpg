@@ -6,26 +6,27 @@ public sealed class UnitCommandState : StateBase
     private UnitCommandStateController _controller;
     private MapManager _mapManager => _controller.MapManager;
     private InputActionReference _cancelAction;
+    private CommandUIController _commandUIController;
     private UnitCommandUI _unitCommandUI;
     private AttackCommandUI _attackCommandUI;
     private bool _isAttackSelected;
 
     public UnitCommandState(UnitCommandStateController controller,
         InputActionReference cancelAction,
-        UnitCommandUI unitCommandUI,
-        AttackCommandUI attackCommandUI)
+        CommandUIController commandUIController)
     {
         _controller = controller;
         _cancelAction = cancelAction;
-        _unitCommandUI = unitCommandUI;
-        _attackCommandUI = attackCommandUI;
+        _commandUIController = commandUIController;
+        _unitCommandUI = commandUIController.UnitCommandUI;
+        _attackCommandUI = commandUIController.AttackCommandUI;
     }
 
     public override void Enter()
     {
         BindInputActions();
         BindCommandEvents();
-        _unitCommandUI.gameObject.SetActive(true);
+        _unitCommandUI.Show();
 
         Debug.Log("Unit Command");
     }
@@ -38,8 +39,8 @@ public sealed class UnitCommandState : StateBase
     {
         UnbindInputActions();
         UnbindCommandEvents();
-        _unitCommandUI.gameObject.SetActive(false);
-        _attackCommandUI.gameObject.SetActive(false);
+        _unitCommandUI.Hide();
+        _attackCommandUI.Hide();
         _controller.HideCursor();
     }
 
@@ -47,7 +48,7 @@ public sealed class UnitCommandState : StateBase
     {
         if (_isAttackSelected)
         {
-            _attackCommandUI.gameObject.SetActive(false);
+            _commandUIController.AttackCommandUI.Hide();
             _isAttackSelected = false;
             return;
         }
@@ -72,7 +73,7 @@ public sealed class UnitCommandState : StateBase
     private void Attack()
     {
         _attackCommandUI.InitWeaponInfo(_controller.SelectedPlayerUnit.UnitStat.WeaponDataList);
-        _attackCommandUI.gameObject.SetActive(true);
+        _attackCommandUI.Show();
         _isAttackSelected = true;
     }
 

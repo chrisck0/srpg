@@ -129,6 +129,7 @@ public sealed class UnitMoveState : StateBase
         }
 
         _targetCoord = currentCoord;
+        _controller.HideCursor();
     }
 
     private void MoveUnit()

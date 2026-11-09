@@ -9,8 +9,8 @@ public class TileDataParser : DataParserBase
     [SerializeField] private string _tileDataUrl;
     [SerializeField] private TextAsset _tileDataFile;
     [SerializeField] private List<TileData> _tileDataList;
-    private const int COLUMN = 3;
-    private const int START_ROW_INDEX = 1;
+    private const int COLUMN = 4;
+    private const int START_ROW_INDEX = 2;
 
     /// <summary>
     /// TileData 로드
@@ -53,7 +53,7 @@ public class TileDataParser : DataParserBase
                 continue;
             }
 
-            string name;
+            string name, description;
             TileType tileType;
             int cost;
 
@@ -66,6 +66,7 @@ public class TileDataParser : DataParserBase
             }
 
             name = cells[1];
+            description = cells[3];
 
             if (i - START_ROW_INDEX >= _tileDataList.Count)
             {
@@ -74,7 +75,7 @@ public class TileDataParser : DataParserBase
             }
 
             _tileDataList[i - START_ROW_INDEX].SetData(
-                tileType, name, cost);
+                tileType, name, cost, description);
         }
     }
 }
