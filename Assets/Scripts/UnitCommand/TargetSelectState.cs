@@ -62,32 +62,11 @@ public class TargetSelectState : StateBase
         if (tile == null || tile == _currentTile) return;
 
         _currentTile = tile;
+        Vector2Int coord = hit.transform.position.WorldToCoord();
 
         ShowTileInfo(tile);
         ShowUnitInfo(tile);
-
-        Vector2Int coord = hit.transform.position.WorldToCoord();
-        Vector2Int playerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
-
-        WeaponDirection weaponDirection = GetWeaponDirection(playerCoord, coord);
-        WeaponData weaponData = _controller.SelectedWeaponData;
-
-        switch (weaponData.WeaponType)
-        {
-            case WeaponType.SelectTarget:
-                HidePreviousGlobalTargetRange();
-                ShowMultiTargetRange(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
-                break;
-
-            case WeaponType.SelectDirection:
-                if (_prevWeaponDirection != weaponDirection)
-                {
-                    HidePreviousGlobalTargetRange();
-                    ShowSelectDirectionRange(playerCoord, weaponDirection);
-                }
-                break;
-        }
-
+        ShowWeaponRange(coord);
         _controller.ShowCursor(coord);
     }
 
@@ -167,6 +146,30 @@ public class TargetSelectState : StateBase
                     {
                         _localTargetCoords.Add(new Vector2Int(j, i + 1));
                     }
+                }
+                break;
+        }
+    }
+
+    private void ShowWeaponRange(Vector2Int coord)
+    {
+        Vector2Int playerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
+
+        WeaponDirection weaponDirection = GetWeaponDirection(playerCoord, coord);
+        WeaponData weaponData = _controller.SelectedWeaponData;
+
+        switch (weaponData.WeaponType)
+        {
+            case WeaponType.SelectTarget:
+                HidePreviousGlobalTargetRange();
+                ShowMultiTargetRange(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
+                break;
+
+            case WeaponType.SelectDirection:
+                if (_prevWeaponDirection != weaponDirection)
+                {
+                    HidePreviousGlobalTargetRange();
+                    ShowSelectDirectionRange(playerCoord, weaponDirection);
                 }
                 break;
         }
