@@ -35,7 +35,6 @@ public sealed class UnitMoveState : StateBase
 
     public override void Enter()
     {
-        Debug.Log("Move Selected Unit");
         BindInputActions();
         ShowMoveRange();
     }

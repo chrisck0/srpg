@@ -24,6 +24,11 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
         _weapon = GetComponent<Weapon>();
     }
 
+    public void ConsumeEnergy(int num)
+    {
+        _unitStat.AddEnergy(-num);
+    }
+
     public void TakeDamage(int num)
     {
         _unitStat.AddHealth(-num);

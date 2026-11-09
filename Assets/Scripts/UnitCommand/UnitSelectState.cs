@@ -32,7 +32,6 @@ public sealed class UnitSelectState : StateBase
 
     public override void Enter()
     {
-        Debug.Log("Select Unit");
         BindInputActions();
     }
 

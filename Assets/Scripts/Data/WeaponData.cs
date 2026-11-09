@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class WeaponData : ScriptableObject
     [SerializeField] private WeaponRangeShape _weaponRangeShape;
     [SerializeField] private int _minRange;
     [SerializeField] private int _maxRange;
+    [SerializeField] private int _explosionRange;
 
     public int Id => _id;
     public string Name => _name;
@@ -21,8 +23,10 @@ public class WeaponData : ScriptableObject
     public WeaponRangeShape WeaponRangeShape => _weaponRangeShape;
     public int MinRange => _minRange;
     public int MaxRange => _maxRange;
+    public int ExplosionRange => _explosionRange;
 
-    public void SetData(int id, string name, int attack, int energyCost, WeaponType weaponType, WeaponRangeShape weaponRangeShape, int minRange, int maxRange)
+    public void SetData(int id, string name, int attack, int energyCost,
+        WeaponType weaponType, WeaponRangeShape weaponRangeShape, int minRange, int maxRange, int explosionRange)
     {
         _id = id;
         _name = name;
@@ -32,5 +36,6 @@ public class WeaponData : ScriptableObject
         _minRange = minRange;
         _maxRange = maxRange;
         _weaponRangeShape = weaponRangeShape;
+        _explosionRange = explosionRange;
     }
 }

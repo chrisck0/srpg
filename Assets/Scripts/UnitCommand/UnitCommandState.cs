@@ -27,8 +27,6 @@ public sealed class UnitCommandState : StateBase
         BindInputActions();
         BindCommandEvents();
         _unitCommandUI.Show();
-
-        Debug.Log("Unit Command");
     }
 
     public override void Update()
@@ -72,7 +70,7 @@ public sealed class UnitCommandState : StateBase
 
     private void Attack()
     {
-        _attackCommandUI.InitWeaponInfo(_controller.SelectedPlayerUnit.Weapon.WeaponDataList);
+        _attackCommandUI.InitWeaponInfo(_controller.SelectedPlayerUnit, _controller.SelectedPlayerUnit.Weapon.WeaponDataList);
         _attackCommandUI.Show();
         _isAttackSelected = true;
     }
@@ -84,6 +82,7 @@ public sealed class UnitCommandState : StateBase
 
     private void WeaponSelected(WeaponData weaponData)
     {
+        if (_controller.SelectedPlayerUnit.UnitStat.Energy < weaponData.EnergyCost) return;
         _controller.SetSelectedWeaponData(weaponData);
         _controller.SetState(_controller.TargetSelectState);
     }

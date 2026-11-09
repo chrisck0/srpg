@@ -9,6 +9,7 @@ public abstract class TileBase : MonoBehaviour, IPoolable
 
     [SerializeField] private TileData _tileData;
     [SerializeField] private GameObject _blueTransparentTile;
+    [SerializeField] private GameObject _redTransparentTile;
     [SerializeField] private TextMeshProUGUI _distanceText;
     private bool _canSelect;
 
@@ -25,10 +26,23 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _canSelect = true;
     }
 
+    public void ShowRange()
+    {
+        _redTransparentTile.gameObject.SetActive(true);
+        _canSelect = true;
+    }
+
+    public void HideRange()
+    {
+        _redTransparentTile.gameObject.SetActive(false);
+        _canSelect = false;
+    }
+
     public void InitTile()
     {
         _distanceText.gameObject.SetActive(false);
         _blueTransparentTile.gameObject.SetActive(false);
+        _redTransparentTile.gameObject.SetActive(false);
         _canSelect = false;
     }
 

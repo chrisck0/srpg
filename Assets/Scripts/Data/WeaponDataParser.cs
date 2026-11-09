@@ -10,7 +10,7 @@ public class WeaponDataParser : DataParserBase
     [SerializeField] private string _weaponDataUrl;
     [SerializeField] private TextAsset _weaponDataFile;
     [SerializeField] private List<WeaponData> _weaponDataList;
-    private const int COLUMN = 8;
+    private const int COLUMN = 9;
     private const int START_ROW_INDEX = 2;
 
     /// <summary>
@@ -55,7 +55,7 @@ public class WeaponDataParser : DataParserBase
             }
 
             string name;
-            int id, attack, energyCost, minRange, maxRange;
+            int id, attack, energyCost, minRange, maxRange, explosionRange;
             WeaponType weaponType;
             WeaponRangeShape weaponRangeShape;
 
@@ -66,6 +66,7 @@ public class WeaponDataParser : DataParserBase
                 || !Enum.TryParse<WeaponRangeShape>(cells[5], out weaponRangeShape)
                 || !int.TryParse(cells[6], out minRange)
                 || !int.TryParse(cells[7], out maxRange)
+                || !int.TryParse(cells[8], out explosionRange)
                 )
             {
                 Debug.LogError("Parse Error");
@@ -81,7 +82,7 @@ public class WeaponDataParser : DataParserBase
             }
 
             _weaponDataList[i - START_ROW_INDEX].SetData(
-                id, name, attack, energyCost, weaponType, weaponRangeShape, minRange, maxRange);
+                id, name, attack, energyCost, weaponType, weaponRangeShape, minRange, maxRange, explosionRange);
         }
     }
 }

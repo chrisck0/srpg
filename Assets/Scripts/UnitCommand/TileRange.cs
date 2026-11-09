@@ -111,7 +111,7 @@ public class TileRange
         return _tileCostMap;
     }
 
-    public TileCost[,] SingleTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange)
+    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange)
     {
         Init();
 
