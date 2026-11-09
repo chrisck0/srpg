@@ -1,5 +1,5 @@
 public enum WeaponType
 {
-    SingleTarget,
-    AreaofEffect
+    SelectTarget,
+    SelectDirection
 }

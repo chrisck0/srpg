@@ -5,7 +5,7 @@ public class ObjectPool<T> where T : Component, IPoolable
 {
     private List<T> _prefabList;
     private Transform _parent;
-    private Dictionary<T, Stack<T>> _objectPoolDict = new();
+    private Dictionary<T, Queue<T>> _objectPoolDict = new();
     private Dictionary<T, T> _prefabDict = new();
     private Dictionary<T, T> _objectPrefabDict = new();
     private Dictionary<T, Transform> _poolParentDict = new();
@@ -31,11 +31,11 @@ public class ObjectPool<T> where T : Component, IPoolable
     {
         if (_objectPoolDict.ContainsKey(prefab))
         {
-            Stack<T> stack = _objectPoolDict[prefab];
+            Queue<T> queue = _objectPoolDict[prefab];
 
-            if (stack.Count > 0)
+            if (queue.Count > 0)
             {
-                T obj = _objectPoolDict[prefab].Pop();
+                T obj = _objectPoolDict[prefab].Dequeue();
                 obj.Activate();
                 return obj;
             }
@@ -61,7 +61,7 @@ public class ObjectPool<T> where T : Component, IPoolable
         if (!_objectPrefabDict.TryGetValue(obj, out T prefab)
             || !_objectPoolDict.ContainsKey(prefab)) return;
 
-        _objectPoolDict[prefab].Push(obj);
+        _objectPoolDict[prefab].Enqueue(obj);
 
         obj.transform.SetParent(_poolParentDict[prefab]);
         obj.Deactivate();
@@ -71,9 +71,9 @@ public class ObjectPool<T> where T : Component, IPoolable
     {
         foreach (T prefab in _prefabList)
         {
-            Stack<T> objectPoolStack = new(INITIAL_POOL_SIZE);
+            Queue<T> objectPoolQueue = new(INITIAL_POOL_SIZE);
 
-            _objectPoolDict[prefab] = objectPoolStack;
+            _objectPoolDict[prefab] = objectPoolQueue;
 
             if (!_prefabDict.ContainsKey(prefab))
             {
@@ -101,7 +101,7 @@ public class ObjectPool<T> where T : Component, IPoolable
                 T newObj = Object.Instantiate(prefab, newPoolParentTransform);
                 newObj.Deactivate();
                 newObj.name = $"{newObj.name} {i + 1}";
-                objectPoolStack.Push(newObj);
+                objectPoolQueue.Enqueue(newObj);
                 _objectPrefabDict[newObj] = prefab;
             }
             _poolCount[prefab] = INITIAL_POOL_SIZE;

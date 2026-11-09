@@ -51,7 +51,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _unitCommandState = new UnitCommandState(
             this, _cancelAction, _commandUIController);
         _targetSelectState = new TargetSelectState(
-            this, _selectAction, _cancelAction, _cursorPosition, _ground);
+            this, _selectAction, _cancelAction, _cursorPosition, _ground, _commandUIController);
         _commandEndState = new CommandEndState(this);
     }
 

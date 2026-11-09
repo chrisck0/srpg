@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitMovement
+public class TileRange
 {
     private TileBase[,] _tileMap;
     private UnitBase[,] _unitMap;
@@ -11,7 +11,7 @@ public class UnitMovement
     private Dictionary<TileCost, int> _priorityQueueIndex = new();
     private Vector2Int[] _directions = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
 
-    public UnitMovement(TileBase[,] tileMap, UnitBase[,] unitMap)
+    public TileRange(TileBase[,] tileMap, UnitBase[,] unitMap)
     {
         _tileMap = tileMap;
         _unitMap = unitMap;
@@ -44,7 +44,18 @@ public class UnitMovement
         _priorityQueueIndex.Clear();
     }
 
-    public TileCost[,] Dijkstra(Vector2Int startCoord, int move)
+    public void InitTiles()
+    {
+        for (int i = 0; i < _tileMap.GetLength(0); i++)
+        {
+            for (int j = 0; j < _tileMap.GetLength(1); j++)
+            {
+                _tileMap[j, i].InitTile();
+            }
+        }
+    }
+
+    public TileCost[,] UnitMoveRange(Vector2Int startCoord, int move)
     {
         Init();
 
@@ -90,6 +101,62 @@ public class UnitMovement
                     nextTileData,
                     currentTileCost,
                     currentTileCost.Distance + nextTileData.Cost
+                    );
+
+                if (!_priorityQueueIndex.ContainsKey(nextTileCost)) PriorityQueueAdd(nextTileCost);
+                else PriorityQueueCompareWithParent(nextTileCost);
+            }
+        }
+
+        return _tileCostMap;
+    }
+
+    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool isWeaponRange = true, List<Vector2Int> coordList = null)
+    {
+        Init();
+
+        TileCost startTileCost = _tileCostMap[startCoord.x, startCoord.y];
+        startTileCost.SetData(_tileMap[startCoord.x, startCoord.y].TileData, null, 0);
+
+        PriorityQueueAdd(startTileCost);
+
+        while (_priorityQueue.Count > 0)
+        {
+            TileCost currentTileCost = PriorityQueueRemove();
+            Vector2Int currentCoord = currentTileCost.Coord;
+
+            if (currentTileCost.Distance > maxRange) break;
+
+            if (currentTileCost.Distance >= minRange
+                && currentTileCost.Distance <= maxRange)
+            {
+                if (isWeaponRange) _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                else
+                {
+                    _tileMap[currentCoord.x, currentCoord.y].ShowRange();
+                    coordList.Add(currentCoord);
+                }
+            }
+                
+            _visitedMap[currentCoord.x, currentCoord.y] = true;
+
+            foreach (Vector2Int direction in _directions)
+            {
+                Vector2Int nextCoord = currentCoord + direction;
+
+                if (nextCoord.x < 0 || nextCoord.y < 0
+                    || nextCoord.x >= _tileMap.GetLength(1) || nextCoord.y >= _tileMap.GetLength(0)
+                    || _visitedMap[nextCoord.x, nextCoord.y]) continue;
+
+                TileData nextTileData = _tileMap[nextCoord.x, nextCoord.y].TileData;
+
+                TileCost nextTileCost = _tileCostMap[nextCoord.x, nextCoord.y];
+                if (nextTileCost.Distance <= currentTileCost.Distance + 1) continue;
+
+                nextTileCost.SetData(
+                    nextTileData,
+                    currentTileCost,
+                    currentTileCost.Distance + 1
                     );
 
                 if (!_priorityQueueIndex.ContainsKey(nextTileCost)) PriorityQueueAdd(nextTileCost);

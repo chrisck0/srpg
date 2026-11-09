@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 862b583d189a52e45997ba81f5599c0b, type: 3}
-  m_Name: AreaofEffectWeapon1
+  m_Name: Explosion
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   _id: 0
   _name: 

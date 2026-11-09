@@ -27,8 +27,6 @@ public sealed class UnitCommandState : StateBase
         BindInputActions();
         BindCommandEvents();
         _unitCommandUI.Show();
-
-        Debug.Log("Unit Command");
     }
 
     public override void Update()
@@ -42,6 +40,7 @@ public sealed class UnitCommandState : StateBase
         _unitCommandUI.Hide();
         _attackCommandUI.Hide();
         _controller.HideCursor();
+        _isAttackSelected = false;
     }
 
     private void Cancel(InputAction.CallbackContext context)
@@ -58,7 +57,7 @@ public sealed class UnitCommandState : StateBase
             playerUnit.transform.position.WorldToCoord(),
             _controller.PreviousPlayerCoord);
 
-        _controller.SetState(_controller.UnitMoveState);
+        _controller.SetState(_controller.UnitSelectState);
     }
 
     private void MoveUnit(PlayerUnit playerUnit, Vector2Int prevCoord, Vector2Int nextCoord)
@@ -72,7 +71,7 @@ public sealed class UnitCommandState : StateBase
 
     private void Attack()
     {
-        _attackCommandUI.InitWeaponInfo(_controller.SelectedPlayerUnit.UnitStat.WeaponDataList);
+        _attackCommandUI.InitWeaponInfo(_controller.SelectedPlayerUnit, _controller.SelectedPlayerUnit.Weapon.WeaponDataList);
         _attackCommandUI.Show();
         _isAttackSelected = true;
     }
@@ -84,6 +83,7 @@ public sealed class UnitCommandState : StateBase
 
     private void WeaponSelected(WeaponData weaponData)
     {
+        if (_controller.SelectedPlayerUnit.UnitStat.Energy < weaponData.EnergyCost) return;
         _controller.SetSelectedWeaponData(weaponData);
         _controller.SetState(_controller.TargetSelectState);
     }

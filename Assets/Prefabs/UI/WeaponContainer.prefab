@@ -471,7 +471,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -540,10 +540,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4385151536222697096}
-  - component: {fileID: 2616438469567935275}
-  - component: {fileID: 2591843657810889528}
+  - component: {fileID: 1309645419506858100}
+  - component: {fileID: 4133181615010400137}
+  - component: {fileID: 183247947987763376}
   - component: {fileID: 8671317944993732119}
-  - component: {fileID: 2034139151980264048}
   m_Layer: 5
   m_Name: WeaponContainer
   m_TagString: Untagged
@@ -574,7 +574,15 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 434.43, y: 77.104}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2616438469567935275
+--- !u!222 &1309645419506858100
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9027372958970507067}
+  m_CullTransparentMesh: 1
+--- !u!114 &4133181615010400137
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -604,7 +612,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2591843657810889528
+--- !u!114 &183247947987763376
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -660,16 +668,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39f7f5c65ec44bb49982748e4f6984e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponContainerUI
-  _button: {fileID: 2591843657810889528}
+  _button: {fileID: 183247947987763376}
   _weaponIcon: {fileID: 3477202831447909224}
   _nameText: {fileID: 5453662848294415412}
   _attackText: {fileID: 4936696494905574624}
   _energyCostText: {fileID: 5506424354598560021}
---- !u!222 &2034139151980264048
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9027372958970507067}
-  m_CullTransparentMesh: 1

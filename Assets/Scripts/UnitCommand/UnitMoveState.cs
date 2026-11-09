@@ -35,9 +35,8 @@ public sealed class UnitMoveState : StateBase
 
     public override void Enter()
     {
-        Debug.Log("Move Selected Unit");
         BindInputActions();
-        ShowMovableTiles();
+        ShowMoveRange();
     }
 
     public override void Update()
@@ -49,28 +48,15 @@ public sealed class UnitMoveState : StateBase
     public override void Exit()
     {
         UnbindInputActions();
-        InitTiles();
+        _mapManager.TileRange.InitTiles();
         _controller.HideCursor();
     }
 
-    private void InitTiles()
-    {
-        TileBase[,] tileMap = _mapManager.TileMap;
-
-        for (int i = 0; i < _mapManager.TileMap.GetLength(0); i++)
-        {
-            for (int j = 0; j < _mapManager.TileMap.GetLength(1); j++)
-            {
-                tileMap[j, i].InitDistance();
-            }
-        }
-    }
-
-    private void ShowMovableTiles()
+    private void ShowMoveRange()
     {
         _selectedUnit = _controller.SelectedPlayerUnit;
         Vector2Int currentCoord = _selectedUnit.transform.position.WorldToCoord();
-        _tileCostMap = _mapManager.UnitMovement.Dijkstra(currentCoord, _selectedUnit.UnitStat.UnitData.Move);
+        _tileCostMap = _mapManager.TileRange.UnitMoveRange(currentCoord, _selectedUnit.UnitStat.UnitData.Move);
     }
 
     private void RaycastTiles()
@@ -104,9 +90,9 @@ public sealed class UnitMoveState : StateBase
 
         UnitBase unit = _mapManager.UnitMap[nextCoord.x, nextCoord.y];
 
-        if (unit != null || !_mapManager.TileMap[nextCoord.x, nextCoord.y].CanMove)
+        if (unit != null || !_mapManager.TileMap[nextCoord.x, nextCoord.y].CanSelect)
         {
-            Debug.Log("Cannot Move Unit");
+            _controller.SetState(_controller.UnitSelectState);
         }
         else
         {

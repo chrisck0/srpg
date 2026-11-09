@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class AttackCommandUI : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI _currentEnergyText;
     [SerializeField] private WeaponContainerUI _weaponContainerPrefab;
     [SerializeField] private Transform _verticalLayout;
     private ObjectPool<WeaponContainerUI> _weaponContainerObjectPool;
@@ -27,14 +29,16 @@ public class AttackCommandUI : MonoBehaviour
         ReturnWeaponContainers();
     }
 
-    public void InitWeaponInfo(List<WeaponData> weaponDataList)
+    public void InitWeaponInfo(UnitBase selectedUnit, List<WeaponData> weaponDataList)
     {
         _activatedWeaponContainers.Clear();
+        int currentEnergy = selectedUnit.UnitStat.Energy;
+        _currentEnergyText.text = $"EN {currentEnergy} / {selectedUnit.UnitStat.UnitData.Energy}";
 
         foreach (WeaponData weaponData in weaponDataList)
         {
             WeaponContainerUI weaponContainer = _weaponContainerObjectPool.Take(_weaponContainerPrefab);
-            weaponContainer.SetData(weaponData, this);
+            weaponContainer.SetData(weaponData, this, currentEnergy);
             _activatedWeaponContainers.Add(weaponContainer);
         }
     }
