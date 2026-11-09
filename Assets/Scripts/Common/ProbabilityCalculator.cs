@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class ProbabilityCalculator
 {
-    public static bool AttackProbability(int turn, int totalPlayerUnits, int currentTurnCount,
+    public static bool CalculateProbability(int turn, int totalPlayerUnits, int currentTurnCount,
         UnitStat ownerStat, WeaponData weaponData, UnitStat targetStat)
     {
         float probability = ((float)ownerStat.UnitData.Accuracy / 100) * (1 - (float)targetStat.UnitData.Avoid / 100);
@@ -16,5 +16,10 @@ public static class ProbabilityCalculator
         System.Random rand = new System.Random(seed);
         float randomValue = (float)rand.NextDouble();
         return (randomValue <= probability);
+    }
+
+    public static float GetAttackProbability(UnitStat ownerStat, UnitStat targetStat)
+    {
+        return ((float)ownerStat.UnitData.Accuracy / 100) * (1 - (float)targetStat.UnitData.Avoid / 100);
     }
 }
