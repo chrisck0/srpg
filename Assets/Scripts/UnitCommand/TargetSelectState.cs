@@ -304,7 +304,15 @@ public class TargetSelectState : StateBase
 
             if (enemyUnit == null) return;
 
-            _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
+            bool isHit = ProbabilityCalculator.AttackProbability(
+                0,
+                _controller.SelectedPlayerUnit.UnitStat,
+                weaponData,
+                enemyUnit.UnitStat
+                );
+
+            if (isHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
+            else Debug.Log($"{enemyUnit.UnitStat.UnitData.Name} avoided");
         }
     }
 
