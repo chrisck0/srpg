@@ -490,7 +490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleTile
   _tileData: {fileID: 11400000, guid: b94f4f6ac333ff04dbf8744172d879b8, type: 2}
-  _transparentTile: {fileID: 7119949779269997070}
+  _blueTransparentTile: {fileID: 7119949779269997070}
   _distanceText: {fileID: 1966552493037861845}
 --- !u!65 &8344724836390790448
 BoxCollider:

@@ -4,11 +4,11 @@ using UnityEngine;
 public class MapManager : MonoBehaviour
 {
     [SerializeField] private SpawnManager _spawnManager;
-    private UnitMovement _unitMovement;
+    private TileRange _tileRange;
     private TileBase[,] _tileMap;
     private UnitBase[,] _unitMap;
 
-    public UnitMovement UnitMovement => _unitMovement;
+    public TileRange TileRange => _tileRange;
     public TileBase[,] TileMap => _tileMap;
     public UnitBase[,] UnitMap => _unitMap;
 
@@ -20,7 +20,7 @@ public class MapManager : MonoBehaviour
         _tileMap = _spawnManager.TileMap;
         _unitMap = _spawnManager.UnitMap;
 
-        _unitMovement = new(_tileMap, _unitMap);
+        _tileRange = new(_tileMap, _unitMap);
     }
 
     private void BindSpawnEvents()

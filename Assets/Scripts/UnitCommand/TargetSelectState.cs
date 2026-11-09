@@ -1,7 +1,5 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class TargetSelectState : StateBase
 {
@@ -36,6 +34,7 @@ public class TargetSelectState : StateBase
     public override void Enter()
     {
         BindInputActions();
+        ShowWeaponRange(_controller.SelectedWeaponData);
         Debug.Log("Target Select");
     }
 
@@ -71,8 +70,10 @@ public class TargetSelectState : StateBase
     public override void Exit()
     {
         UnbindInputActions();
+        _mapManager.TileRange.InitTiles();
         _controller.HideCursor();
     }
+
     private void ShowTileInfo(TileBase tile)
     {
         _tileInfoUI.Show();
@@ -99,11 +100,30 @@ public class TargetSelectState : StateBase
             unit.Weapon.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
     }
 
+    private void ShowWeaponRange(WeaponData weaponData)
+    {
+        Vector2Int coord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
+
+        switch (weaponData.WeaponType)
+        {
+            case WeaponType.SingleTarget:
+                ShowSingleTargetRange(coord, weaponData.MinRange, weaponData.MaxRange);
+                break;
+        }
+    }
+
+    private void ShowSingleTargetRange(Vector2Int coord, int minRange, int maxRange)
+    {
+        TileCost[,] tileCost = _mapManager.TileRange.SingleTargetWeaponRange(coord, minRange, maxRange);
+    }
+
     private void Select(InputAction.CallbackContext context)
     {
         if (_currentTile == null) return;
 
         Vector2Int coord = _currentTile.transform.position.WorldToCoord();
+
+        if (!_mapManager.TileMap[coord.x, coord.y].CanSelect) return;
 
         UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
 
@@ -113,7 +133,6 @@ public class TargetSelectState : StateBase
 
             if (enemyUnit == null) return;
 
-            Debug.Log($"Selected Weapon {_controller.SelectedWeaponData.Name}");
             unit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
             _controller.SetState(_controller.CommandEndState);
         }

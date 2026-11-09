@@ -490,7 +490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaterTile
   _tileData: {fileID: 11400000, guid: acd244e71ea28bc44bad6337305842e6, type: 2}
-  _transparentTile: {fileID: 4092427748502935712}
+  _blueTransparentTile: {fileID: 4092427748502935712}
   _distanceText: {fileID: 8312157167003614721}
 --- !u!65 &8812960000089339847
 BoxCollider:

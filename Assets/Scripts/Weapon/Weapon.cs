@@ -17,6 +17,7 @@ public class Weapon : MonoBehaviour
 
     public void Attack(WeaponData weaponData, UnitBase target)
     {
+        Debug.Log($"{_owner.UnitStat.UnitData.Name} attacked {target.UnitStat.UnitData.Name} DMG {weaponData.Attack}");
         target.TakeDamage(weaponData.Attack);
     }
 

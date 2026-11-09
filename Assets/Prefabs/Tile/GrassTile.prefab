@@ -490,7 +490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GrassTile
   _tileData: {fileID: 11400000, guid: 922f8ce7a43e768479f0cca59fdcbf78, type: 2}
-  _transparentTile: {fileID: 157205746669827187}
+  _blueTransparentTile: {fileID: 157205746669827187}
   _distanceText: {fileID: 8461123318382160333}
 --- !u!65 &671904225129770695
 BoxCollider:
