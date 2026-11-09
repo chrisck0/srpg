@@ -93,7 +93,7 @@ public sealed class UnitSelectState : StateBase
         _unitInfoUI.SetData(unitStat.UnitData.Name,
             $"HP {unitStat.Health}/{unitStat.UnitData.Health}",
             $"EN {unitStat.Energy}/{unitStat.UnitData.Energy}",
-            unitStat.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
+            unit.Weapon.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
     }
 
     private void Select(InputAction.CallbackContext context)
@@ -106,17 +106,12 @@ public sealed class UnitSelectState : StateBase
 
         if (unit != null)
         {
-            unit.ShowInfo(); // TODO: UI 추가
             PlayerUnit playerUnit = (unit as PlayerUnit);
 
             if (playerUnit == null || !playerUnit.CanAction) return;
 
             _controller.SetSelectedPlayerUnit(playerUnit);
             _controller.SetState(_controller.UnitMoveState);
-        }
-        else
-        {
-            _currentTile.ShowInfo(); // TODO: UI 추가
         }
     }
 

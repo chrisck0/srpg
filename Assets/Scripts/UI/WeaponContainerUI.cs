@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,7 +32,7 @@ public class WeaponContainerUI : MonoBehaviour, IPoolable
     public void SetData(WeaponData weaponData, AttackCommandUI attackCommandUI)
     {
         _weaponData = weaponData;
-        _nameText.text = weaponData.name;
+        _nameText.text = weaponData.Name;
         _attackText.text = weaponData.Attack.ToString();
         _energyCostText.text = weaponData.EnergyCost.ToString();
         _attackCommandUI = attackCommandUI;

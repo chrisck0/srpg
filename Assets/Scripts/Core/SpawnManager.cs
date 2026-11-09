@@ -100,7 +100,7 @@ public class SpawnManager : MonoBehaviour
             {
                 if (weaponDataDict.TryGetValue(weaponId, out WeaponData weaponData))
                 {
-                    unit.UnitStat.AddWeapon(weaponData);
+                    unit.Weapon.AddWeapon(weaponData);
                 }
             }
 

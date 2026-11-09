@@ -100,6 +100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 747646531193069973}
   - component: {fileID: 1099915533610543554}
+  - component: {fileID: 131796892742605370}
   - component: {fileID: 3226035149217672612}
   m_Layer: 0
   m_Name: EnemyUnit
@@ -136,10 +137,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 908af8245d8bec741898a09254501318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
+  _unit: {fileID: 0}
   _unitData: {fileID: 0}
   _weaponDataList: []
   _health: 0
   _energy: 0
+--- !u!114 &131796892742605370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4351846834819390981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee46e374a4b51a41aa25d2bc55b9836, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Weapon
+  _weaponDataList: []
 --- !u!114 &3226035149217672612
 MonoBehaviour:
   m_ObjectHideFlags: 0

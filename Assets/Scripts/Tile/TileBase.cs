@@ -17,11 +17,6 @@ public abstract class TileBase : MonoBehaviour, IPoolable
 
     private void Awake() => InitDistance();
 
-    public void ShowInfo()
-    {
-        Debug.Log($"Selected Tile is {gameObject.name}");
-    }
-
     public void ShowDistance(int num)
     {
         _distanceText.gameObject.SetActive(true);

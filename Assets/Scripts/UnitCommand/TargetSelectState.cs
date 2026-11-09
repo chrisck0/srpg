@@ -12,18 +12,25 @@ public class TargetSelectState : StateBase
     private InputActionReference _cursorPosition;
     private LayerMask _ground;
     private TileBase _currentTile;
+    private CommandUIController _commandUIController;
+    private TileInfoUI _tileInfoUI;
+    private UnitInfoUI _unitInfoUI;
 
     public TargetSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
         InputActionReference cancelAction,
         InputActionReference cursorPosition,
-        LayerMask ground)
+        LayerMask ground,
+        CommandUIController commandUIController)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cancelAction = cancelAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
+        _commandUIController = commandUIController;
+        _tileInfoUI = commandUIController.TileInfoUI;
+        _unitInfoUI = commandUIController.UnitInfoUI;
     }
 
     public override void Enter()
@@ -42,6 +49,8 @@ public class TargetSelectState : StateBase
         {
             _controller.HideCursor();
             _currentTile = null;
+            _tileInfoUI.Hide();
+            _unitInfoUI.Hide();
             return;
         }
 
@@ -50,6 +59,10 @@ public class TargetSelectState : StateBase
         if (tile == null || tile == _currentTile) return;
 
         _currentTile = tile;
+
+        ShowTileInfo(tile);
+        ShowUnitInfo(tile);
+
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
         _controller.ShowCursor(coord);
@@ -60,12 +73,50 @@ public class TargetSelectState : StateBase
         UnbindInputActions();
         _controller.HideCursor();
     }
+    private void ShowTileInfo(TileBase tile)
+    {
+        _tileInfoUI.Show();
+        TileData tileData = tile.TileData;
+        _tileInfoUI.SetData(tileData.Name, tileData.Description);
+    }
+
+    private void ShowUnitInfo(TileBase tile)
+    {
+        Vector2Int coord = tile.transform.position.WorldToCoord();
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit == null)
+        {
+            _unitInfoUI.Hide();
+            return;
+        }
+
+        _unitInfoUI.Show();
+        UnitStat unitStat = unit.UnitStat;
+        _unitInfoUI.SetData(unitStat.UnitData.Name,
+            $"HP {unitStat.Health}/{unitStat.UnitData.Health}",
+            $"EN {unitStat.Energy}/{unitStat.UnitData.Energy}",
+            unit.Weapon.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
+    }
 
     private void Select(InputAction.CallbackContext context)
     {
         if (_currentTile == null) return;
-        Debug.Log($"{_currentTile} Selected");
-        _controller.SetState(_controller.CommandEndState);
+
+        Vector2Int coord = _currentTile.transform.position.WorldToCoord();
+
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit != null)
+        {
+            EnemyUnit enemyUnit = (unit as EnemyUnit);
+
+            if (enemyUnit == null) return;
+
+            Debug.Log($"Selected Weapon {_controller.SelectedWeaponData.Name}");
+            unit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
+            _controller.SetState(_controller.CommandEndState);
+        }
     }
 
     private void Cancel(InputAction.CallbackContext context)

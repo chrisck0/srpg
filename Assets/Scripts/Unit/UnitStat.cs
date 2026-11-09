@@ -1,17 +1,19 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 public class UnitStat : MonoBehaviour
 {
+    [SerializeField] private UnitBase _unit;
     [SerializeField] private UnitData _unitData;
-    [SerializeField] private List<WeaponData> _weaponDataList = new();
     [SerializeField] private int _health;
     [SerializeField] private int _energy;
 
     public UnitData UnitData => _unitData;
-    public List<WeaponData> WeaponDataList => _weaponDataList; 
     public int Health => _health;
     public int Energy => _energy;
+
+    private void Awake() => CacheComponents();
 
     public void InitStat(UnitData unitData)
     {
@@ -20,15 +22,26 @@ public class UnitStat : MonoBehaviour
         _energy = _unitData.Energy;
     }
 
-    public void AddWeapon(WeaponData weaponData)
-    {
-        _weaponDataList.Add(weaponData);
-    }
-
     public void AddEnergy(int num)
     {
         _energy += num;
 
         _energy = Mathf.Clamp(_energy, 0, _unitData.Energy);
+    }
+
+    public void AddHealth(int num)
+    {
+        _health += num;
+        _health = Mathf.Clamp(_health, 0, _unitData.Health);
+
+        if (_health == 0)
+        {
+            _unit.Die();
+        }
+    }
+
+    private void CacheComponents()
+    {
+        _unit = GetComponent<UnitBase>();
     }
 }
