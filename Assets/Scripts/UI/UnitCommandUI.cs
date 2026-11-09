@@ -23,6 +23,16 @@ public class UnitCommandUI : MonoBehaviour
         OnWait?.Invoke();
     }
 
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+
     private void BindButtonEvents()
     {
         _attackButton.onClick.AddListener(Attack);

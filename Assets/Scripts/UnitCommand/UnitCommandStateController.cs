@@ -8,8 +8,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     [SerializeField] private PhaseStateController _phaseStateController;
     [SerializeField] private MapManager _mapManager;
     [SerializeField] private TileCursor _tileCursor;
-    [SerializeField] private UnitCommandUI _unitCommandUI;
-    [SerializeField] private AttackCommandUI _attackCommandUI;
+    [SerializeField] private CommandUIController _commandUIController;
     [SerializeField] private InputActionReference _selectAction;
     [SerializeField] private InputActionReference _cancelAction;
     [SerializeField] private InputActionReference _cursorPosition;
@@ -46,11 +45,11 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private void InitUnitCommandStates()
     {
         _unitSelectState = new UnitSelectState(
-            this, _selectAction, _cursorPosition, _ground);
+            this, _selectAction, _cursorPosition, _ground, _commandUIController);
         _unitMoveState = new UnitMoveState(
             this, _selectAction, _cancelAction, _cursorPosition, _ground, _moveSpeed);
         _unitCommandState = new UnitCommandState(
-            this, _cancelAction, _unitCommandUI, _attackCommandUI);
+            this, _cancelAction, _commandUIController);
         _targetSelectState = new TargetSelectState(
             this, _selectAction, _cancelAction, _cursorPosition, _ground);
         _commandEndState = new CommandEndState(this);
@@ -59,8 +58,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private void InitUI()
     {
         _tileCursor.gameObject.SetActive(false);
-        _unitCommandUI.gameObject.SetActive(false);
-        _attackCommandUI.gameObject.SetActive(false);
+        _commandUIController.DeactivateAll();
     }
 
     public void StartUnitCommand()

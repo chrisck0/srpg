@@ -11,16 +11,23 @@ public sealed class UnitSelectState : StateBase
     private InputActionReference _cursorPosition;
     private LayerMask _ground;
     private TileBase _currentTile;
+    private CommandUIController _commandUIController;
+    private TileInfoUI _tileInfoUI;
+    private UnitInfoUI _unitInfoUI;
 
     public UnitSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
         InputActionReference cursorPosition,
-        LayerMask ground)
+        LayerMask ground,
+        CommandUIController commandUIController)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
+        _commandUIController = commandUIController;
+        _tileInfoUI = commandUIController.TileInfoUI;
+        _unitInfoUI = commandUIController.UnitInfoUI;
     }
 
     public override void Enter()
@@ -39,6 +46,8 @@ public sealed class UnitSelectState : StateBase
         {
             _controller.HideCursor();
             _currentTile = null;
+            _tileInfoUI.Hide();
+            _unitInfoUI.Hide();
             return;
         }
 
@@ -47,15 +56,44 @@ public sealed class UnitSelectState : StateBase
         if (tile == null || tile == _currentTile) return;
 
         _currentTile = tile;
-        Vector2Int coord = hit.transform.position.WorldToCoord();
 
+        ShowTileInfo(tile);
+        ShowUnitInfo(tile);
+
+        Vector2Int coord = hit.transform.position.WorldToCoord();
         _controller.ShowCursor(coord);
     }
 
     public override void Exit()
     {
         UnbindInputActions();
-        _controller.HideCursor();
+        HideUI();
+    }
+
+    private void ShowTileInfo(TileBase tile)
+    {
+        _tileInfoUI.Show();
+        TileData tileData = tile.TileData;
+        _tileInfoUI.SetData(tileData.Name, tileData.Description);
+    }
+
+    private void ShowUnitInfo(TileBase tile)
+    {
+        Vector2Int coord = tile.transform.position.WorldToCoord();
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit == null)
+        {
+            _unitInfoUI.Hide();
+            return;
+        }
+
+        _unitInfoUI.Show();
+        UnitStat unitStat = unit.UnitStat;
+        _unitInfoUI.SetData(unitStat.UnitData.Name,
+            $"HP {unitStat.Health}/{unitStat.UnitData.Health}",
+            $"EN {unitStat.Energy}/{unitStat.UnitData.Energy}",
+            unitStat.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
     }
 
     private void Select(InputAction.CallbackContext context)
@@ -80,6 +118,13 @@ public sealed class UnitSelectState : StateBase
         {
             _currentTile.ShowInfo(); // TODO: UI 추가
         }
+    }
+
+    private void HideUI()
+    {
+        _controller.HideCursor();
+        _tileInfoUI.Hide();
+        _unitInfoUI.Hide();
     }
 
     private void BindInputActions()
