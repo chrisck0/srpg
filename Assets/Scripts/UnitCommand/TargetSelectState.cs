@@ -17,6 +17,7 @@ public class TargetSelectState : StateBase
     private List<Vector2Int> _localTargetCoords = new();
     private List<Vector2Int> _globalTargetCoords = new();
     private WeaponDirection _prevWeaponDirection = WeaponDirection.None;
+    private bool _canAttackArea;
 
     public TargetSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
@@ -202,6 +203,7 @@ public class TargetSelectState : StateBase
     private void ShowSelectDirectionRange(Vector2Int coord, WeaponDirection direction)
     {
         _globalTargetCoords.Clear();
+        _canAttackArea = false;
 
         foreach (Vector2Int localCoord in _localTargetCoords)
         {
@@ -229,6 +231,11 @@ public class TargetSelectState : StateBase
                 || globalCoord.y < 0
                 || globalCoord.x >= _mapManager.TileMap.GetLength(0)
                 || globalCoord.y >= _mapManager.TileMap.GetLength(1)) return;
+
+            UnitBase unit = _mapManager.UnitMap[globalCoord.x, globalCoord.y];
+            EnemyUnit enemyUnit = unit as EnemyUnit;
+
+            if (enemyUnit != null) _canAttackArea = true;
 
             _mapManager.TileMap[globalCoord.x, globalCoord.y].ShowRange();
             _globalTargetCoords.Add(globalCoord);
@@ -272,6 +279,10 @@ public class TargetSelectState : StateBase
         if (_globalTargetCoords.Count == 0) return;
 
         WeaponData weaponData = _controller.SelectedWeaponData;
+
+        if (weaponData.WeaponType == WeaponType.SelectDirection
+            && !_canAttackArea) return;
+
         _controller.SelectedPlayerUnit.ConsumeEnergy(weaponData.EnergyCost);
 
         foreach (Vector2Int coord in _globalTargetCoords)
