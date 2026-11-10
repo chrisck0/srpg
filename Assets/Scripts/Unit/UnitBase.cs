@@ -37,6 +37,12 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
     public void Die()
     {
         Debug.Log($"{_unitStat.UnitData.Name} Died");
+        ReturnToPool();
+    }
+
+    public void SetObjectPool(ObjectPool<UnitBase> objectPool)
+    {
+        _objectPool = objectPool;
     }
 
     public void Activate()

@@ -1,6 +1,7 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
 
 public class TargetSelectState : StateBase
 {
@@ -254,11 +255,18 @@ public class TargetSelectState : StateBase
         {
             if (coord != targetCoord) continue;
 
-            _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.UnitStat,
+            WeaponData targetWeapon = enemyUnit.Weapon.WeaponDataList[0];
+            float distance = Vector2Int.Distance(
+                _controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
+
+            bool canReturnAttack = targetWeapon.MinRange <= distance
+                && targetWeapon.MaxRange >= distance;
+
+                _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.UnitStat,
                 enemyUnit.UnitStat,
                 _controller.SelectedWeaponData,
                 enemyUnit.Weapon.WeaponDataList[0],
-                true,
+                canReturnAttack,
                 true);
             return;
         }
@@ -293,7 +301,7 @@ public class TargetSelectState : StateBase
 
             if (enemyUnit == null) return;
 
-            bool isHit = ProbabilityCalculator.CalculateProbability(
+            bool canHit = ProbabilityCalculator.CalculateProbability(
                 _controller.Turn,
                 _controller.TotalPlayerUnits,
                 _controller.CurrentTurnCount,
@@ -302,8 +310,30 @@ public class TargetSelectState : StateBase
                 enemyUnit.UnitStat
                 );
 
-            if (isHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
+            bool isHit = false;
+
+            Vector2Int attackerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
+            float distance = Vector2Int.Distance(attackerCoord, targetCoord);
+
+            WeaponData targetWeapon = enemyUnit.Weapon.WeaponDataList[0];
+            if (targetWeapon.MinRange <= distance
+                && targetWeapon.MaxRange >= distance)
+            {
+                isHit = ProbabilityCalculator.CalculateProbability(
+                    _controller.Turn,
+                    _controller.TotalPlayerUnits,
+                    _controller.CurrentTurnCount,
+                    enemyUnit.UnitStat,
+                    targetWeapon,
+                    _controller.SelectedPlayerUnit.UnitStat
+                    );
+            }
+
+            if (canHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
             else Debug.Log($"{enemyUnit.UnitStat.UnitData.Name} avoided");
+
+            if (isHit) enemyUnit.Weapon.Attack(targetWeapon, _controller.SelectedPlayerUnit);
+            else Debug.Log($"No return attack");
         }
     }
 

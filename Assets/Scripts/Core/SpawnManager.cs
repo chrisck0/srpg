@@ -90,6 +90,8 @@ public class SpawnManager : MonoBehaviour
             if (!_unitPrefabDict.TryGetValue(unitData.UnitType, out UnitBase unitPrefab)) continue;
 
             UnitBase unit = _unitObjectPool.Take(unitPrefab);
+            unit.SetObjectPool(_unitObjectPool);
+
             Vector2Int coord = unitPosition.Position;
             unit.transform.position = coord.CoordToWorld();
             unit.UnitStat.InitStat(unitData);
