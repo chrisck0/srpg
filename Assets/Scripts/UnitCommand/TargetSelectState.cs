@@ -56,7 +56,11 @@ public class TargetSelectState : StateBase
         _currentTile = tile;
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
-        ShowWeaponRange(coord);
+        _controller.SelectedPlayerUnit.Weapon.ShowWeaponRange(
+            _mapManager, GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord),
+            _controller.SelectedWeaponData, true);
+
+        _controller.ShowCursor(coord);
         ShowBattleInfo(coord);
     }
 
@@ -115,30 +119,6 @@ public class TargetSelectState : StateBase
         }
     }
 
-    private void ShowWeaponRange(Vector2Int coord)
-    {
-        Vector2Int playerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
-
-        WeaponDirection weaponDirection = GetWeaponDirection(playerCoord, coord);
-        WeaponData weaponData = _controller.SelectedWeaponData;
-
-        switch (weaponData.WeaponType)
-        {
-            case WeaponType.SelectTarget:
-                HidePreviousGlobalTargetRange();
-                ShowMultiTargetRange(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
-                break;
-
-            case WeaponType.SelectDirection:
-                if (_prevWeaponDirection != weaponDirection)
-                {
-                    HidePreviousGlobalTargetRange();
-                    ShowSelectDirectionRange(playerCoord, weaponDirection);
-                }
-                break;
-        }
-    }
-
     private WeaponDirection GetWeaponDirection(Vector2Int startCoord, Vector2Int targetCoord)
     {
         Vector2Int directionCoord = targetCoord - startCoord;
@@ -163,80 +143,6 @@ public class TargetSelectState : StateBase
             {
                 return WeaponDirection.Down;
             }
-        }
-    }
-
-    // 범위 공격 표시
-    private void ShowSelectDirectionRange(Vector2Int coord, WeaponDirection direction)
-    {
-        _globalTargetCoords.Clear();
-        _canAttackArea = false;
-
-        foreach (Vector2Int localCoord in _localTargetCoords)
-        {
-            Vector2Int rotatedLocalCoord = localCoord;
-
-            switch(direction)
-            {
-                case WeaponDirection.Up:
-                    rotatedLocalCoord = localCoord;
-                    break;
-                case WeaponDirection.Right:
-                    rotatedLocalCoord = new Vector2Int(localCoord.y, -localCoord.x);
-                    break;
-                case WeaponDirection.Down:
-                    rotatedLocalCoord = new Vector2Int(-localCoord.x, -localCoord.y);
-                    break;
-                case WeaponDirection.Left:
-                    rotatedLocalCoord = new Vector2Int(-localCoord.y, localCoord.x);
-                    break;
-            }
-
-            Vector2Int globalCoord = coord + rotatedLocalCoord;
-
-            if (globalCoord.x < 0
-                || globalCoord.y < 0
-                || globalCoord.x >= _mapManager.TileMap.GetLength(0)
-                || globalCoord.y >= _mapManager.TileMap.GetLength(1)) continue;
-
-            UnitBase unit = _mapManager.UnitMap[globalCoord.x, globalCoord.y];
-
-            if (unit != null && unit.UnitType == UnitType.Enemy) _canAttackArea = true;
-
-            _mapManager.TileMap[globalCoord.x, globalCoord.y].ShowRange();
-            _globalTargetCoords.Add(globalCoord);
-        }
-    }
-
-    private void HidePreviousGlobalTargetRange()
-    {
-        foreach (Vector2Int coord in _globalTargetCoords)
-        {
-            _mapManager.TileMap[coord.x, coord.y].HideRange();
-        }
-    }
-
-    // 타겟 선택했을 때 공격 범위 표시
-    private void ShowMultiTargetRange(Vector2Int targetCoord, WeaponRangeShape weaponRangeShape, int explosionRange)
-    {
-        _globalTargetCoords.Clear();
-
-        TileBase tile = _mapManager.TileMap[targetCoord.x, targetCoord.y];
-        UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
-
-        if (!tile.CanSelect || unit != null && unit.UnitType == UnitType.Enemy) return;
-
-        switch (weaponRangeShape)
-        {
-            case WeaponRangeShape.Single:
-                _mapManager.TileMap[targetCoord.x, targetCoord.y].ShowRange();
-                _globalTargetCoords.Add(targetCoord);
-
-                break;
-
-            case WeaponRangeShape.Explosion:
-                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, false, _globalTargetCoords);
-                break;
         }
     }
 
