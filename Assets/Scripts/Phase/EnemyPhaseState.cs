@@ -7,6 +7,7 @@ public sealed class EnemyPhaseState : StateBase
     private List<UnitBase> _enemyUnitList;
     private Queue<EnemyUnit> _activeEnemyUnit = new();
     private EnemyUnit _currentEnemyUnit;
+    private int _currentTurnCount;
 
     public EnemyPhaseState(PhaseStateController phaseStateController, Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
@@ -33,17 +34,23 @@ public sealed class EnemyPhaseState : StateBase
         {
             if (_activeEnemyUnit.Count != 0)
             {
+                _currentTurnCount++;
                 _currentEnemyUnit = _activeEnemyUnit.Dequeue();
 
                 Debug.Log($"Current turn : {_currentEnemyUnit.UnitStat.UnitData.Name}");
 
                 BindEnemyUnitEvents();
 
-                _currentEnemyUnit.EnemyAI.Behave();
+                _currentEnemyUnit.EnemyAI.Behave(
+                    _phaseStateController.Turn,
+                    _phaseStateController.TotalEnemyUnits,
+                    _currentTurnCount
+                    );
             }
             else
             {
                 EnemyPhaseEnd();
+                _currentTurnCount = 0;
             }
         }
     }

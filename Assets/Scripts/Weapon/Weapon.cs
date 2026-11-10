@@ -49,8 +49,10 @@ public class Weapon : MonoBehaviour
         _globalTargetCoords.Clear();
     }
 
-    public void ShowSelectRange(WeaponData weaponData)
+    public void ShowSelectRange(WeaponData weaponData, MapManager mapManager)
     {
+        _mapManager = mapManager;
+
         Vector2Int coord = transform.position.WorldToCoord();
 
         switch (weaponData.WeaponType)
@@ -194,12 +196,16 @@ public class Weapon : MonoBehaviour
                 _canAttackArea = true;
                 _globalTargetCoords.Add(globalCoord);
             }
+            else
+            {
+                if (showRange) _globalTargetCoords.Add(globalCoord);
+            }
 
             if (showRange) _mapManager.TileMap[globalCoord.x, globalCoord.y].ShowRange();
         }
     }
 
-    public List<Vector2Int> GetGlobalTargetCoords()
+    public List<Vector2Int> GetTargetCoords()
     {
         return _globalTargetCoords;
     }
@@ -207,6 +213,55 @@ public class Weapon : MonoBehaviour
     public bool GetCanAttackArea()
     {
         return _canAttackArea;
+    }
+
+    public bool CalculateGetReturnAttack(UnitBase targetUnit, int distance,
+        int turn, int totalPlayerUnits, int currentTurnCount)
+    {
+        bool isHit = false;
+
+        WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
+        if (targetWeapon.MinRange <= distance
+            && targetWeapon.MaxRange >= distance)
+        {
+            isHit = ProbabilityCalculator.CalculateProbability(
+                turn,
+                totalPlayerUnits,
+                currentTurnCount,
+                targetUnit.UnitStat,
+                targetWeapon,
+                _owner.UnitStat
+                );
+        }
+
+        return isHit;
+    }
+
+    public void AttackTarget(UnitBase targetUnit, WeaponData weaponData,
+        int turn, int totalPlayerUnits, int currentTurnCount)
+    {
+        if (targetUnit != null)
+        {
+            if (targetUnit.UnitType != UnitType.Enemy) return;
+
+            bool canHit = ProbabilityCalculator.CalculateProbability(
+                turn,
+                totalPlayerUnits,
+                currentTurnCount,
+                _owner.UnitStat,
+                weaponData,
+                targetUnit.UnitStat
+                );
+
+            if (canHit) Attack(weaponData, targetUnit);
+            else Debug.Log($"{targetUnit.UnitStat.UnitData.Name} avoided");
+        }
+    }
+
+    public void GetReturnAttack(UnitBase targetUnit)
+    {
+        WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
+        targetUnit.Weapon.Attack(targetWeapon, _owner);
     }
 
     private void CacheComponents()

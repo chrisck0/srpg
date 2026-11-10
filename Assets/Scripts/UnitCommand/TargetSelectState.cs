@@ -13,7 +13,6 @@ public class TargetSelectState : StateBase
     private LayerMask _ground;
     private TileBase _currentTile;
     private List<Vector2Int> _globalTargetCoords;
-    private WeaponDirection _prevWeaponDirection = WeaponDirection.None;
 
     public TargetSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
@@ -31,7 +30,7 @@ public class TargetSelectState : StateBase
     public override void Enter()
     {
         BindInputActions();
-        _controller.SelectedPlayerUnit.Weapon.ShowSelectRange(_controller.SelectedWeaponData);
+        _controller.SelectedPlayerUnit.Weapon.ShowSelectRange(_controller.SelectedWeaponData, _mapManager);
     }
 
     public override void Update()
@@ -54,12 +53,13 @@ public class TargetSelectState : StateBase
         _currentTile = tile;
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
+        WeaponDirection weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
         _controller.SelectedPlayerUnit.Weapon.ShowWeaponRange(
             coord, UnitType.Enemy,
-            _mapManager, GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord),
+            _mapManager, weaponDirection,
             _controller.SelectedWeaponData, true);
 
-        _globalTargetCoords = _controller.SelectedPlayerUnit.Weapon.GetGlobalTargetCoords();
+        _globalTargetCoords = _controller.SelectedPlayerUnit.Weapon.GetTargetCoords();
         _controller.ShowCursor(coord);
         ShowBattleInfo(coord);
     }
@@ -70,7 +70,6 @@ public class TargetSelectState : StateBase
         _mapManager.TileRange.InitTiles();
         _controller.SelectedPlayerUnit.Weapon.ClearCoords();
         HideUI();
-        _prevWeaponDirection = WeaponDirection.None;
     }
 
     private WeaponDirection GetWeaponDirection(Vector2Int startCoord, Vector2Int targetCoord)
@@ -146,64 +145,26 @@ public class TargetSelectState : StateBase
 
         foreach (Vector2Int coord in _globalTargetCoords)
         {
-            AttackTarget(weaponData, coord);
-            if (CalculateGetReturnAttack(coord)) GetReturnAttack(coord);
+            UnitBase targetUnit = _mapManager.UnitMap[coord.x, coord.y];
+
+            if (targetUnit == null || targetUnit.UnitType != UnitType.Enemy) continue;
+
+            _controller.SelectedPlayerUnit.Weapon.AttackTarget(targetUnit, weaponData,
+                _controller.Turn,
+                _controller.TotalPlayerUnits,
+                _controller.CurrentTurnCount
+                );
+
+            if (_controller.SelectedPlayerUnit.Weapon.CalculateGetReturnAttack(
+                targetUnit,
+                VectorExtensions.CoordDistance(coord, _controller.SelectedPlayerUnit.transform.position.WorldToCoord()),
+                _controller.Turn,
+                _controller.TotalPlayerUnits,
+                _controller.CurrentTurnCount
+                ))
+                _controller.SelectedPlayerUnit.Weapon.GetReturnAttack(targetUnit);
         }
         _controller.SetState(_controller.CommandEndState);
-    }
-
-    private void AttackTarget(WeaponData weaponData, Vector2Int targetCoord)
-    {
-        UnitBase targetUnit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
-
-        if (targetUnit != null)
-        {
-            if (targetUnit.UnitType != UnitType.Enemy) return;
-
-            bool canHit = ProbabilityCalculator.CalculateProbability(
-                _controller.Turn,
-                _controller.TotalPlayerUnits,
-                _controller.CurrentTurnCount,
-                _controller.SelectedPlayerUnit.UnitStat,
-                weaponData,
-                targetUnit.UnitStat
-                );
-
-            if (canHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, targetUnit);
-            else Debug.Log($"{targetUnit.UnitStat.UnitData.Name} avoided");
-        }
-    }
-
-    private bool CalculateGetReturnAttack(Vector2Int targetCoord)
-    {
-        bool isHit = false;
-        UnitBase targetUnit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
-
-        Vector2Int attackerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
-        int distance = VectorExtensions.CoordDistance(attackerCoord, targetCoord);
-
-        WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
-        if (targetWeapon.MinRange <= distance
-            && targetWeapon.MaxRange >= distance)
-        {
-            isHit = ProbabilityCalculator.CalculateProbability(
-                _controller.Turn,
-                _controller.TotalPlayerUnits,
-                _controller.CurrentTurnCount,
-                targetUnit.UnitStat,
-                targetWeapon,
-                _controller.SelectedPlayerUnit.UnitStat
-                );
-        }
-
-        return isHit;
-    }
-
-    private void GetReturnAttack(Vector2Int targetCoord)
-    {
-        UnitBase targetUnit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
-        WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
-        targetUnit.Weapon.Attack(targetWeapon, _controller.SelectedPlayerUnit);
     }
 
     private void Cancel(InputAction.CallbackContext context)
