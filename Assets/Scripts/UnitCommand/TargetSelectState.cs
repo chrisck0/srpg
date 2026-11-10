@@ -54,7 +54,7 @@ public class TargetSelectState : StateBase
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
         WeaponDirection weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
-        _controller.SelectedPlayerUnit.Weapon.ShowWeaponRange(
+        _controller.SelectedPlayerUnit.Weapon.SelectWeaponRange(
             coord, UnitType.Enemy,
             _mapManager, weaponDirection,
             _controller.SelectedWeaponData, true);
@@ -149,7 +149,9 @@ public class TargetSelectState : StateBase
 
             if (targetUnit == null || targetUnit.UnitType != UnitType.Enemy) continue;
 
-            _controller.SelectedPlayerUnit.Weapon.AttackTarget(targetUnit, weaponData,
+            _controller.SelectedPlayerUnit.Weapon.AttackTarget(
+                targetUnit,
+                weaponData,
                 _controller.Turn,
                 _controller.TotalPlayerUnits,
                 _controller.CurrentTurnCount

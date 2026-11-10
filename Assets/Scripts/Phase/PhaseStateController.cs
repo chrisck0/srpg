@@ -20,6 +20,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     public Action<StateBase> OnStateChanged { get; set; }
     public event Action OnPlayerPhaseStarted;
     public event Action OnEnemyPhaseStarted;
+    public MapManager MapManager => _mapManager;
     public int Turn => _turn;
     public int TotalPlayerUnits => _totalPlayerUnits;
     public int TotalEnemyUnits => _totalEnemyUnits;

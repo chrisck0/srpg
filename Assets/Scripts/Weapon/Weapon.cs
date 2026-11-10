@@ -99,7 +99,7 @@ public class Weapon : MonoBehaviour
     /// <summary>
     /// 무기 범위 계산
     /// </summary>
-    public void ShowWeaponRange(
+    public void SelectWeaponRange(
         Vector2Int targetCoord, UnitType targetUnitType, MapManager mapManager, WeaponDirection weaponDirection,
         WeaponData weaponData, bool showRange)
     {
@@ -242,8 +242,6 @@ public class Weapon : MonoBehaviour
     {
         if (targetUnit != null)
         {
-            if (targetUnit.UnitType != UnitType.Enemy) return;
-
             bool canHit = ProbabilityCalculator.CalculateProbability(
                 turn,
                 totalPlayerUnits,

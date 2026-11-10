@@ -42,8 +42,10 @@ public class EnemyAI : MonoBehaviour
 
         _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord);
 
+        /*
         Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
             $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
+        */
 
         _tileCostMap = _mapManager.TileRange.UnitMoveRange(
             currentCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);
@@ -147,14 +149,12 @@ public class EnemyAI : MonoBehaviour
 
     private void Attack()
     {
-        _owner.Weapon.ShowWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
-            _maxAttackScore.WeaponDirection, _maxAttackScore.AttackWeaponData, true);
-        Debug.Log($"{_maxAttackScore.TargetCoord} {_maxAttackScore.WeaponDirection} {_maxAttackScore} {_maxAttackScore.AttackWeaponData}");
-        _attackTargetCoords = _owner.Weapon.GetTargetCoords();
-
-        if (_attackTargetCoords.Count == 0) Debug.LogError("Error: Enemy cannot attack");
-
         WeaponData weaponData = _maxAttackScore.AttackWeaponData;
+        _owner.Weapon.ShowSelectRange(weaponData, _mapManager);
+        _owner.Weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
+            _maxAttackScore.WeaponDirection, weaponData, true);
+
+        _attackTargetCoords = _owner.Weapon.GetTargetCoords();
 
         if (weaponData.WeaponType == WeaponType.SelectDirection
             && !_owner.Weapon.GetCanAttackArea()) return;
@@ -175,6 +175,7 @@ public class EnemyAI : MonoBehaviour
                 _turn, _totalEnemyUnits, _currentTurnCount))
                 _owner.Weapon.GetReturnAttack(targetUnit);
         }
+        _canAttack = false;
         _owner.OnEnemyActioned?.Invoke();
     }
 
