@@ -10193,6 +10193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhaseStateController
   _unitCommandStateController: {fileID: 2104199459}
   _spawnManager: {fileID: 496036547}
+  _mapManager: {fileID: 1410229973}
   _endTurnButton: {fileID: 433210687}
 --- !u!114 &1887944872
 MonoBehaviour:
@@ -11665,7 +11666,6 @@ MonoBehaviour:
   _ground:
     serializedVersion: 2
     m_Bits: 64
-  _moveSpeed: 8
 --- !u!114 &2104199460
 MonoBehaviour:
   m_ObjectHideFlags: 0

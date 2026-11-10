@@ -13,6 +13,7 @@ public class UnitData : ScriptableObject
     [SerializeField] private int _avoid;
     [SerializeField] private List<int> _weaponIdList;
     [SerializeField] private UnitType _unitType;
+    [SerializeField] private BehaviorType _behaviorType;
 
     public int Id => _id;
     public string Name => _name;
@@ -23,8 +24,9 @@ public class UnitData : ScriptableObject
     public int Avoid => _avoid;
     public List<int> WeaponIdList => _weaponIdList;
     public UnitType UnitType => _unitType;
+    public BehaviorType BehaviorType => _behaviorType;
 
-    public void SetData(int id, string name, int health, int energy, int move, int accuracy, int avoid, List<int> weaponIdList, UnitType unitType)
+    public void SetData(int id, string name, int health, int energy, int move, int accuracy, int avoid, List<int> weaponIdList, UnitType unitType, BehaviorType behaviorType)
     {
         _id = id;
         _name = name;
@@ -35,5 +37,6 @@ public class UnitData : ScriptableObject
         _avoid = avoid;
         _weaponIdList = weaponIdList;
         _unitType = unitType;
+        _behaviorType = behaviorType;
     }
 }

@@ -16,21 +16,18 @@ public sealed class UnitMoveState : StateBase
     private Stack<Vector2Int> _pathCoordStack = new();
     private bool _hasSelected;
     private Vector2Int _targetCoord;
-    private float _moveSpeed;
 
     public UnitMoveState(UnitCommandStateController controller,
         InputActionReference selectAction,
         InputActionReference cancelAction,
         InputActionReference cursorPosition,
-        LayerMask ground,
-        float moveSpeed)
+        LayerMask ground)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cancelAction = cancelAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
-        _moveSpeed = moveSpeed;
     }
 
     public override void Enter()
@@ -56,7 +53,8 @@ public sealed class UnitMoveState : StateBase
     {
         _selectedUnit = _controller.SelectedPlayerUnit;
         Vector2Int currentCoord = _selectedUnit.transform.position.WorldToCoord();
-        _tileCostMap = _mapManager.TileRange.UnitMoveRange(currentCoord, _selectedUnit.UnitStat.UnitData.Move);
+        _tileCostMap = _mapManager.TileRange.UnitMoveRange(
+            currentCoord, _selectedUnit.UnitStat.UnitData.Move, UnitType.Enemy);
     }
 
     private void RaycastTiles()
@@ -125,7 +123,8 @@ public sealed class UnitMoveState : StateBase
     {
         if (Vector3.Distance(_selectedUnit.transform.position, _targetCoord.CoordToWorld()) >= 0.1f)
         {
-            _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * _moveSpeed);
+            _selectedUnit.transform.Translate(Vector3.forward
+                * Time.deltaTime * _selectedUnit.MoveSpeed);
             return;
         }
 
@@ -139,7 +138,8 @@ public sealed class UnitMoveState : StateBase
 
         _targetCoord = _pathCoordStack.Pop();
         _selectedUnit.transform.LookAt(_targetCoord.CoordToWorld());
-        _selectedUnit.transform.Translate(Vector3.forward * Time.deltaTime * _moveSpeed);
+        _selectedUnit.transform.Translate(Vector3.forward *
+            Time.deltaTime * _selectedUnit.MoveSpeed);
     }
 
     private void Cancel(InputAction.CallbackContext context)

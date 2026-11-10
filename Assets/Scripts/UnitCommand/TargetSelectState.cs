@@ -166,6 +166,7 @@ public class TargetSelectState : StateBase
         }
     }
 
+    // 범위 공격 표시
     private void ShowSelectDirectionRange(Vector2Int coord, WeaponDirection direction)
     {
         _globalTargetCoords.Clear();
@@ -199,9 +200,8 @@ public class TargetSelectState : StateBase
                 || globalCoord.y >= _mapManager.TileMap.GetLength(1)) return;
 
             UnitBase unit = _mapManager.UnitMap[globalCoord.x, globalCoord.y];
-            EnemyUnit enemyUnit = unit as EnemyUnit;
 
-            if (enemyUnit != null) _canAttackArea = true;
+            if (unit != null && unit.UnitType == UnitType.Enemy) _canAttackArea = true;
 
             _mapManager.TileMap[globalCoord.x, globalCoord.y].ShowRange();
             _globalTargetCoords.Add(globalCoord);
@@ -216,15 +216,15 @@ public class TargetSelectState : StateBase
         }
     }
 
+    // 타겟 선택했을 때 공격 범위 표시
     private void ShowMultiTargetRange(Vector2Int targetCoord, WeaponRangeShape weaponRangeShape, int explosionRange)
     {
         _globalTargetCoords.Clear();
 
         TileBase tile = _mapManager.TileMap[targetCoord.x, targetCoord.y];
         UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
-        EnemyUnit enemyUnit = unit as EnemyUnit;
 
-        if (!tile.CanSelect || enemyUnit == null) return;
+        if (!tile.CanSelect || unit != null && unit.UnitType == UnitType.Enemy) return;
 
         switch (weaponRangeShape)
         {
@@ -242,10 +242,9 @@ public class TargetSelectState : StateBase
 
     private void ShowBattleInfo(Vector2Int targetCoord)
     {
-        UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
-        EnemyUnit enemyUnit = unit as EnemyUnit;
+        UnitBase targetUnit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
 
-        if (enemyUnit == null)
+        if (targetUnit == null || targetUnit.UnitType != UnitType.Enemy)
         {
             _controller.HideBattleInfo();
             return;
@@ -255,17 +254,18 @@ public class TargetSelectState : StateBase
         {
             if (coord != targetCoord) continue;
 
-            WeaponData targetWeapon = enemyUnit.Weapon.WeaponDataList[0];
-            float distance = Vector2Int.Distance(
-                _controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
+            WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
+
+            Vector2Int currentCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
+            int distance = VectorExtensions.CoordDistance(currentCoord, coord);
 
             bool canReturnAttack = targetWeapon.MinRange <= distance
                 && targetWeapon.MaxRange >= distance;
 
                 _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.UnitStat,
-                enemyUnit.UnitStat,
+                targetUnit.UnitStat,
                 _controller.SelectedWeaponData,
-                enemyUnit.Weapon.WeaponDataList[0],
+                targetUnit.Weapon.WeaponDataList[0],
                 canReturnAttack,
                 true);
             return;
@@ -293,13 +293,11 @@ public class TargetSelectState : StateBase
 
     private void AttackTarget(WeaponData weaponData, Vector2Int targetCoord)
     {
-        UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
+        UnitBase targetUnit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
 
-        if (unit != null)
+        if (targetUnit != null)
         {
-            EnemyUnit enemyUnit = (unit as EnemyUnit);
-
-            if (enemyUnit == null) return;
+            if (targetUnit.UnitType != UnitType.Enemy) return;
 
             bool canHit = ProbabilityCalculator.CalculateProbability(
                 _controller.Turn,
@@ -307,15 +305,15 @@ public class TargetSelectState : StateBase
                 _controller.CurrentTurnCount,
                 _controller.SelectedPlayerUnit.UnitStat,
                 weaponData,
-                enemyUnit.UnitStat
+                targetUnit.UnitStat
                 );
 
             bool isHit = false;
 
             Vector2Int attackerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
-            float distance = Vector2Int.Distance(attackerCoord, targetCoord);
+            int distance = VectorExtensions.CoordDistance(attackerCoord, targetCoord);
 
-            WeaponData targetWeapon = enemyUnit.Weapon.WeaponDataList[0];
+            WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
             if (targetWeapon.MinRange <= distance
                 && targetWeapon.MaxRange >= distance)
             {
@@ -323,16 +321,16 @@ public class TargetSelectState : StateBase
                     _controller.Turn,
                     _controller.TotalPlayerUnits,
                     _controller.CurrentTurnCount,
-                    enemyUnit.UnitStat,
+                    targetUnit.UnitStat,
                     targetWeapon,
                     _controller.SelectedPlayerUnit.UnitStat
                     );
             }
 
-            if (canHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
-            else Debug.Log($"{enemyUnit.UnitStat.UnitData.Name} avoided");
+            if (canHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, targetUnit);
+            else Debug.Log($"{targetUnit.UnitStat.UnitData.Name} avoided");
 
-            if (isHit) enemyUnit.Weapon.Attack(targetWeapon, _controller.SelectedPlayerUnit);
+            if (isHit) targetUnit.Weapon.Attack(targetWeapon, _controller.SelectedPlayerUnit);
             else Debug.Log($"No return attack");
         }
     }

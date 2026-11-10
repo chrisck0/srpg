@@ -3,26 +3,19 @@ using UnityEngine;
 [RequireComponent(typeof(UnitStat), typeof(Weapon))]
 public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
 {
-    private ObjectPool<UnitBase> _objectPool;
-    protected UnitStat _unitStat;
-    protected Weapon _weapon;
+    [SerializeField] protected UnitStat _unitStat;
+    [SerializeField] protected Weapon _weapon;
+    [SerializeField] protected float _moveSpeed = 8f;
     protected int _health;
     protected int _energy;
+    private ObjectPool<UnitBase> _objectPool;
 
     public UnitStat UnitStat => _unitStat;
     public Weapon Weapon => _weapon;
+    public float MoveSpeed => _moveSpeed;
     public int Health => _health;
     public int Energy => _energy;
     public abstract UnitType UnitType { get; }
-
-
-    protected void Awake() => CacheComponents();
-
-    protected void CacheComponents()
-    {
-        _unitStat = GetComponent<UnitStat>();
-        _weapon = GetComponent<Weapon>();
-    }
 
     public void ConsumeEnergy(int num)
     {

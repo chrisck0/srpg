@@ -9,7 +9,7 @@ public class UnitDataParser : DataParserBase
     [SerializeField] private string _unitDataUrl;
     [SerializeField] private TextAsset _unitDataFile;
     [SerializeField] private List<UnitData> _unitDataList;
-    private const int COLUMN = 9;
+    private const int COLUMN = 10;
     private const int START_ROW_INDEX = 2;
 
     /// <summary>
@@ -57,6 +57,7 @@ public class UnitDataParser : DataParserBase
             int id, health, energy, move, accuracy, avoid;
             List<int> weaponIdList = new();
             UnitType unitType;
+            BehaviorType behaviorType;
 
             if (!int.TryParse(cells[0], out id)
                 || !int.TryParse(cells[2], out health)
@@ -65,6 +66,7 @@ public class UnitDataParser : DataParserBase
                 || !int.TryParse(cells[5], out accuracy)
                 || !int.TryParse(cells[6], out avoid)
                 || !Enum.TryParse<UnitType>(cells[8], out unitType)
+                || !Enum.TryParse<BehaviorType>(cells[9], out behaviorType)
                 )
             {
                 Debug.LogError("Parse Error");
@@ -91,7 +93,7 @@ public class UnitDataParser : DataParserBase
             }
 
             _unitDataList[i - START_ROW_INDEX].SetData(
-                id, name, health, energy, move, accuracy, avoid, weaponIdList, unitType);
+                id, name, health, energy, move, accuracy, avoid, weaponIdList, unitType, behaviorType);
         }
     }
 }

@@ -21,6 +21,7 @@ public sealed class EnemyPhaseState : StateBase
     {
         foreach (EnemyUnit enemyUnit in _enemyUnitList)
         {
+            enemyUnit.UnitStat.AddEnergy(5);
             _activeEnemyUnit.Enqueue(enemyUnit);
         }
         Debug.Log("EnemyPhase Start");
@@ -36,8 +37,9 @@ public sealed class EnemyPhaseState : StateBase
 
                 Debug.Log($"Current turn : {_currentEnemyUnit.UnitStat.UnitData.Name}");
 
-                _currentEnemyUnit.BindInputEvents();
-                BindPlayerUnitEvents();
+                BindEnemyUnitEvents();
+
+                _currentEnemyUnit.EnemyAI.Behave();
             }
             else
             {
@@ -57,20 +59,19 @@ public sealed class EnemyPhaseState : StateBase
         _phaseStateController.StartPlayerPhase();
     }
 
-    private void PlayerActioned()
+    private void EnemyActioned()
     {
-        UnbindPlayerUnitEvents();
-        _currentEnemyUnit.UnbindInputEvents();
+        UnbindEnemyUnitEvents();
         _currentEnemyUnit = null;
     }
 
-    private void BindPlayerUnitEvents()
+    private void BindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned += PlayerActioned;
+        _currentEnemyUnit.OnEnemyActioned += EnemyActioned;
     }
 
-    private void UnbindPlayerUnitEvents()
+    private void UnbindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned -= PlayerActioned;
+        _currentEnemyUnit.OnEnemyActioned -= EnemyActioned;
     }
 }
