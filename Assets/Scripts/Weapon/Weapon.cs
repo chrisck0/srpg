@@ -43,10 +43,62 @@ public class Weapon : MonoBehaviour
         return false;
     }
 
+    public void ClearCoords()
+    {
+        _localTargetCoords.Clear();
+        _globalTargetCoords.Clear();
+    }
+
+    public void ShowSelectRange(WeaponData weaponData)
+    {
+        Vector2Int coord = transform.position.WorldToCoord();
+
+        switch (weaponData.WeaponType)
+        {
+            case WeaponType.SelectTarget:
+                ShowSelectTargetRange(coord, weaponData.MinRange, weaponData.MaxRange, true);
+                break;
+            case WeaponType.SelectDirection:
+                SetLocalTargetCoords(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
+                break;
+        }
+    }
+
+    private void ShowSelectTargetRange(Vector2Int coord, int minRange, int maxRange, bool isWeaponRange)
+    {
+        TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(coord, minRange, maxRange, isWeaponRange);
+    }
+
+    private void SetLocalTargetCoords(Vector2Int coord, WeaponRangeShape weaponRangeShape, int explosionRange)
+    {
+        _localTargetCoords.Clear();
+
+        switch (weaponRangeShape)
+        {
+            case WeaponRangeShape.Line:
+                for (int i = 0; i < explosionRange; i++)
+                {
+                    _localTargetCoords.Add(new Vector2Int(0, i + 1));
+                }
+                break;
+
+            case WeaponRangeShape.CircularSector:
+                for (int i = 0; i < explosionRange; i++)
+                {
+                    for (int j = -i; j <= i; j++)
+                    {
+                        _localTargetCoords.Add(new Vector2Int(j, i + 1));
+                    }
+                }
+                break;
+        }
+    }
+
     /// <summary>
     /// 무기 범위 계산
     /// </summary>
-    public void ShowWeaponRange(MapManager mapManager, WeaponDirection weaponDirection,
+    public void ShowWeaponRange(
+        Vector2Int targetCoord, UnitType targetUnitType, MapManager mapManager, WeaponDirection weaponDirection,
         WeaponData weaponData, bool showRange)
     {
         _mapManager = mapManager;
@@ -56,14 +108,15 @@ public class Weapon : MonoBehaviour
         {
             case WeaponType.SelectTarget:
                 HidePreviousGlobalTargetRange();
-                SelectTargetRange(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange, showRange);
+                SelectTargetRange(targetCoord, targetUnitType,
+                    weaponData.WeaponRangeShape, weaponData.ExplosionRange, showRange);
                 break;
 
             case WeaponType.SelectDirection:
                 if (_prevWeaponDirection != weaponDirection)
                 {
                     HidePreviousGlobalTargetRange();
-                    SelectDirectionRange(coord, weaponDirection, showRange);
+                    SelectDirectionRange(coord, targetUnitType, weaponDirection, showRange);
                 }
                 break;
         }
@@ -77,15 +130,15 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private void SelectTargetRange(Vector2Int targetCoord, WeaponRangeShape weaponRangeShape,
-        int explosionRange, bool showRange)
+    private void SelectTargetRange(Vector2Int targetCoord, UnitType targetUnitType,
+        WeaponRangeShape weaponRangeShape, int explosionRange, bool showRange)
     {
         _globalTargetCoords.Clear();
 
         TileBase tile = _mapManager.TileMap[targetCoord.x, targetCoord.y];
         UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
 
-        if (!tile.CanSelect || unit != null && unit.UnitType == UnitType.Enemy) return;
+        if (!tile.CanSelect || unit == null || unit != null && unit.UnitType != targetUnitType) return;
 
         switch (weaponRangeShape)
         {
@@ -102,7 +155,7 @@ public class Weapon : MonoBehaviour
     }
 
     // 범위 공격 표시
-    private void SelectDirectionRange(Vector2Int coord, WeaponDirection direction, bool showRange)
+    private void SelectDirectionRange(Vector2Int coord, UnitType targetUnitType, WeaponDirection direction, bool showRange)
     {
         _globalTargetCoords.Clear();
         _canAttackArea = false;
@@ -136,11 +189,24 @@ public class Weapon : MonoBehaviour
 
             UnitBase unit = _mapManager.UnitMap[globalCoord.x, globalCoord.y];
 
-            if (unit != null && unit.UnitType == UnitType.Enemy) _canAttackArea = true;
+            if (unit != null && unit.UnitType == targetUnitType)
+            {
+                _canAttackArea = true;
+                _globalTargetCoords.Add(globalCoord);
+            }
 
             if (showRange) _mapManager.TileMap[globalCoord.x, globalCoord.y].ShowRange();
-            _globalTargetCoords.Add(globalCoord);
         }
+    }
+
+    public List<Vector2Int> GetGlobalTargetCoords()
+    {
+        return _globalTargetCoords;
+    }
+
+    public bool GetCanAttackArea()
+    {
+        return _canAttackArea;
     }
 
     private void CacheComponents()
