@@ -49,7 +49,7 @@ public sealed class UnitMoveState : StateBase
     {
         UnbindInputActions();
         _mapManager.TileRange.InitTiles();
-        _controller.HideCursor();
+        HideUI();
     }
 
     private void ShowMoveRange()
@@ -67,8 +67,8 @@ public sealed class UnitMoveState : StateBase
 
         if (!Physics.Raycast(ray, out hit, Mathf.Infinity, _ground))
         {
-            _controller.HideCursor();
             _currentTile = null;
+            HideUI();
             return;
         }
 
@@ -79,6 +79,8 @@ public sealed class UnitMoveState : StateBase
         _currentTile = tile;
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
+        _controller.ShowTileInfo(tile);
+        _controller.ShowUnitInfo(tile);
         _controller.ShowCursor(coord);
     }
 
@@ -97,6 +99,7 @@ public sealed class UnitMoveState : StateBase
         else
         {
             MoveToDestination(currentCoord, nextCoord);
+            HideUI();
         }
     }
 
@@ -143,6 +146,13 @@ public sealed class UnitMoveState : StateBase
     {
         if (_hasSelected) return;
         _controller.SetState(_controller.UnitSelectState);
+    }
+
+    private void HideUI()
+    {
+        _controller.HideCursor();
+        _controller.HideTileInfo();
+        _controller.HideUnitInfo();
     }
 
     private void BindInputActions()

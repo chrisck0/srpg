@@ -11,9 +11,6 @@ public class TargetSelectState : StateBase
     private InputActionReference _cursorPosition;
     private LayerMask _ground;
     private TileBase _currentTile;
-    private CommandUIController _commandUIController;
-    private TileInfoUI _tileInfoUI;
-    private UnitInfoUI _unitInfoUI;
     private List<Vector2Int> _localTargetCoords = new();
     private List<Vector2Int> _globalTargetCoords = new();
     private WeaponDirection _prevWeaponDirection = WeaponDirection.None;
@@ -23,17 +20,13 @@ public class TargetSelectState : StateBase
         InputActionReference selectAction,
         InputActionReference cancelAction,
         InputActionReference cursorPosition,
-        LayerMask ground,
-        CommandUIController commandUIController)
+        LayerMask ground)
     {
         _controller = controller;
         _selectAction = selectAction;
         _cancelAction = cancelAction;
         _cursorPosition = cursorPosition;
         _ground = ground;
-        _commandUIController = commandUIController;
-        _tileInfoUI = commandUIController.TileInfoUI;
-        _unitInfoUI = commandUIController.UnitInfoUI;
     }
 
     public override void Enter()
@@ -50,10 +43,8 @@ public class TargetSelectState : StateBase
 
         if (!Physics.Raycast(ray, out hit, Mathf.Infinity, _ground))
         {
-            _controller.HideCursor();
             _currentTile = null;
-            _tileInfoUI.Hide();
-            _unitInfoUI.Hide();
+            HideUI();
             return;
         }
 
@@ -64,10 +55,8 @@ public class TargetSelectState : StateBase
         _currentTile = tile;
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
-        ShowTileInfo(tile);
-        ShowUnitInfo(tile);
         ShowWeaponRange(coord);
-        _controller.ShowCursor(coord);
+        ShowBattleInfo(coord);
     }
 
     public override void Exit()
@@ -76,34 +65,8 @@ public class TargetSelectState : StateBase
         _mapManager.TileRange.InitTiles();
         _localTargetCoords.Clear();
         _globalTargetCoords.Clear();
-        _controller.HideCursor();
+        HideUI();
         _prevWeaponDirection = WeaponDirection.None;
-    }
-
-    private void ShowTileInfo(TileBase tile)
-    {
-        _tileInfoUI.Show();
-        TileData tileData = tile.TileData;
-        _tileInfoUI.SetData(tileData.Name, tileData.Description);
-    }
-
-    private void ShowUnitInfo(TileBase tile)
-    {
-        Vector2Int coord = tile.transform.position.WorldToCoord();
-        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
-
-        if (unit == null)
-        {
-            _unitInfoUI.Hide();
-            return;
-        }
-
-        _unitInfoUI.Show();
-        UnitStat unitStat = unit.UnitStat;
-        _unitInfoUI.SetData(unitStat.UnitData.Name,
-            $"HP {unitStat.Health}/{unitStat.UnitData.Health}",
-            $"EN {unitStat.Energy}/{unitStat.UnitData.Energy}",
-            unit.Weapon.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
     }
 
     private void ShowSelectRange(WeaponData weaponData)
@@ -276,6 +239,32 @@ public class TargetSelectState : StateBase
         }
     }
 
+    private void ShowBattleInfo(Vector2Int targetCoord)
+    {
+        UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
+        EnemyUnit enemyUnit = unit as EnemyUnit;
+
+        if (enemyUnit == null)
+        {
+            _controller.HideBattleInfo();
+            return;
+        }
+
+        foreach (Vector2Int coord in _globalTargetCoords)
+        {
+            if (coord != targetCoord) continue;
+
+            _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.UnitStat,
+                enemyUnit.UnitStat,
+                _controller.SelectedWeaponData,
+                enemyUnit.Weapon.WeaponDataList[0],
+                true,
+                true);
+            return;
+        }
+        _controller.HideBattleInfo();
+    }
+
     private void Select(InputAction.CallbackContext context)
     {
         if (_globalTargetCoords.Count == 0) return;
@@ -304,7 +293,17 @@ public class TargetSelectState : StateBase
 
             if (enemyUnit == null) return;
 
-            _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
+            bool isHit = ProbabilityCalculator.CalculateProbability(
+                _controller.Turn,
+                _controller.TotalPlayerUnits,
+                _controller.CurrentTurnCount,
+                _controller.SelectedPlayerUnit.UnitStat,
+                weaponData,
+                enemyUnit.UnitStat
+                );
+
+            if (isHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, enemyUnit);
+            else Debug.Log($"{enemyUnit.UnitStat.UnitData.Name} avoided");
         }
     }
 
@@ -312,6 +311,12 @@ public class TargetSelectState : StateBase
     {
         _controller.SetState(_controller.UnitCommandState);
         _controller.HideCursor();
+    }
+
+    private void HideUI()
+    {
+        _controller.HideCursor();
+        _controller.HideBattleInfo();
     }
 
     private void BindInputActions()

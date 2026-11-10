@@ -23,6 +23,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private PlayerUnit _selectedPlayerUnit;
     private Vector2Int _previousPlayerCoord;
     private WeaponData _selectedWeaponData;
+    private int _currentTurnCount;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public Action OnUnitCommandEnd;
@@ -36,6 +37,9 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public PlayerUnit SelectedPlayerUnit => _selectedPlayerUnit;
     public Vector2Int PreviousPlayerCoord => _previousPlayerCoord;
     public WeaponData SelectedWeaponData => _selectedWeaponData;
+    public int Turn => _phaseStateController.Turn;
+    public int TotalPlayerUnits => _phaseStateController.TotalPlayerUnits;
+    public int CurrentTurnCount => _currentTurnCount;
 
     private void Awake() => InitUnitCommandStates();
     private void OnEnable() => BindPhaseEvents();
@@ -45,13 +49,13 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private void InitUnitCommandStates()
     {
         _unitSelectState = new UnitSelectState(
-            this, _selectAction, _cursorPosition, _ground, _commandUIController);
+            this, _selectAction, _cursorPosition, _ground);
         _unitMoveState = new UnitMoveState(
             this, _selectAction, _cancelAction, _cursorPosition, _ground, _moveSpeed);
         _unitCommandState = new UnitCommandState(
             this, _cancelAction, _commandUIController);
         _targetSelectState = new TargetSelectState(
-            this, _selectAction, _cancelAction, _cursorPosition, _ground, _commandUIController);
+            this, _selectAction, _cancelAction, _cursorPosition, _ground);
         _commandEndState = new CommandEndState(this);
     }
 
@@ -61,8 +65,15 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _commandUIController.DeactivateAll();
     }
 
+    public void InitUnitCommand()
+    {
+        _currentTurnCount = 0;
+        StartUnitCommand();
+    }
+
     public void StartUnitCommand()
     {
+        _currentTurnCount++;
         SetState(_unitSelectState);
     }
 
@@ -90,23 +101,73 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public void ShowCursor(Vector2Int coord)
     {
         _tileCursor.SetPosition(coord);
-        _tileCursor.gameObject.SetActive(true);
+        _tileCursor.Show();
+    }
+
+    public void ShowTileInfo(TileBase tile)
+    {
+        _commandUIController.TileInfoUI.Show();
+        TileData tileData = tile.TileData;
+        _commandUIController.TileInfoUI.SetData(tileData.Name, tileData.Description);
+    }
+
+    public void ShowUnitInfo(TileBase tile)
+    {
+        Vector2Int coord = tile.transform.position.WorldToCoord();
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit == null)
+        {
+            _commandUIController.UnitInfoUI.Hide();
+            return;
+        }
+
+        _commandUIController.UnitInfoUI.Show();
+        UnitStat unitStat = unit.UnitStat;
+        _commandUIController.UnitInfoUI.SetData(unitStat.UnitData.Name,
+            $"HP {unitStat.Health}/{unitStat.UnitData.Health}",
+            $"EN {unitStat.Energy}/{unitStat.UnitData.Energy}",
+            unit.Weapon.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
+    }
+
+    public void ShowBattleInfo(UnitStat playerStat, UnitStat enemyStat,
+        WeaponData playerWeaponData, WeaponData enemyWeaponData,
+        bool canReturnAttack, bool isPlayerPhase)
+    {
+        _commandUIController.BattleInfoUI.SetData(playerStat, enemyStat, playerWeaponData, enemyWeaponData,
+            canReturnAttack, isPlayerPhase);
+        _commandUIController.BattleInfoUI.Show();
     }
 
     public void HideCursor()
     {
-        _tileCursor.gameObject.SetActive(false);
+        _tileCursor.Hide();
+    }
+
+    public void HideTileInfo()
+    {
+        _commandUIController.TileInfoUI.Hide();
+    }
+
+    public void HideUnitInfo()
+    {
+        _commandUIController.UnitInfoUI.Hide();
+    }
+
+    public void HideBattleInfo()
+    {
+        _commandUIController.BattleInfoUI.Hide();
     }
 
     private void BindPhaseEvents()
     {
-        _phaseStateController.OnPlayerPhaseStarted += StartUnitCommand;
+        _phaseStateController.OnPlayerPhaseStarted += InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted += EndUnitCommand;
     }
 
     private void UnbindPhaseEvents()
     {
-        _phaseStateController.OnPlayerPhaseStarted -= StartUnitCommand;
+        _phaseStateController.OnPlayerPhaseStarted -= InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted -= EndUnitCommand;
     }
 }

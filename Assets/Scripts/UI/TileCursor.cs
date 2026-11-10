@@ -9,4 +9,14 @@ public class TileCursor : MonoBehaviour
     {
         transform.position = coord.CoordToWorld();
     }
+
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
 }
