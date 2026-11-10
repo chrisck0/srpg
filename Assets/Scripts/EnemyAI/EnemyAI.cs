@@ -4,18 +4,24 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour
 {
     [SerializeField] private EnemyUnit _owner;
+    private AttackScoreCalculator _calculator;
     private BehaviorType _behaviorType;
     private MapManager _mapManager;
     private TileCost[,] _tileCostMap;
     private HashSet<Vector2Int> _reachableTiles;
     private Stack<Vector2Int> _pathCoordStack = new();
-    private Vector2Int _nextCoord;
+    private AttackScore _maxAttackScore;
     private bool _isMoving;
-    private Vector2Int _targetCoord;
+    private bool _canAttack;
+    private Vector2Int _moveTargetCoord;
+    private List<Vector2Int> _attackTargetCoords = new();
+
+    private void Awake() => Init();
 
     private void Update()
     {
         if (_isMoving) MoveUnit();
+        else if (_canAttack) Attack();
     }
 
     public void SetData(MapManager mapManager)
@@ -25,35 +31,25 @@ public class EnemyAI : MonoBehaviour
 
     public void Behave()
     {
-        int score = CalculateScore();
+        Vector2Int currentCoord = transform.position.WorldToCoord();
 
-        if (score == 0)
+        _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord);
+
+        Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
+            $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
+
+        _tileCostMap = _mapManager.TileRange.UnitMoveRange(
+            currentCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);
+
+        if (_maxAttackScore.Score == 0)
         {
             MoveToClosestTarget();
         }
-    }
-
-    private int CalculateScore()
-    {
-        _tileCostMap = _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(
-            transform.position.WorldToCoord(), _owner.UnitStat.UnitData.Move, UnitType.Player);
-        _reachableTiles = _mapManager.TileRange.ReachableTiles;
-        Debug.Log(_reachableTiles.Count);
-
-        int maxScore = 0;
-        Vector2Int resultCoord = Vector2Int.zero;
-
-        foreach (Vector2Int coord in _reachableTiles)
+        else
         {
-            int score = CalculateAttackScore(coord);
-            if (score > maxScore)
-            {
-                maxScore = score;
-                resultCoord = coord;
-            }
+            MoveToDestination(currentCoord, _maxAttackScore.CurrentCoord);
+            _canAttack = true;
         }
-
-        return maxScore;
     }
 
     private void MoveToClosestTarget()
@@ -115,12 +111,12 @@ public class EnemyAI : MonoBehaviour
             pathCoord = _tileCostMap[pathCoord.x, pathCoord.y].PrevTileCost.Coord;
         }
 
-        _targetCoord = currentCoord;
+        _moveTargetCoord = currentCoord;
     }
 
     private void MoveUnit()
     {
-        if (Vector3.Distance(transform.position, _targetCoord.CoordToWorld()) >= 0.1f)
+        if (Vector3.Distance(transform.position, _moveTargetCoord.CoordToWorld()) >= 0.1f)
         {
             transform.Translate(Vector3.forward
                 * Time.deltaTime * _owner.MoveSpeed);
@@ -129,25 +125,25 @@ public class EnemyAI : MonoBehaviour
 
         if (_pathCoordStack.Count == 0)
         {
-            _mapManager.UnitMap[_targetCoord.x, _targetCoord.y] = _owner;
+            _mapManager.UnitMap[_moveTargetCoord.x, _moveTargetCoord.y] = _owner;
             _isMoving = false;
             _owner.OnEnemyActioned?.Invoke();
             return;
         }
 
-        _targetCoord = _pathCoordStack.Pop();
-        transform.LookAt(_targetCoord.CoordToWorld());
+        _moveTargetCoord = _pathCoordStack.Pop();
+        transform.LookAt(_moveTargetCoord.CoordToWorld());
         transform.Translate(Vector3.forward
             * Time.deltaTime * _owner.MoveSpeed);
     }
 
-    private int CalculateAttackScore(Vector2Int targetCoord)
-    {
-        return 0;
-    }
-
     private void Attack()
     {
+        Debug.Log("Enemy Attacked");
+    }
 
+    private void Init()
+    {
+        _calculator = new AttackScoreCalculator(_owner);
     }
 }

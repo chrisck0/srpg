@@ -197,7 +197,7 @@ public class TargetSelectState : StateBase
             if (globalCoord.x < 0
                 || globalCoord.y < 0
                 || globalCoord.x >= _mapManager.TileMap.GetLength(0)
-                || globalCoord.y >= _mapManager.TileMap.GetLength(1)) return;
+                || globalCoord.y >= _mapManager.TileMap.GetLength(1)) continue;
 
             UnitBase unit = _mapManager.UnitMap[globalCoord.x, globalCoord.y];
 
@@ -287,6 +287,7 @@ public class TargetSelectState : StateBase
         foreach (Vector2Int coord in _globalTargetCoords)
         {
             AttackTarget(weaponData, coord);
+            if (CalculateGetReturnAttack(coord)) GetReturnAttack(coord);
         }
         _controller.SetState(_controller.CommandEndState);
     }
@@ -308,31 +309,41 @@ public class TargetSelectState : StateBase
                 targetUnit.UnitStat
                 );
 
-            bool isHit = false;
-
-            Vector2Int attackerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
-            int distance = VectorExtensions.CoordDistance(attackerCoord, targetCoord);
-
-            WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
-            if (targetWeapon.MinRange <= distance
-                && targetWeapon.MaxRange >= distance)
-            {
-                isHit = ProbabilityCalculator.CalculateProbability(
-                    _controller.Turn,
-                    _controller.TotalPlayerUnits,
-                    _controller.CurrentTurnCount,
-                    targetUnit.UnitStat,
-                    targetWeapon,
-                    _controller.SelectedPlayerUnit.UnitStat
-                    );
-            }
-
             if (canHit) _controller.SelectedPlayerUnit.Weapon.Attack(_controller.SelectedWeaponData, targetUnit);
             else Debug.Log($"{targetUnit.UnitStat.UnitData.Name} avoided");
-
-            if (isHit) targetUnit.Weapon.Attack(targetWeapon, _controller.SelectedPlayerUnit);
-            else Debug.Log($"No return attack");
         }
+    }
+
+    private bool CalculateGetReturnAttack(Vector2Int targetCoord)
+    {
+        bool isHit = false;
+        UnitBase targetUnit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
+
+        Vector2Int attackerCoord = _controller.SelectedPlayerUnit.transform.position.WorldToCoord();
+        int distance = VectorExtensions.CoordDistance(attackerCoord, targetCoord);
+
+        WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
+        if (targetWeapon.MinRange <= distance
+            && targetWeapon.MaxRange >= distance)
+        {
+            isHit = ProbabilityCalculator.CalculateProbability(
+                _controller.Turn,
+                _controller.TotalPlayerUnits,
+                _controller.CurrentTurnCount,
+                targetUnit.UnitStat,
+                targetWeapon,
+                _controller.SelectedPlayerUnit.UnitStat
+                );
+        }
+
+        return isHit;
+    }
+
+    private void GetReturnAttack(Vector2Int targetCoord)
+    {
+        UnitBase targetUnit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
+        WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
+        targetUnit.Weapon.Attack(targetWeapon, _controller.SelectedPlayerUnit);
     }
 
     private void Cancel(InputAction.CallbackContext context)

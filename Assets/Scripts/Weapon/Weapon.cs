@@ -21,6 +21,18 @@ public class Weapon : MonoBehaviour
         target.TakeDamage(weaponData.Attack);
     }
 
+    public bool CanGetReturnAttack(int distance)
+    {
+        WeaponData weapon = WeaponDataList[0];
+        if (weapon.MinRange <= distance
+            && weapon.MaxRange >= distance)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private void CacheComponents()
     {
         _owner = GetComponent<UnitBase>();

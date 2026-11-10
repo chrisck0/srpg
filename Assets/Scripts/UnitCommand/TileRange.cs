@@ -213,7 +213,8 @@ public class TileRange
                 else
                 {
                     _tileMap[currentCoord.x, currentCoord.y].ShowRange();
-                    coordList.Add(currentCoord);
+                    if (_unitMap[currentCoord.x, currentCoord.y] != null)
+                        coordList.Add(currentCoord);
                 }
             }
                 
@@ -309,6 +310,7 @@ public class TileRange
         return null;
     }
 
+    // 상대 유닛의 이웃한 타일까지의 거리
     public int GetUnreachableDistance(Vector2Int coord)
     {
         int distance = int.MaxValue;
