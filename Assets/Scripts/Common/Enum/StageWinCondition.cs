@@ -3,5 +3,5 @@ using UnityEngine;
 public enum StageWinCondition
 {
     Rout,
-    Boss
+    Targets
 }

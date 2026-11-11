@@ -66,6 +66,7 @@ public class StageDataParser : DataParserBase
         StageWinCondition stageWinCondition;
         TileType[,] map;
         List<int> targetIds = new();
+        List<int> mainIds = new();
         List <UnitPosition> unitPositionList = new();
 
         string[] stageInfos = lines[STAGE_INFO_ROW_INDEX].Split(',');
@@ -80,12 +81,20 @@ public class StageDataParser : DataParserBase
             return;
         }
 
-        string[] ids = stageInfos[5].Split('.');
+        string[] targetIdStrings = stageInfos[5].Split('.');
 
-        for (int i = 0; i < ids.Length; i++)
+        for (int i = 0; i < targetIdStrings.Length; i++)
         {
-            if (!int.TryParse(ids[i], out int id)) continue;
+            if (!int.TryParse(targetIdStrings[i], out int id)) continue;
             targetIds.Add(id);
+        }
+
+        string[] mainIdStrings = stageInfos[6].Split('.');
+
+        for (int i = 0; i < mainIdStrings.Length; i++)
+        {
+            if (!int.TryParse(mainIdStrings[i], out int id)) continue;
+            mainIds.Add(id);
         }
 
         stageName = stageInfos[1];
@@ -130,7 +139,7 @@ public class StageDataParser : DataParserBase
             unitPositionList.Add(new UnitPosition(unitId, unitPosition));
         }
 
-        _stageDataList[index].SetData(stageId, stageName, stageWinCondition, targetIds, map, unitPositionList);
+        _stageDataList[index].SetData(stageId, stageName, stageWinCondition, targetIds, mainIds, map, unitPositionList);
         // _stageDataList[index].PrintMap();
     }
 }

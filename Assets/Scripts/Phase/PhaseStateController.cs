@@ -2,11 +2,13 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(StateMachine))]
 public class PhaseStateController : MonoBehaviour, IStateEvent
 {
+    [SerializeField] private InputActionReference _selectAction;
     [SerializeField] private StateMachine _stateMachine;
     [SerializeField] private UnitCommandStateController _unitCommandStateController;
     [SerializeField] private SpawnManager _spawnManager;
@@ -53,8 +55,19 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         _gameUIController.DeactivateAll();
     }
 
-    private void StartPhase()
+    private void ShowGameCondition()
     {
+        _selectAction.action.Enable();
+        _selectAction.action.performed += StartPhase;
+        _gameUIController.GameWinLoseConditionUI.Show();
+    }
+
+    private void StartPhase(InputAction.CallbackContext context)
+    {
+        _selectAction.action.Disable();
+        _selectAction.action.performed -= StartPhase;
+        _gameUIController.GameWinLoseConditionUI.Hide();
+
         InitPhaseStates(_spawnManager.SpawnedUnitDict);
         StartPlayerPhase();
     }
@@ -142,7 +155,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         Vector2Int coord = unit.transform.position.WorldToCoord();
         _mapManager.UnitMap[coord.x, coord.y] = null;
 
-        if (_playerUnitList.Count == 0) ShowGameResult(false);
+        if (CheckGameLose(unit)) ShowGameResult(false);
         if (CheckGameWin(unit)) ShowGameResult(true);
         UnbindUnitEvents(unit);
     }
@@ -155,11 +168,20 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
                 if (_enemyUnitList.Count == 0) return true;
                 break;
 
-            case StageWinCondition.Boss:
+            case StageWinCondition.Targets:
                 if (_spawnManager.StageData.TargetIds[0] == unit.UnitStat.UnitData.Id) return true;
                 break;
         }
 
+        return false;
+    }
+
+    private bool CheckGameLose(UnitBase unit)
+    {
+        foreach (int mainUnitId in _spawnManager.StageData.MainUnitIds)
+        {
+            if (mainUnitId == unit.UnitStat.UnitData.Id) return true;
+        }
         return false;
     }
 
@@ -189,12 +211,12 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private void BindSpawnEvents()
     {
-        _spawnManager.OnStageLoaded += StartPhase;
+        _spawnManager.OnStageLoaded += ShowGameCondition;
     }
 
     private void UnbindSpawnEvents()
     {
-        _spawnManager.OnStageLoaded -= StartPhase;
+        _spawnManager.OnStageLoaded -= ShowGameCondition;
     }
 
     private void BindUnitEvents(UnitBase unit)
