@@ -8,18 +8,22 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 {
     [SerializeField] private UnitCommandStateController _unitCommandStateController;
     [SerializeField] private SpawnManager _spawnManager;
+    [SerializeField] private MapManager _mapManager;
     [SerializeField] private Button _endTurnButton;
 
     private StateBase _playerPhaseState;
     private StateBase _enemyPhaseState;
     private int _turn;
     private int _totalPlayerUnits;
+    private int _totalEnemyUnits;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public event Action OnPlayerPhaseStarted;
     public event Action OnEnemyPhaseStarted;
+    public MapManager MapManager => _mapManager;
     public int Turn => _turn;
     public int TotalPlayerUnits => _totalPlayerUnits;
+    public int TotalEnemyUnits => _totalEnemyUnits;
 
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
@@ -49,6 +53,16 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
         _totalPlayerUnits = playerUnitList.Count;
+
+        if (!spawnedUnitDict.TryGetValue(UnitType.Enemy, out List<UnitBase> enemyUnitList)) return;
+        _totalEnemyUnits = enemyUnitList.Count;
+        foreach (UnitBase unit in enemyUnitList)
+        {
+            EnemyUnit enemyUnit = unit as EnemyUnit;
+
+            if (enemyUnit == null) continue;
+            enemyUnit.EnemyAI.SetData(_mapManager);
+        }
     }
 
     public void StartPlayerPhase()

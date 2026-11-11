@@ -47,9 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 908af8245d8bec741898a09254501318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
-  _unit: {fileID: 0}
+  _unit: {fileID: 5098266066512719581}
   _unitData: {fileID: 0}
-  _weaponDataList: []
   _health: 0
   _energy: 0
 --- !u!114 &1814263688122856066
@@ -77,6 +76,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 753ca01a93e6c9e40896a9baf06c2143, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerUnit
+  _unitStat: {fileID: 5214722165782981439}
+  _weapon: {fileID: 1814263688122856066}
+  _moveSpeed: 8
   _playerAction: {fileID: -6659891641740072789, guid: 1fb15236ea930174ebfda5b423948a3e, type: 3}
 --- !u!1 &8313401872463953907
 GameObject:

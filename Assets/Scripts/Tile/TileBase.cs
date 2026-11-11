@@ -18,12 +18,16 @@ public abstract class TileBase : MonoBehaviour, IPoolable
 
     private void Awake() => InitTile();
 
+    public void SetCanSelect()
+    {
+        _canSelect = true;
+    }
+
     public void ShowDistance(int num)
     {
         _distanceText.gameObject.SetActive(true);
         _distanceText.text = num.ToString();
         _blueTransparentTile.gameObject.SetActive(true);
-        _canSelect = true;
     }
 
     public void ShowRange()

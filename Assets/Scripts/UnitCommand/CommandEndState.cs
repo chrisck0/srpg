@@ -11,7 +11,6 @@ public sealed class CommandEndState : StateBase
 
     public override void Enter()
     {
-        Debug.Log("Command End");
         _controller.SelectedPlayerUnit?.Action();
         _controller.OnUnitCommandEnd?.Invoke();
     }

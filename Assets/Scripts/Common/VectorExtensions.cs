@@ -15,6 +15,11 @@ public static class VectorExtensions
         );
     }
 
+    public static int CoordDistance(Vector2 coord1, Vector2 coord2)
+    {
+        return Mathf.FloorToInt(Mathf.Abs(coord1.x - coord2.x) + Mathf.Abs(coord1.y - coord2.y));
+    }
+
     /// <summary>
     /// 맵 좌표를 월드 위치로 변환
     /// </summary>

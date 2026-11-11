@@ -1,16 +1,18 @@
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 
 public sealed class EnemyPhaseState : StateBase
 {
-    private PhaseStateController _phaseStateController;
+    private PhaseStateController _controller;
     private List<UnitBase> _enemyUnitList;
     private Queue<EnemyUnit> _activeEnemyUnit = new();
     private EnemyUnit _currentEnemyUnit;
+    private int _currentTurnCount;
 
-    public EnemyPhaseState(PhaseStateController phaseStateController, Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
+    public EnemyPhaseState(PhaseStateController controller, Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
-        _phaseStateController = phaseStateController;
+        _controller = controller;
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Enemy, out List<UnitBase> enemyUnitList)) return;
 
@@ -21,6 +23,7 @@ public sealed class EnemyPhaseState : StateBase
     {
         foreach (EnemyUnit enemyUnit in _enemyUnitList)
         {
+            enemyUnit.UnitStat.AddEnergy(5);
             _activeEnemyUnit.Enqueue(enemyUnit);
         }
         Debug.Log("EnemyPhase Start");
@@ -32,16 +35,23 @@ public sealed class EnemyPhaseState : StateBase
         {
             if (_activeEnemyUnit.Count != 0)
             {
+                _currentTurnCount++;
                 _currentEnemyUnit = _activeEnemyUnit.Dequeue();
 
                 Debug.Log($"Current turn : {_currentEnemyUnit.UnitStat.UnitData.Name}");
 
-                _currentEnemyUnit.BindInputEvents();
-                BindPlayerUnitEvents();
+                BindEnemyUnitEvents();
+
+                _currentEnemyUnit.EnemyAI.Behave(
+                    _controller.Turn,
+                    _controller.TotalEnemyUnits,
+                    _currentTurnCount
+                    );
             }
             else
             {
                 EnemyPhaseEnd();
+                _currentTurnCount = 0;
             }
         }
     }
@@ -54,23 +64,29 @@ public sealed class EnemyPhaseState : StateBase
 
     private void EnemyPhaseEnd()
     {
-        _phaseStateController.StartPlayerPhase();
+        _controller.StartPlayerPhase();
     }
 
-    private void PlayerActioned()
+    private void EnemyActioned()
     {
-        UnbindPlayerUnitEvents();
-        _currentEnemyUnit.UnbindInputEvents();
+        UnbindEnemyUnitEvents();
+        WaitForSeconds().Forget();
+    }
+
+    private async UniTask WaitForSeconds()
+    {
+        await UniTask.Delay(1000, DelayType.DeltaTime);
+        _controller.MapManager.TileRange.InitTiles();
         _currentEnemyUnit = null;
     }
 
-    private void BindPlayerUnitEvents()
+    private void BindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned += PlayerActioned;
+        _currentEnemyUnit.OnEnemyActioned += EnemyActioned;
     }
 
-    private void UnbindPlayerUnitEvents()
+    private void UnbindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned -= PlayerActioned;
+        _currentEnemyUnit.OnEnemyActioned -= EnemyActioned;
     }
 }
