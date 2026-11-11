@@ -5800,9 +5800,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneReferenceSample
   _nextScene:
-    _sceneAsset: {fileID: 102900000, guid: a4f50291a1eda4846a438bad83ef20b2, type: 3}
-    _scenePath: Assets/Scenes/GameScene.unity
-    _sceneName: GameScene
+    _sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
+    _scenePath: Assets/Scenes/TitleScene.unity
+    _sceneName: TitleScene
 --- !u!1 &1063786766
 GameObject:
   m_ObjectHideFlags: 0
