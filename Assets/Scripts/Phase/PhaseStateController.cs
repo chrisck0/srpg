@@ -14,16 +14,16 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     private StateBase _playerPhaseState;
     private StateBase _enemyPhaseState;
     private int _turn;
-    private int _totalPlayerUnits;
-    private int _totalEnemyUnits;
+    private List<UnitBase> _playerUnitList;
+    private List<UnitBase> _enemyUnitList;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public event Action OnPlayerPhaseStarted;
     public event Action OnEnemyPhaseStarted;
     public MapManager MapManager => _mapManager;
     public int Turn => _turn;
-    public int TotalPlayerUnits => _totalPlayerUnits;
-    public int TotalEnemyUnits => _totalEnemyUnits;
+    public int TotalPlayerUnits => _playerUnitList.Count;
+    public int TotalEnemyUnits => _enemyUnitList.Count;
 
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
@@ -52,15 +52,25 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         _enemyPhaseState = new EnemyPhaseState(this, spawnedUnitDict);
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
-        _totalPlayerUnits = playerUnitList.Count;
+        _playerUnitList = playerUnitList;
+
+        foreach (UnitBase playerUnitBase in _playerUnitList)
+        {
+            PlayerUnit playerUnit = playerUnitBase as PlayerUnit;
+
+            if (playerUnit == null) continue;
+            BindUnitEvents(playerUnit);
+        }
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Enemy, out List<UnitBase> enemyUnitList)) return;
-        _totalEnemyUnits = enemyUnitList.Count;
-        foreach (UnitBase unit in enemyUnitList)
+        _enemyUnitList = enemyUnitList;
+
+        foreach (UnitBase enemyUnitBase in _enemyUnitList)
         {
-            EnemyUnit enemyUnit = unit as EnemyUnit;
+            EnemyUnit enemyUnit = enemyUnitBase as EnemyUnit;
 
             if (enemyUnit == null) continue;
+            BindUnitEvents(enemyUnit);
             enemyUnit.EnemyAI.SetData(_mapManager);
         }
     }
@@ -76,6 +86,26 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         SetState(_enemyPhaseState);
         OnEnemyPhaseStarted?.Invoke();
+    }
+
+    private void UnitDead(UnitBase unit)
+    {
+        Debug.Log($"{unit.UnitStat.UnitData.Name} Died");
+        switch (unit.UnitType)
+        {
+            case UnitType.Player:
+                _playerUnitList.Remove(unit);
+                break;
+
+            case UnitType.Enemy:
+                _enemyUnitList.Remove(unit);
+                break;
+        }
+
+        Vector2Int coord = unit.transform.position.WorldToCoord();
+        _mapManager.UnitMap[coord.x, coord.y] = null;
+
+        UnbindUnitEvents(unit);
     }
 
     public void SetState(StateBase state)
@@ -101,5 +131,15 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     private void UnbindSpawnEvents()
     {
         _spawnManager.OnStageLoaded -= StartPhase;
+    }
+
+    private void BindUnitEvents(UnitBase unit)
+    {
+        unit.OnUnitDead += UnitDead;
+    }
+
+    private void UnbindUnitEvents(UnitBase unit)
+    {
+        unit.OnUnitDead -= UnitDead;
     }
 }

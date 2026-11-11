@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(UnitStat), typeof(Weapon))]
@@ -10,6 +11,7 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
     protected int _energy;
     private ObjectPool<UnitBase> _objectPool;
 
+    public event Action<UnitBase> OnUnitDead;
     public UnitStat UnitStat => _unitStat;
     public Weapon Weapon => _weapon;
     public float MoveSpeed => _moveSpeed;
@@ -29,7 +31,7 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
 
     public void Die()
     {
-        Debug.Log($"{_unitStat.UnitData.Name} Died");
+        OnUnitDead?.Invoke(this);
         ReturnToPool();
     }
 
