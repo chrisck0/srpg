@@ -8,6 +8,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private List<UnitBase> _unitPrefabs;
     [SerializeField] private List<TileBase> _tilePrefabs;
 
+    private StageData _stageData;
     private ObjectPool<UnitBase> _unitObjectPool;
     private ObjectPool<TileBase> _tileObjectPool;
     private Dictionary<UnitType, UnitBase> _unitPrefabDict = new();
@@ -16,6 +17,7 @@ public class SpawnManager : MonoBehaviour
     private TileBase[,] _tileMap;
     private UnitBase[,] _unitMap;
 
+    public StageData StageData => _stageData;
     public Dictionary<UnitType, List<UnitBase>> SpawnedUnitDict => _spawnedUnitDict;
     public TileBase[,] TileMap => _tileMap;
     public UnitBase[,] UnitMap => _unitMap;
@@ -28,7 +30,7 @@ public class SpawnManager : MonoBehaviour
         CreatePrefabDict();
     }
 
-    private void Start() => SpawnStage(1); // 스테이지 1
+    private void Start() => SpawnStage();
     private void CreatePools()
     {
         _unitObjectPool = new ObjectPool<UnitBase>(_unitPrefabs, new GameObject("UnitObjectPool").transform);
@@ -48,12 +50,13 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    private void SpawnStage(int stageId)
+    private void SpawnStage()
     {
-        if (!_dataManager.StageDataDict.TryGetValue(stageId, out StageData stageData)) return;
+        // if (!_dataManager.StageDataDict.TryGetValue(stageId, out StageData stageData)) return;
+        _stageData = GameManager.Instance.GetStageData();
 
-        CreateMapAndSpawnMap(stageData.Map);
-        CreateMapAndSpawnUnits(stageData.UnitPositionList);
+        CreateMapAndSpawnMap(_stageData.Map);
+        CreateMapAndSpawnUnits(_stageData.UnitPositionList);
         OnStageLoaded?.Invoke();
     }
 

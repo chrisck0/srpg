@@ -65,6 +65,7 @@ public class StageDataParser : DataParserBase
         string stageName;
         StageWinCondition stageWinCondition;
         TileType[,] map;
+        List<int> targetIds = new();
         List <UnitPosition> unitPositionList = new();
 
         string[] stageInfos = lines[STAGE_INFO_ROW_INDEX].Split(',');
@@ -77,6 +78,14 @@ public class StageDataParser : DataParserBase
         {
             Debug.LogError("Stage Info Parse Error");
             return;
+        }
+
+        string[] ids = stageInfos[5].Split('.');
+
+        for (int i = 0; i < ids.Length; i++)
+        {
+            if (!int.TryParse(ids[i], out int id)) continue;
+            targetIds.Add(id);
         }
 
         stageName = stageInfos[1];
@@ -121,7 +130,7 @@ public class StageDataParser : DataParserBase
             unitPositionList.Add(new UnitPosition(unitId, unitPosition));
         }
 
-        _stageDataList[index].SetData(stageId, stageName, stageWinCondition, map, unitPositionList);
+        _stageDataList[index].SetData(stageId, stageName, stageWinCondition, targetIds, map, unitPositionList);
         // _stageDataList[index].PrintMap();
     }
 }

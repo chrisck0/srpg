@@ -110,6 +110,22 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         UnbindUnitEvents(unit);
     }
 
+    private bool CheckGameWin(UnitBase unit)
+    {
+        switch(_spawnManager.StageData.StageWinCondition)
+        {
+            case StageWinCondition.Rout:
+                if (_enemyUnitList.Count == 0) return true;
+                break;
+
+            case StageWinCondition.Boss:
+                // if (unit.UnitType.)
+                break;
+        }
+
+        return false;
+    }
+
     public void SetState(StateBase state)
     {
         OnStateChanged?.Invoke(state);
