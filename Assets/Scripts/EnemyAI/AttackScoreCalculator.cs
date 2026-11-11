@@ -42,6 +42,8 @@ public class AttackScoreCalculator
         AttackScore maxAttackScore = default;
         foreach (WeaponData weaponData in _owner.Weapon.WeaponDataList)
         {
+            if (weaponData.EnergyCost > _owner.UnitStat.Energy) continue;
+
             AttackScore currentAttackScore = default;
 
             switch (weaponData.WeaponType)
