@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     [SerializeField] private UnitCommandStateController _unitCommandStateController;
     [SerializeField] private SpawnManager _spawnManager;
     [SerializeField] private MapManager _mapManager;
+    [SerializeField] private GameUIController _gameUIController;
     [SerializeField] private Button _endTurnButton;
 
     private StateBase _playerPhaseState;
@@ -32,12 +34,18 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         BindButtonEvents();
         BindSpawnEvents();
+        InitUI();
     }
 
     private void OnDisable()
     {
         UnbindButtonEvents();
         UnbindSpawnEvents();
+    }
+
+    private void InitUI()
+    {
+        _gameUIController.DeactivateAll();
     }
 
     private void StartPhase()
@@ -77,13 +85,35 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     public void StartPlayerPhase()
     {
-        _turn++;
-        SetState(_playerPhaseState);
-        OnPlayerPhaseStarted?.Invoke();
+        WaitPlayerPhaseUI().Forget();
     }
 
     public void StartEnemyPhase()
     {
+        WaitEnemyPhaseUI().Forget();
+    }
+
+    private async UniTask WaitPlayerPhaseUI()
+    {
+        _turn++;
+        _gameUIController.PhaseUI.SetPlayerPhaseText();
+        _gameUIController.PhaseUI.Show();
+
+        await UniTask.Delay(3000, DelayType.Realtime);
+
+        _gameUIController.PhaseUI.Hide();
+        SetState(_playerPhaseState);
+        OnPlayerPhaseStarted?.Invoke();
+    }
+
+    private async UniTask WaitEnemyPhaseUI()
+    {
+        _gameUIController.PhaseUI.SetEnemyPhaseText();
+        _gameUIController.PhaseUI.Show();
+
+        await UniTask.Delay(3000, DelayType.Realtime);
+
+        _gameUIController.PhaseUI.Hide();
         SetState(_enemyPhaseState);
         OnEnemyPhaseStarted?.Invoke();
     }
@@ -106,7 +136,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         _mapManager.UnitMap[coord.x, coord.y] = null;
 
         if (_playerUnitList.Count == 0) Debug.Log("게임 오버");
-        if (_enemyUnitList.Count == 0) Debug.Log("모든 적군 처치");
+        if (CheckGameWin(unit)) Debug.Log("게임 승리");
         UnbindUnitEvents(unit);
     }
 
@@ -119,7 +149,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
                 break;
 
             case StageWinCondition.Boss:
-                // if (unit.UnitType.)
+                if (_spawnManager.StageData.TargetIds[0] == unit.UnitStat.UnitData.Id) return true;
                 break;
         }
 
