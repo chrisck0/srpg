@@ -9,6 +9,7 @@ public sealed class EnemyPhaseState : StateBase
     private Queue<EnemyUnit> _activeEnemyUnit = new();
     private EnemyUnit _currentEnemyUnit;
     private int _currentTurnCount;
+    private bool _isStateEnd;
 
     public EnemyPhaseState(PhaseStateController controller, Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
@@ -21,6 +22,7 @@ public sealed class EnemyPhaseState : StateBase
 
     public override void Enter()
     {
+        _isStateEnd = false;
         foreach (EnemyUnit enemyUnit in _enemyUnitList)
         {
             enemyUnit.UnitStat.AddEnergy(5);
@@ -31,6 +33,8 @@ public sealed class EnemyPhaseState : StateBase
 
     public override void Update()
     {
+        if (_isStateEnd) return;
+
         if (_currentEnemyUnit == null)
         {
             if (_activeEnemyUnit.Count != 0)
@@ -51,6 +55,7 @@ public sealed class EnemyPhaseState : StateBase
             else
             {
                 EnemyPhaseEnd();
+                _isStateEnd = true;
                 _currentTurnCount = 0;
             }
         }

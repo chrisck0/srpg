@@ -7,18 +7,29 @@ public class StageData : ScriptableObject
 {
     [SerializeField] private int _stageId;
     [SerializeField] private string _stageName;
+    [SerializeField] private StageWinCondition _stageWinCondition;
+    [SerializeField] private List<int> _targetIds;
+    [SerializeField] private List<int> _mainUnitIds;
     [SerializeField] private TileType[,] _map;
     [SerializeField] private List<UnitPosition> _unitPositionList;
 
     public int StageId => _stageId;
     public string StageName => _stageName;
+    public StageWinCondition StageWinCondition => _stageWinCondition;
+    public List<int> TargetIds => _targetIds;
+    public List<int> MainUnitIds => _mainUnitIds;
     public TileType[,] Map => _map;
     public List<UnitPosition> UnitPositionList => _unitPositionList;
 
-    public void SetData(int stageId, string stageName, TileType[,] map, List<UnitPosition> unitPositionList)
+    public void SetData(int stageId, string stageName, StageWinCondition stageWinCondition,
+        List<int> targetIds, List<int> mainUnitIds,
+        TileType[,] map, List<UnitPosition> unitPositionList)
     {
         _stageId = stageId;
         _stageName = stageName;
+        _stageWinCondition = stageWinCondition;
+        _targetIds = targetIds;
+        _mainUnitIds = mainUnitIds;
         _map = map;
         _unitPositionList = unitPositionList;
     }

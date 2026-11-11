@@ -1,21 +1,30 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(StateMachine))]
 public class PhaseStateController : MonoBehaviour, IStateEvent
 {
+    [SerializeField] private InputActionReference _selectAction;
+    [SerializeField] private StateMachine _stateMachine;
     [SerializeField] private UnitCommandStateController _unitCommandStateController;
     [SerializeField] private SpawnManager _spawnManager;
     [SerializeField] private MapManager _mapManager;
+    [SerializeField] private GameUIController _gameUIController;
     [SerializeField] private Button _endTurnButton;
 
     private StateBase _playerPhaseState;
     private StateBase _enemyPhaseState;
     private int _turn;
+    private int _initialPlayerNum;
+    private int _initialEnemyNum;
     private List<UnitBase> _playerUnitList;
     private List<UnitBase> _enemyUnitList;
+
+    public event Action OnGameEnd;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public event Action OnPlayerPhaseStarted;
@@ -32,6 +41,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         BindButtonEvents();
         BindSpawnEvents();
+        InitUI();
     }
 
     private void OnDisable()
@@ -40,8 +50,24 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         UnbindSpawnEvents();
     }
 
-    private void StartPhase()
+    private void InitUI()
     {
+        _gameUIController.DeactivateAll();
+    }
+
+    private void ShowGameCondition()
+    {
+        _selectAction.action.Enable();
+        _selectAction.action.performed += StartPhase;
+        _gameUIController.GameWinLoseConditionUI.Show();
+    }
+
+    private void StartPhase(InputAction.CallbackContext context)
+    {
+        _selectAction.action.Disable();
+        _selectAction.action.performed -= StartPhase;
+        _gameUIController.GameWinLoseConditionUI.Hide();
+
         InitPhaseStates(_spawnManager.SpawnedUnitDict);
         StartPlayerPhase();
     }
@@ -53,6 +79,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
         _playerUnitList = playerUnitList;
+        _initialPlayerNum = playerUnitList.Count;
 
         foreach (UnitBase playerUnitBase in _playerUnitList)
         {
@@ -64,6 +91,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Enemy, out List<UnitBase> enemyUnitList)) return;
         _enemyUnitList = enemyUnitList;
+        _initialEnemyNum = enemyUnitList.Count;
 
         foreach (UnitBase enemyUnitBase in _enemyUnitList)
         {
@@ -77,13 +105,35 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     public void StartPlayerPhase()
     {
-        _turn++;
-        SetState(_playerPhaseState);
-        OnPlayerPhaseStarted?.Invoke();
+        WaitPlayerPhaseUI().Forget();
     }
 
     public void StartEnemyPhase()
     {
+        WaitEnemyPhaseUI().Forget();
+    }
+
+    private async UniTask WaitPlayerPhaseUI()
+    {
+        _turn++;
+        _gameUIController.PhaseUI.SetPlayerPhaseText();
+        _gameUIController.PhaseUI.Show();
+
+        await UniTask.Delay(3000, DelayType.Realtime);
+
+        _gameUIController.PhaseUI.Hide();
+        SetState(_playerPhaseState);
+        OnPlayerPhaseStarted?.Invoke();
+    }
+
+    private async UniTask WaitEnemyPhaseUI()
+    {
+        _gameUIController.PhaseUI.SetEnemyPhaseText();
+        _gameUIController.PhaseUI.Show();
+
+        await UniTask.Delay(3000, DelayType.Realtime);
+
+        _gameUIController.PhaseUI.Hide();
         SetState(_enemyPhaseState);
         OnEnemyPhaseStarted?.Invoke();
     }
@@ -105,9 +155,43 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         Vector2Int coord = unit.transform.position.WorldToCoord();
         _mapManager.UnitMap[coord.x, coord.y] = null;
 
-        if (_playerUnitList.Count == 0) Debug.Log("게임 오버");
-        if (_enemyUnitList.Count == 0) Debug.Log("모든 적군 처치");
+        if (CheckGameLose(unit)) ShowGameResult(false);
+        if (CheckGameWin(unit)) ShowGameResult(true);
         UnbindUnitEvents(unit);
+    }
+
+    private bool CheckGameWin(UnitBase unit)
+    {
+        switch(_spawnManager.StageData.StageWinCondition)
+        {
+            case StageWinCondition.Rout:
+                if (_enemyUnitList.Count == 0) return true;
+                break;
+
+            case StageWinCondition.Targets:
+                if (_spawnManager.StageData.TargetIds[0] == unit.UnitStat.UnitData.Id) return true;
+                break;
+        }
+
+        return false;
+    }
+
+    private bool CheckGameLose(UnitBase unit)
+    {
+        foreach (int mainUnitId in _spawnManager.StageData.MainUnitIds)
+        {
+            if (mainUnitId == unit.UnitStat.UnitData.Id) return true;
+        }
+        return false;
+    }
+
+    private void ShowGameResult(bool isGameWin)
+    {
+        _gameUIController.ResultUI.SetData(isGameWin, _turn,
+            _initialEnemyNum - _enemyUnitList.Count, _initialPlayerNum - _playerUnitList.Count);
+        _stateMachine.enabled = false;
+        _mapManager.TileRange.InitTiles();
+        OnGameEnd?.Invoke();
     }
 
     public void SetState(StateBase state)
@@ -127,12 +211,12 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private void BindSpawnEvents()
     {
-        _spawnManager.OnStageLoaded += StartPhase;
+        _spawnManager.OnStageLoaded += ShowGameCondition;
     }
 
     private void UnbindSpawnEvents()
     {
-        _spawnManager.OnStageLoaded -= StartPhase;
+        _spawnManager.OnStageLoaded -= ShowGameCondition;
     }
 
     private void BindUnitEvents(UnitBase unit)

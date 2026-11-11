@@ -45,7 +45,10 @@ public sealed class PlayerPhaseState : StateBase
     private void UnitCommandEnd()
     {
         _activePlayerUnit--;
-        if (_activePlayerUnit == 0) PlayerPhaseEnd();
+        if (_activePlayerUnit == 0)
+        {
+            PlayerPhaseEnd();
+        }
         else _unitCommandStateController.StartUnitCommand();
     }
 

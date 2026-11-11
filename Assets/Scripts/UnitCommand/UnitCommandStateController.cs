@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(StateMachine))]
 public class UnitCommandStateController : MonoBehaviour, IStateEvent
 {
+    [SerializeField] private StateMachine _stateMachine;
     [SerializeField] private PhaseStateController _phaseStateController;
     [SerializeField] private MapManager _mapManager;
     [SerializeField] private TileCursor _tileCursor;
@@ -138,6 +139,11 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _commandUIController.BattleInfoUI.Show();
     }
 
+    private void GameEnd()
+    {
+        _stateMachine.enabled = false;
+    }
+
     public void HideCursor()
     {
         _tileCursor.Hide();
@@ -162,11 +168,13 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     {
         _phaseStateController.OnPlayerPhaseStarted += InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted += EndUnitCommand;
+        _phaseStateController.OnGameEnd += GameEnd;
     }
 
     private void UnbindPhaseEvents()
     {
         _phaseStateController.OnPlayerPhaseStarted -= InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted -= EndUnitCommand;
+        _phaseStateController.OnGameEnd -= GameEnd;
     }
 }

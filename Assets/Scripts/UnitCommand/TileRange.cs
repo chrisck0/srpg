@@ -32,6 +32,7 @@ public class TileRange
         }
     }
 
+    // 다익스트라 관련 초기화
     private void Init()
     {
         for (int i = 0; i < _tileMap.GetLength(0); i++)
@@ -47,6 +48,9 @@ public class TileRange
         _priorityQueueIndex.Clear();
     }
 
+    /// <summary>
+    /// 타일의 정보 (선택 가능, 색 표시) 초기화
+    /// </summary>
     public void InitTiles()
     {
         for (int i = 0; i < _tileMap.GetLength(0); i++)
@@ -189,7 +193,10 @@ public class TileRange
         return _tileCostMap;
     }
 
-    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool showDistance, bool showRange, List<Vector2Int> coordList)
+    /// <summary>
+    /// 타겟 선택 무기 내 범위의 좌표 저장
+    /// </summary>
+    public void SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool showDistance, bool showRange, List<Vector2Int> coordList)
     {
         Init();
 
@@ -240,10 +247,11 @@ public class TileRange
                 else PriorityQueueCompareWithParent(nextTileCost);
             }
         }
-
-        return _tileCostMap;
     }
 
+    /// <summary>
+    /// 시작과 끝 좌표의 거리를 계산
+    /// </summary>
     public TileCost CalculateTileCost(Vector2Int startCoord, Vector2Int endCoord, UnitType targetUnitType)
     {
         Init();
@@ -307,7 +315,9 @@ public class TileRange
         return null;
     }
 
-    // 상대 유닛의 이웃한 타일까지의 거리
+    /// <summary>
+    /// 상대 유닛의 이웃한 타일까지의 거리
+    /// </summary>
     public int GetUnreachableDistance(Vector2Int coord)
     {
         int distance = int.MaxValue;

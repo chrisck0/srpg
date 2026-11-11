@@ -49,6 +49,9 @@ public class Weapon : MonoBehaviour
         _globalTargetCoords.Clear();
     }
 
+    /// <summary>
+    /// 선택 무기 사거리, 공격 범위 설정
+    /// </summary>
     public void SetRange(WeaponData weaponData, MapManager mapManager, bool showDistance)
     {
         _mapManager = mapManager;
@@ -66,12 +69,14 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    // 무기 사거리 설정
     private void SetSelectTargetWeaponRange(Vector2Int coord, int minRange, int maxRange, bool showDistance)
     {
-        TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(
+        _mapManager.TileRange.SelectTargetWeaponRange(
             coord, minRange, maxRange, showDistance, false, _globalTargetCoords);
     }
 
+    // 범위 무기의 공격 범위 설정 (로컬)
     private void SetLocalTargetCoords(Vector2Int coord, WeaponRangeShape weaponRangeShape, int explosionRange)
     {
         _localTargetCoords.Clear();
@@ -98,7 +103,7 @@ public class Weapon : MonoBehaviour
     }
 
     /// <summary>
-    /// 무기 범위 계산
+    /// 모든 종류 무기 공격 범위 계산
     /// </summary>
     public void SelectWeaponRange(
         Vector2Int targetCoord, UnitType targetUnitType, MapManager mapManager, WeaponDirection weaponDirection,
@@ -125,6 +130,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    // 이전 공격 범위 숨기기
     private void HidePreviousGlobalTargetRange()
     {
         foreach (Vector2Int coord in _globalTargetCoords)
@@ -133,6 +139,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    // 타겟 선택 무기의 범위 설정
     private void SelectTargetRange(Vector2Int targetCoord, UnitType targetUnitType,
         WeaponRangeShape weaponRangeShape, int explosionRange, bool showRange)
     {
@@ -156,7 +163,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    // 범위 공격 표시
+    // 범위 공격 무기의 방향, 범위 설정
     private void SelectDirectionRange(Vector2Int coord, UnitType targetUnitType, WeaponDirection direction, bool showRange)
     {
         _globalTargetCoords.Clear();
@@ -205,16 +212,26 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 타겟 좌표 반환
+    /// </summary>
     public List<Vector2Int> GetTargetCoords()
     {
         return _globalTargetCoords;
     }
 
+    /// <summary>
+    /// 범위 공격 무기의 범위 내에 공격 대상이 있는지 여부
+    /// </summary>
     public bool GetCanAttackArea()
     {
         return _canAttackArea;
     }
 
+    /// <summary>
+    /// 반격 확률 계산하여 반격 받는지 여부
+    /// </summary>
+    /// <returns></returns>
     public bool CalculateGetReturnAttack(UnitBase targetUnit, int distance,
         int turn, int totalPlayerUnits, int currentTurnCount)
     {
@@ -237,6 +254,9 @@ public class Weapon : MonoBehaviour
         return isHit;
     }
 
+    /// <summary>
+    /// 타겟 공격
+    /// </summary>
     public void AttackTarget(UnitBase targetUnit, WeaponData weaponData,
         int turn, int totalPlayerUnits, int currentTurnCount)
     {
@@ -256,6 +276,9 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 타겟에게서 반격
+    /// </summary>
     public void GetReturnAttack(UnitBase targetUnit)
     {
         WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];

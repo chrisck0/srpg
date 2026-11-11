@@ -57,6 +57,7 @@ public sealed class UnitSelectState : StateBase
 
     public override void Exit()
     {
+        _currentTile = null;
         UnbindInputActions();
     }
 

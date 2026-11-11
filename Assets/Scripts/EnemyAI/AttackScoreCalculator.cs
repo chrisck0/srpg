@@ -68,7 +68,7 @@ public class AttackScoreCalculator
     {
         _targetableLists.Clear();
 
-        TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(
+        _mapManager.TileRange.SelectTargetWeaponRange(
             currentCoord, weaponData.MinRange, weaponData.MaxRange, false, false, _targetableLists);
 
         AttackScore maxAttackScore = default;
