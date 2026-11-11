@@ -33,7 +33,7 @@ public sealed class EnemyPhaseState : StateBase
 
     public override void Update()
     {
-        if (_isStateEnd) return;
+        if (_isStateEnd || _controller.IsGameEnd) return;
 
         if (_currentEnemyUnit == null)
         {

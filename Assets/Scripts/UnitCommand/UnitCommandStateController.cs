@@ -23,6 +23,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private Vector2Int _previousPlayerCoord;
     private WeaponData _selectedWeaponData;
     private int _currentTurnCount;
+    private bool _isGameEnd;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public Action OnUnitCommandEnd;
@@ -83,6 +84,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
 
     public void SetState(StateBase state)
     {
+        if (_isGameEnd) return;
         OnStateChanged?.Invoke(state);
     }
 
@@ -138,6 +140,11 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _commandUIController.BattleInfoUI.Show();
     }
 
+    private void GameEnd()
+    {
+        _isGameEnd = true;
+    }
+
     public void HideCursor()
     {
         _tileCursor.Hide();
@@ -162,11 +169,13 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     {
         _phaseStateController.OnPlayerPhaseStarted += InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted += EndUnitCommand;
+        _phaseStateController.OnGameEnd += GameEnd;
     }
 
     private void UnbindPhaseEvents()
     {
         _phaseStateController.OnPlayerPhaseStarted -= InitUnitCommand;
         _phaseStateController.OnEnemyPhaseStarted -= EndUnitCommand;
+        _phaseStateController.OnGameEnd -= GameEnd;
     }
 }
