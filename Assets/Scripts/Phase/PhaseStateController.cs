@@ -105,6 +105,8 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         Vector2Int coord = unit.transform.position.WorldToCoord();
         _mapManager.UnitMap[coord.x, coord.y] = null;
 
+        if (_playerUnitList.Count == 0) Debug.Log("게임 오버");
+        if (_enemyUnitList.Count == 0) Debug.Log("모든 적군 처치");
         UnbindUnitEvents(unit);
     }
 

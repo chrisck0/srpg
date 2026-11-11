@@ -49,7 +49,7 @@ public class Weapon : MonoBehaviour
         _globalTargetCoords.Clear();
     }
 
-    public void SetRange(WeaponData weaponData, MapManager mapManager)
+    public void SetRange(WeaponData weaponData, MapManager mapManager, bool showDistance)
     {
         _mapManager = mapManager;
 
@@ -58,7 +58,7 @@ public class Weapon : MonoBehaviour
         switch (weaponData.WeaponType)
         {
             case WeaponType.SelectTarget:
-                SetSelectTargetWeaponRange(coord, weaponData.MinRange, weaponData.MaxRange, false);
+                SetSelectTargetWeaponRange(coord, weaponData.MinRange, weaponData.MaxRange, showDistance);
                 break;
             case WeaponType.SelectDirection:
                 SetLocalTargetCoords(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
@@ -66,10 +66,10 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private void SetSelectTargetWeaponRange(Vector2Int coord, int minRange, int maxRange, bool isWeaponRange)
+    private void SetSelectTargetWeaponRange(Vector2Int coord, int minRange, int maxRange, bool showDistance)
     {
         TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(
-            coord, minRange, maxRange, true, _globalTargetCoords);
+            coord, minRange, maxRange, showDistance, false, _globalTargetCoords);
     }
 
     private void SetLocalTargetCoords(Vector2Int coord, WeaponRangeShape weaponRangeShape, int explosionRange)
@@ -151,7 +151,7 @@ public class Weapon : MonoBehaviour
                 break;
 
             case WeaponRangeShape.Explosion:
-                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, showRange, _globalTargetCoords);
+                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, false, showRange, _globalTargetCoords);
                 break;
         }
     }

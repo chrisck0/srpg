@@ -79,7 +79,6 @@ public class EnemyAI : MonoBehaviour
     {
         Vector2Int currentCoord = transform.position.WorldToCoord();
 
-        _mapManager.TileRange.InitTiles();
         MoveToDestination(currentCoord, _maxAttackScore.CurrentCoord);
         _canAttack = true;
     }
@@ -182,7 +181,7 @@ public class EnemyAI : MonoBehaviour
     private void Attack()
     {
         WeaponData weaponData = _maxAttackScore.AttackWeaponData;
-        _owner.Weapon.SetRange(weaponData, _mapManager);
+        _owner.Weapon.SetRange(weaponData, _mapManager, false);
         _owner.Weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
             _maxAttackScore.WeaponDirection, weaponData, true);
 

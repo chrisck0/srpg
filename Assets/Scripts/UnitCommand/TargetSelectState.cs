@@ -30,7 +30,7 @@ public class TargetSelectState : StateBase
     public override void Enter()
     {
         BindInputActions();
-        _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager);
+        _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager, true);
     }
 
     public override void Update()

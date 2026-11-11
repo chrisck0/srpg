@@ -28,20 +28,16 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _distanceText.gameObject.SetActive(true);
         _distanceText.text = num.ToString();
         _blueTransparentTile.gameObject.SetActive(true);
-        Debug.Log("ShowDistance");
     }
 
     public void ShowRange()
     {
-        Debug.Log("Show Red Range");
         _redTransparentTile.gameObject.SetActive(true);
-        _blueTransparentTile.gameObject.SetActive(false);
     }
 
     public void HideRange()
     {
         _redTransparentTile.gameObject.SetActive(false);
-        if (_canSelect == true) _blueTransparentTile.gameObject.SetActive(true);
     }
 
     public void InitTile()
@@ -50,7 +46,6 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _blueTransparentTile.gameObject.SetActive(false);
         _redTransparentTile.gameObject.SetActive(false);
         _canSelect = false;
-        Debug.Log("InitTile");
     }
 
     public void Activate()

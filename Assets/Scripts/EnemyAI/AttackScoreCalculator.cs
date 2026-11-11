@@ -67,7 +67,7 @@ public class AttackScoreCalculator
         _targetableLists.Clear();
 
         TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(
-            currentCoord, weaponData.MinRange, weaponData.MaxRange, false, _targetableLists);
+            currentCoord, weaponData.MinRange, weaponData.MaxRange, false, false, _targetableLists);
 
         AttackScore maxAttackScore = default;
         foreach (Vector2Int targetableCoord in _targetableLists)
@@ -88,7 +88,7 @@ public class AttackScoreCalculator
     {
         _targetLists.Clear();
 
-        _mapManager.TileRange.SelectTargetWeaponRange(targetableCoord, 0, weaponData.ExplosionRange, false, _targetLists);
+        _mapManager.TileRange.SelectTargetWeaponRange(targetableCoord, 0, weaponData.ExplosionRange, false, false, _targetLists);
 
         int score = 0;
         foreach (Vector2Int targetCoord in _targetLists)
