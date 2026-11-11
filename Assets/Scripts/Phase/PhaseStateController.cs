@@ -7,6 +7,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(StateMachine))]
 public class PhaseStateController : MonoBehaviour, IStateEvent
 {
+    [SerializeField] private StateMachine _stateMachine;
     [SerializeField] private UnitCommandStateController _unitCommandStateController;
     [SerializeField] private SpawnManager _spawnManager;
     [SerializeField] private MapManager _mapManager;
@@ -20,7 +21,6 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     private int _initialEnemyNum;
     private List<UnitBase> _playerUnitList;
     private List<UnitBase> _enemyUnitList;
-    private bool _isGameEnd;
 
     public event Action OnGameEnd;
 
@@ -31,7 +31,6 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     public int Turn => _turn;
     public int TotalPlayerUnits => _playerUnitList.Count;
     public int TotalEnemyUnits => _enemyUnitList.Count;
-    public bool IsGameEnd => _isGameEnd;
 
     public StateBase PlayerPhaseState => _playerPhaseState;
     public StateBase EnemyPhaseState => _enemyPhaseState;
@@ -93,13 +92,11 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     public void StartPlayerPhase()
     {
-        if (_isGameEnd) return;
         WaitPlayerPhaseUI().Forget();
     }
 
     public void StartEnemyPhase()
     {
-        if (_isGameEnd) return;
         WaitEnemyPhaseUI().Forget();
     }
 
@@ -170,13 +167,13 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         _gameUIController.ResultUI.SetData(isGameWin, _turn,
             _initialEnemyNum - _enemyUnitList.Count, _initialPlayerNum - _playerUnitList.Count);
-        _isGameEnd = true;
+        _stateMachine.enabled = false;
+        _mapManager.TileRange.InitTiles();
         OnGameEnd?.Invoke();
     }
 
     public void SetState(StateBase state)
     {
-        if (_isGameEnd) return;
         OnStateChanged?.Invoke(state);
     }
     

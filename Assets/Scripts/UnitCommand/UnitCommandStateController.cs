@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(StateMachine))]
 public class UnitCommandStateController : MonoBehaviour, IStateEvent
 {
+    [SerializeField] private StateMachine _stateMachine;
     [SerializeField] private PhaseStateController _phaseStateController;
     [SerializeField] private MapManager _mapManager;
     [SerializeField] private TileCursor _tileCursor;
@@ -23,7 +24,6 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private Vector2Int _previousPlayerCoord;
     private WeaponData _selectedWeaponData;
     private int _currentTurnCount;
-    private bool _isGameEnd;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public Action OnUnitCommandEnd;
@@ -84,7 +84,6 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
 
     public void SetState(StateBase state)
     {
-        if (_isGameEnd) return;
         OnStateChanged?.Invoke(state);
     }
 
@@ -142,7 +141,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
 
     private void GameEnd()
     {
-        _isGameEnd = true;
+        _stateMachine.enabled = false;
     }
 
     public void HideCursor()

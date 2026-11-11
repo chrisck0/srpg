@@ -12178,6 +12178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c2b7a97628a83b408f8f8474b571870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhaseStateController
+  _stateMachine: {fileID: 1887944872}
   _unitCommandStateController: {fileID: 2104199459}
   _spawnManager: {fileID: 496036547}
   _mapManager: {fileID: 1410229973}
@@ -13959,6 +13960,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67229705e8a198a46aba277f1e2c3205, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitCommandStateController
+  _stateMachine: {fileID: 2104199460}
   _phaseStateController: {fileID: 1887944871}
   _mapManager: {fileID: 1410229973}
   _tileCursor: {fileID: 927113039}
