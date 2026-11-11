@@ -146,7 +146,7 @@ public class TileRange
             UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
             if (!currentUnit || currentCoord == startCoord)
             {
-                _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                // _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
 
                 if (currentTileCost.Distance <= move) _reachableTiles.Add(currentCoord);
@@ -189,7 +189,7 @@ public class TileRange
         return _tileCostMap;
     }
 
-    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool isWeaponRange = true, List<Vector2Int> coordList = null)
+    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool showRange = true, List<Vector2Int> coordList = null)
     {
         Init();
 
@@ -208,17 +208,11 @@ public class TileRange
             if (currentTileCost.Distance >= minRange
                 && currentTileCost.Distance <= maxRange)
             {
-                if (isWeaponRange)
-                {
-                    _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
-                    _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
-                }
-                else
-                {
-                    _tileMap[currentCoord.x, currentCoord.y].ShowRange();
-                    if (_unitMap[currentCoord.x, currentCoord.y] != null)
-                        coordList.Add(currentCoord);
-                }
+                if (showRange) _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
+
+                if (_unitMap[currentCoord.x, currentCoord.y] != null)
+                    coordList.Add(currentCoord);
             }
                 
             _visitedMap[currentCoord.x, currentCoord.y] = true;

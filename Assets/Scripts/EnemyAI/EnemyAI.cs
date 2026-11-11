@@ -182,7 +182,7 @@ public class EnemyAI : MonoBehaviour
     private void Attack()
     {
         WeaponData weaponData = _maxAttackScore.AttackWeaponData;
-        _owner.Weapon.ShowSelectRange(weaponData, _mapManager);
+        _owner.Weapon.SetRange(weaponData, _mapManager);
         _owner.Weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
             _maxAttackScore.WeaponDirection, weaponData, true);
 
