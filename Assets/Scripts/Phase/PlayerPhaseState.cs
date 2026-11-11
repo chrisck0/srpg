@@ -6,7 +6,6 @@ public sealed class PlayerPhaseState : StateBase
     private PhaseStateController _controller;
     private UnitCommandStateController _unitCommandStateController;
     private List<UnitBase> _playerUnitList;
-    private PlayerUnit _currentPlayerUnit;
     private int _activePlayerUnit;
 
     public PlayerPhaseState(PhaseStateController controller,

@@ -5,7 +5,6 @@ public class EnemyAI : MonoBehaviour
 {
     [SerializeField] private EnemyUnit _owner;
     private AttackScoreCalculator _calculator;
-    private BehaviorType _behaviorType;
     private MapManager _mapManager;
     private TileCost[,] _tileCostMap;
     private HashSet<Vector2Int> _reachableTiles;
@@ -42,27 +41,54 @@ public class EnemyAI : MonoBehaviour
 
         _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord);
 
-        /*
+        
         Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
             $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
-        */
+        
 
-        _tileCostMap = _mapManager.TileRange.UnitMoveRange(
+        _tileCostMap = _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(
             currentCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);
 
-        if (_maxAttackScore.Score == 0)
+        switch(_owner.UnitStat.UnitData.BehaviorType)
         {
-            MoveToClosestTarget();
-        }
-        else
-        {
-            _mapManager.TileRange.InitTiles();
-            MoveToDestination(currentCoord, _maxAttackScore.CurrentCoord);
-            _canAttack = true;
+            case BehaviorType.Aggressive:
+                if (_maxAttackScore.Score == 0) MoveToTarget();
+                else AttackTarget();
+                break;
+
+            case BehaviorType.Defensive:
+                if (_maxAttackScore.Score != 0) AttackTarget();
+                else Wait();
+                break;
+
+            case BehaviorType.Stationary:
+                if (_owner.UnitStat.UnitData.Move != 0) Debug.LogError("Stationary Move Stat Error");
+                if (_maxAttackScore.Score != 0) AttackTarget();
+                else Wait();
+                break;
         }
     }
 
-    private void MoveToClosestTarget()
+    private void MoveToTarget()
+    {
+        Vector2Int targetCoord = FindClosestTargetCoord();
+        MoveToClosestTarget(targetCoord);
+    }
+
+    private void AttackTarget()
+    {
+        Vector2Int currentCoord = transform.position.WorldToCoord();
+
+        MoveToDestination(currentCoord, _maxAttackScore.CurrentCoord);
+        _canAttack = true;
+    }
+
+    private void Wait()
+    {
+        _owner.OnEnemyActioned?.Invoke();
+    }
+
+    private Vector2Int FindClosestTargetCoord()
     {
         int currentToTargetMinDistance = int.MaxValue;
         Vector2Int targetCoord = Vector2Int.zero;
@@ -84,8 +110,14 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
+        return targetCoord;
+    }
+
+    private void MoveToClosestTarget(Vector2Int targetCoord)
+    {
         int destinationToTargetMinDistance = int.MaxValue;
         Vector2Int destinationCoord = Vector2Int.zero;
+        _reachableTiles = _mapManager.TileRange.ReachableTiles;
 
         foreach (Vector2Int coord in _reachableTiles)
         {
@@ -96,7 +128,6 @@ public class EnemyAI : MonoBehaviour
                 destinationCoord = coord;
             }
         }
-
         Vector2Int currentCoord = transform.position.WorldToCoord();
         _mapManager.TileRange.CalculateTileCost(currentCoord, destinationCoord, UnitType.Player);
         MoveToDestination(transform.position.WorldToCoord(), destinationCoord);
@@ -150,7 +181,7 @@ public class EnemyAI : MonoBehaviour
     private void Attack()
     {
         WeaponData weaponData = _maxAttackScore.AttackWeaponData;
-        _owner.Weapon.ShowSelectRange(weaponData, _mapManager);
+        _owner.Weapon.SetRange(weaponData, _mapManager, false);
         _owner.Weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
             _maxAttackScore.WeaponDirection, weaponData, true);
 

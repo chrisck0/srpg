@@ -30,7 +30,7 @@ public class TargetSelectState : StateBase
     public override void Enter()
     {
         BindInputActions();
-        _controller.SelectedPlayerUnit.Weapon.ShowSelectRange(_controller.SelectedWeaponData, _mapManager);
+        _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager, true);
     }
 
     public override void Update()
@@ -54,6 +54,7 @@ public class TargetSelectState : StateBase
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
         WeaponDirection weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
+        
         _controller.SelectedPlayerUnit.Weapon.SelectWeaponRange(
             coord, UnitType.Enemy,
             _mapManager, weaponDirection,

@@ -78,7 +78,9 @@ public class TileRange
 
             if (currentTileCost.Distance > move) break;
 
-            if (!_unitMap[currentCoord.x, currentCoord.y])
+            // 유닛이 좌표 위에 없거나 시작 좌표인 경우
+            UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
+            if (!currentUnit || currentCoord == startCoord)
             {
                 _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
@@ -140,10 +142,11 @@ public class TileRange
             TileCost currentTileCost = PriorityQueueRemove();
             Vector2Int currentCoord = currentTileCost.Coord;
 
-            // 유닛이 좌표 위에 없는 경우
-            if (!_unitMap[currentCoord.x, currentCoord.y])
+            // 유닛이 좌표 위에 없거나 시작 좌표인 경우
+            UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
+            if (!currentUnit || currentCoord == startCoord)
             {
-                _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                // _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
 
                 if (currentTileCost.Distance <= move) _reachableTiles.Add(currentCoord);
@@ -186,7 +189,7 @@ public class TileRange
         return _tileCostMap;
     }
 
-    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool isWeaponRange = true, List<Vector2Int> coordList = null)
+    public TileCost[,] SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, bool showDistance, bool showRange, List<Vector2Int> coordList)
     {
         Init();
 
@@ -205,17 +208,11 @@ public class TileRange
             if (currentTileCost.Distance >= minRange
                 && currentTileCost.Distance <= maxRange)
             {
-                if (isWeaponRange)
-                {
-                    _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
-                    _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
-                }
-                else
-                {
-                    _tileMap[currentCoord.x, currentCoord.y].ShowRange();
-                    if (_unitMap[currentCoord.x, currentCoord.y] != null)
-                        coordList.Add(currentCoord);
-                }
+                if (showDistance) _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                if (showRange) _tileMap[currentCoord.x, currentCoord.y].ShowRange();
+                _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
+
+                 coordList.Add(currentCoord);
             }
                 
             _visitedMap[currentCoord.x, currentCoord.y] = true;

@@ -49,7 +49,7 @@ public class Weapon : MonoBehaviour
         _globalTargetCoords.Clear();
     }
 
-    public void ShowSelectRange(WeaponData weaponData, MapManager mapManager)
+    public void SetRange(WeaponData weaponData, MapManager mapManager, bool showDistance)
     {
         _mapManager = mapManager;
 
@@ -58,7 +58,7 @@ public class Weapon : MonoBehaviour
         switch (weaponData.WeaponType)
         {
             case WeaponType.SelectTarget:
-                ShowSelectTargetRange(coord, weaponData.MinRange, weaponData.MaxRange, true);
+                SetSelectTargetWeaponRange(coord, weaponData.MinRange, weaponData.MaxRange, showDistance);
                 break;
             case WeaponType.SelectDirection:
                 SetLocalTargetCoords(coord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
@@ -66,9 +66,10 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private void ShowSelectTargetRange(Vector2Int coord, int minRange, int maxRange, bool isWeaponRange)
+    private void SetSelectTargetWeaponRange(Vector2Int coord, int minRange, int maxRange, bool showDistance)
     {
-        TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(coord, minRange, maxRange, isWeaponRange);
+        TileCost[,] tileCost = _mapManager.TileRange.SelectTargetWeaponRange(
+            coord, minRange, maxRange, showDistance, false, _globalTargetCoords);
     }
 
     private void SetLocalTargetCoords(Vector2Int coord, WeaponRangeShape weaponRangeShape, int explosionRange)
@@ -147,11 +148,10 @@ public class Weapon : MonoBehaviour
             case WeaponRangeShape.Single:
                 if (showRange) _mapManager.TileMap[targetCoord.x, targetCoord.y].ShowRange();
                 _globalTargetCoords.Add(targetCoord);
-
                 break;
 
             case WeaponRangeShape.Explosion:
-                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, false, _globalTargetCoords);
+                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, false, showRange, _globalTargetCoords);
                 break;
         }
     }
