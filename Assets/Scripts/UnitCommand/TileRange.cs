@@ -78,7 +78,9 @@ public class TileRange
 
             if (currentTileCost.Distance > move) break;
 
-            if (!_unitMap[currentCoord.x, currentCoord.y])
+            // 유닛이 좌표 위에 없거나 시작 좌표인 경우
+            UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
+            if (!currentUnit || currentCoord == startCoord)
             {
                 _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
@@ -140,8 +142,9 @@ public class TileRange
             TileCost currentTileCost = PriorityQueueRemove();
             Vector2Int currentCoord = currentTileCost.Coord;
 
-            // 유닛이 좌표 위에 없는 경우
-            if (!_unitMap[currentCoord.x, currentCoord.y])
+            // 유닛이 좌표 위에 없거나 시작 좌표인 경우
+            UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
+            if (!currentUnit || currentCoord == startCoord)
             {
                 _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();

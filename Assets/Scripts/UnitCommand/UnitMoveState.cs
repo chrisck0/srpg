@@ -90,7 +90,8 @@ public sealed class UnitMoveState : StateBase
 
         UnitBase unit = _mapManager.UnitMap[nextCoord.x, nextCoord.y];
 
-        if (unit != null || !_mapManager.TileMap[nextCoord.x, nextCoord.y].CanSelect)
+        if (unit != null && unit != _selectedUnit
+            || !_mapManager.TileMap[nextCoord.x, nextCoord.y].CanSelect)
         {
             _controller.SetState(_controller.UnitSelectState);
         }

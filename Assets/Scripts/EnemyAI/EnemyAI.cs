@@ -50,19 +50,40 @@ public class EnemyAI : MonoBehaviour
         _tileCostMap = _mapManager.TileRange.UnitMoveRange(
             currentCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);
 
-        if (_maxAttackScore.Score == 0)
+        switch(_owner.UnitStat.UnitData.BehaviorType)
         {
-            MoveToClosestTarget();
-        }
-        else
-        {
-            _mapManager.TileRange.InitTiles();
-            MoveToDestination(currentCoord, _maxAttackScore.CurrentCoord);
-            _canAttack = true;
+            case BehaviorType.Aggressive:
+                if (_maxAttackScore.Score == 0) MoveToTarget();
+                else AttackTarget();
+                break;
+
+            case BehaviorType.Defensive:
+                if (_maxAttackScore.Score != 0) AttackTarget();
+                break;
+
+            case BehaviorType.Stationary:
+                if (_owner.UnitStat.UnitData.Move != 0) Debug.LogError("Stationary Move Stat Error");
+                if (_maxAttackScore.Score != 0) AttackTarget();
+                break;
         }
     }
 
-    private void MoveToClosestTarget()
+    private void MoveToTarget()
+    {
+        Vector2Int targetCoord = FindClosestTargetCoord();
+        MoveToClosestTarget(targetCoord);
+    }
+
+    private void AttackTarget()
+    {
+        Vector2Int currentCoord = transform.position.WorldToCoord();
+
+        _mapManager.TileRange.InitTiles();
+        MoveToDestination(currentCoord, _maxAttackScore.CurrentCoord);
+        _canAttack = true;
+    }
+
+    private Vector2Int FindClosestTargetCoord()
     {
         int currentToTargetMinDistance = int.MaxValue;
         Vector2Int targetCoord = Vector2Int.zero;
@@ -97,6 +118,11 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
+        return destinationCoord;
+    }
+
+    private void MoveToClosestTarget(Vector2Int destinationCoord)
+    {
         Vector2Int currentCoord = transform.position.WorldToCoord();
         _mapManager.TileRange.CalculateTileCost(currentCoord, destinationCoord, UnitType.Player);
         MoveToDestination(transform.position.WorldToCoord(), destinationCoord);
