@@ -16,8 +16,11 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     private StateBase _playerPhaseState;
     private StateBase _enemyPhaseState;
     private int _turn;
+    private int _initialPlayerNum;
+    private int _initialEnemyNum;
     private List<UnitBase> _playerUnitList;
     private List<UnitBase> _enemyUnitList;
+    private bool _isGameEnd;
 
     public Action<StateBase> OnStateChanged { get; set; }
     public event Action OnPlayerPhaseStarted;
@@ -61,6 +64,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
         _playerUnitList = playerUnitList;
+        _initialPlayerNum = playerUnitList.Count;
 
         foreach (UnitBase playerUnitBase in _playerUnitList)
         {
@@ -72,6 +76,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Enemy, out List<UnitBase> enemyUnitList)) return;
         _enemyUnitList = enemyUnitList;
+        _initialEnemyNum = enemyUnitList.Count;
 
         foreach (UnitBase enemyUnitBase in _enemyUnitList)
         {
@@ -85,11 +90,13 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     public void StartPlayerPhase()
     {
+        if (_isGameEnd) return;
         WaitPlayerPhaseUI().Forget();
     }
 
     public void StartEnemyPhase()
     {
+        if (_isGameEnd) return;
         WaitEnemyPhaseUI().Forget();
     }
 
@@ -135,8 +142,8 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         Vector2Int coord = unit.transform.position.WorldToCoord();
         _mapManager.UnitMap[coord.x, coord.y] = null;
 
-        if (_playerUnitList.Count == 0) Debug.Log("게임 오버");
-        if (CheckGameWin(unit)) Debug.Log("게임 승리");
+        if (_playerUnitList.Count == 0) ShowGameResult(false);
+        if (CheckGameWin(unit)) ShowGameResult(true);
         UnbindUnitEvents(unit);
     }
 
@@ -156,8 +163,16 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         return false;
     }
 
+    private void ShowGameResult(bool isGameWin)
+    {
+        _gameUIController.ResultUI.SetData(isGameWin, _turn,
+            _initialEnemyNum - _enemyUnitList.Count, _initialPlayerNum - _playerUnitList.Count);
+        _isGameEnd = true;
+    }
+
     public void SetState(StateBase state)
     {
+        if (_isGameEnd) return;
         OnStateChanged?.Invoke(state);
     }
     
