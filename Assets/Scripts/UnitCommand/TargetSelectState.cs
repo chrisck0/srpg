@@ -53,7 +53,7 @@ public class TargetSelectState : StateBase
         _currentTile = tile;
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
-        WeaponDirection weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
+        DirectionType weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
         
         _controller.SelectedPlayerUnit.Weapon.SelectWeaponRange(
             coord, UnitType.Enemy,
@@ -73,29 +73,29 @@ public class TargetSelectState : StateBase
         HideUI();
     }
 
-    private WeaponDirection GetWeaponDirection(Vector2Int startCoord, Vector2Int targetCoord)
+    private DirectionType GetWeaponDirection(Vector2Int startCoord, Vector2Int targetCoord)
     {
         Vector2Int directionCoord = targetCoord - startCoord;
         if (Mathf.Abs(directionCoord.x) >= Mathf.Abs(directionCoord.y))
         {
             if (Mathf.Sign(directionCoord.x) == 1f)
             {
-                return WeaponDirection.Right;
+                return DirectionType.Right;
             }
             else
             {
-                return WeaponDirection.Left;
+                return DirectionType.Left;
             }
         }
         else
         {
             if (Mathf.Sign(directionCoord.y) == 1f)
             {
-                return WeaponDirection.Up;
+                return DirectionType.Up;
             }
             else
             {
-                return WeaponDirection.Down;
+                return DirectionType.Down;
             }
         }
     }

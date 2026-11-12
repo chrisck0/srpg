@@ -128,7 +128,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 11721218}
-  - component: {fileID: 11721217}
   - component: {fileID: 11721219}
   m_Layer: 0
   m_Name: SceneReference
@@ -137,22 +136,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &11721217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 11721216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5334a3020def9e43a9e4e71d91469b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SceneReferenceSample
-  _nextScene:
-    _sceneAsset: {fileID: 102900000, guid: a4f50291a1eda4846a438bad83ef20b2, type: 3}
-    _scenePath: Assets/Scenes/GameScene.unity
-    _sceneName: GameScene
 --- !u!4 &11721218
 Transform:
   m_ObjectHideFlags: 0
@@ -180,9 +163,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70cce74aa0185ac479b7293617697a4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
-  _sceneController: {fileID: 11721217}
   _dataLoader: {fileID: 403394736}
   _leftClickInput: {fileID: 6248903269001061691, guid: 1fb15236ea930174ebfda5b423948a3e, type: 3}
+  _nextScene:
+    _sceneAsset: {fileID: 102900000, guid: a4f50291a1eda4846a438bad83ef20b2, type: 3}
+    _scenePath: Assets/Scenes/GameScene.unity
+    _sceneName: GameScene
 --- !u!1 &164759670
 GameObject:
   m_ObjectHideFlags: 0

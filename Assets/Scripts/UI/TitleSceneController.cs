@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class TitleSceneController : MonoBehaviour
 {
-    [SerializeField] private SceneController _sceneController;
     [SerializeField] private DataLoader _dataLoader;
     [SerializeField] private InputActionReference _leftClickInput;
+    [SerializeField] private SceneReference _nextScene;
     private bool _isDataLoaded;
 
     private void OnEnable()
@@ -24,7 +25,7 @@ public class TitleSceneController : MonoBehaviour
     {
         if (!_isDataLoaded) return;
 
-        _sceneController.LoadNextScene();
+        SceneManager.LoadScene(_nextScene.SceneName);
     }
 
     private void DataLoaded()

@@ -8,7 +8,7 @@ public class AttackScoreCalculator
     private HashSet<Vector2Int> _reachableTiles;
     private List<Vector2Int> _targetableLists = new();
     private List<Vector2Int> _targetLists = new();
-    private WeaponDirection[] _directions = { WeaponDirection.Up, WeaponDirection.Right, WeaponDirection.Down, WeaponDirection.Left };
+    private DirectionType[] _directions = { DirectionType.Up, DirectionType.Right, DirectionType.Down, DirectionType.Left };
 
     public AttackScoreCalculator(EnemyUnit owner)
     {
@@ -98,14 +98,14 @@ public class AttackScoreCalculator
             score += AttackScore(currentCoord, targetCoord, weaponData.Attack);
         }
 
-        return new AttackScore(currentCoord, weaponData, WeaponDirection.None, targetableCoord, score);
+        return new AttackScore(currentCoord, weaponData, DirectionType.None, targetableCoord, score);
     }
 
     private AttackScore CalculateSelectDirectionScore(Vector2Int currentCoord, WeaponData weaponData)
     {
         AttackScore maxAttackScore = default;
         SetLocalTargetCoords(currentCoord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
-        foreach (WeaponDirection direction in _directions)
+        foreach (DirectionType direction in _directions)
         {
             AttackScore currentAttackScore = CalculateSelectDirectionRangeScore(currentCoord, direction, weaponData);
             if (currentAttackScore.Score > maxAttackScore.Score) maxAttackScore = currentAttackScore;
@@ -139,7 +139,7 @@ public class AttackScoreCalculator
         }
     }
 
-    private AttackScore CalculateSelectDirectionRangeScore(Vector2Int coord, WeaponDirection direction, WeaponData weaponData)
+    private AttackScore CalculateSelectDirectionRangeScore(Vector2Int coord, DirectionType direction, WeaponData weaponData)
     {
         _targetLists.Clear();
         bool _canAttackArea = false;
@@ -152,16 +152,16 @@ public class AttackScoreCalculator
 
             switch (direction)
             {
-                case WeaponDirection.Up:
+                case DirectionType.Up:
                     rotatedLocalCoord = localCoord;
                     break;
-                case WeaponDirection.Right:
+                case DirectionType.Right:
                     rotatedLocalCoord = new Vector2Int(localCoord.y, -localCoord.x);
                     break;
-                case WeaponDirection.Down:
+                case DirectionType.Down:
                     rotatedLocalCoord = new Vector2Int(-localCoord.x, -localCoord.y);
                     break;
-                case WeaponDirection.Left:
+                case DirectionType.Left:
                     rotatedLocalCoord = new Vector2Int(-localCoord.y, localCoord.x);
                     break;
             }

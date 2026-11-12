@@ -6,12 +6,21 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
 {
     [SerializeField] protected UnitStat _unitStat;
     [SerializeField] protected Weapon _weapon;
+    [SerializeField] protected UnitAnimationController _animationController;
     [SerializeField] protected float _moveSpeed = 8f;
     protected int _health;
     protected int _energy;
+    private bool _isMoving;
     private ObjectPool<UnitBase> _objectPool;
 
-    public event Action<UnitBase> OnUnitDead;
+    public Action<int> OnAttackWeapon;
+    public Action OnSelect;
+    public Action<bool> OnMove;
+    public Action OnVictory;
+    public Action OnAvoid;
+    public Action OnDamage;
+    public event Action<UnitBase> OnDead;
+
     public UnitStat UnitStat => _unitStat;
     public Weapon Weapon => _weapon;
     public float MoveSpeed => _moveSpeed;
@@ -27,11 +36,34 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
     public void TakeDamage(int num)
     {
         _unitStat.AddHealth(-num);
+        OnDamage?.Invoke();
+    }
+
+    public void Select()
+    {
+        OnSelect?.Invoke();
+    }
+
+    public void UnSelect()
+    {
+        Debug.Log("Unselect");
+    }
+
+    public void ToggleMove()
+    {
+        _isMoving = !_isMoving;
+        OnMove?.Invoke(_isMoving);
+    }
+
+    public void Avoid()
+    {
+        Debug.Log($"{_unitStat.UnitData.Name} avoided");
+        OnAvoid?.Invoke();
     }
 
     public void Die()
     {
-        OnUnitDead?.Invoke(this);
+        OnDead?.Invoke(this);
         ReturnToPool();
     }
 

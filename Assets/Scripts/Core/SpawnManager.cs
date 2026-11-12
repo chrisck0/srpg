@@ -16,6 +16,8 @@ public class SpawnManager : MonoBehaviour
     private Dictionary<UnitType, List<UnitBase>> _spawnedUnitDict = new();
     private TileBase[,] _tileMap;
     private UnitBase[,] _unitMap;
+    private Vector3[] _rotations = new Vector3[] {
+        Vector3.zero, Vector3.zero, new Vector3(0f, 90f, 0f), new Vector3(0f, 180f, 0f), new Vector3(0f, 270f, 0f), };
 
     public StageData StageData => _stageData;
     public Dictionary<UnitType, List<UnitBase>> SpawnedUnitDict => _spawnedUnitDict;
@@ -97,6 +99,7 @@ public class SpawnManager : MonoBehaviour
 
             Vector2Int coord = unitPosition.Position;
             unit.transform.position = coord.CoordToWorld();
+            unit.transform.eulerAngles = _rotations[(int)unitPosition.Direction];
             unit.UnitStat.InitStat(unitData);
 
             Dictionary<int, WeaponData> weaponDataDict = _dataManager.WeaponDataDict;

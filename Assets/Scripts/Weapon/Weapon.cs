@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
@@ -8,7 +9,7 @@ public class Weapon : MonoBehaviour
     private MapManager _mapManager;
     private List<Vector2Int> _localTargetCoords = new();
     private List<Vector2Int> _globalTargetCoords = new();
-    private WeaponDirection _prevWeaponDirection = WeaponDirection.None;
+    private DirectionType _prevWeaponDirection = DirectionType.None;
     private bool _canAttackArea;
 
     public List<WeaponData> WeaponDataList => _weaponDataList;
@@ -25,6 +26,8 @@ public class Weapon : MonoBehaviour
     /// </summary>
     public void Attack(WeaponData weaponData, UnitBase target)
     {
+        _owner.OnAttackWeapon?.Invoke(weaponData.Id);
+
         Debug.Log($"{_owner.UnitStat.UnitData.Name} attacked {target.UnitStat.UnitData.Name} DMG {weaponData.Attack}");
         target.TakeDamage(weaponData.Attack);
     }
@@ -106,7 +109,7 @@ public class Weapon : MonoBehaviour
     /// 모든 종류 무기 공격 범위 계산
     /// </summary>
     public void SelectWeaponRange(
-        Vector2Int targetCoord, UnitType targetUnitType, MapManager mapManager, WeaponDirection weaponDirection,
+        Vector2Int targetCoord, UnitType targetUnitType, MapManager mapManager, DirectionType weaponDirection,
         WeaponData weaponData, bool showRange)
     {
         _mapManager = mapManager;
@@ -164,7 +167,7 @@ public class Weapon : MonoBehaviour
     }
 
     // 범위 공격 무기의 방향, 범위 설정
-    private void SelectDirectionRange(Vector2Int coord, UnitType targetUnitType, WeaponDirection direction, bool showRange)
+    private void SelectDirectionRange(Vector2Int coord, UnitType targetUnitType, DirectionType direction, bool showRange)
     {
         _globalTargetCoords.Clear();
         _canAttackArea = false;
@@ -175,16 +178,16 @@ public class Weapon : MonoBehaviour
 
             switch (direction)
             {
-                case WeaponDirection.Up:
+                case DirectionType.Up:
                     rotatedLocalCoord = localCoord;
                     break;
-                case WeaponDirection.Right:
+                case DirectionType.Right:
                     rotatedLocalCoord = new Vector2Int(localCoord.y, -localCoord.x);
                     break;
-                case WeaponDirection.Down:
+                case DirectionType.Down:
                     rotatedLocalCoord = new Vector2Int(-localCoord.x, -localCoord.y);
                     break;
-                case WeaponDirection.Left:
+                case DirectionType.Left:
                     rotatedLocalCoord = new Vector2Int(-localCoord.y, localCoord.x);
                     break;
             }
@@ -272,7 +275,7 @@ public class Weapon : MonoBehaviour
                 );
 
             if (canHit) Attack(weaponData, targetUnit);
-            else Debug.Log($"{targetUnit.UnitStat.UnitData.Name} avoided");
+            else targetUnit.Avoid();
         }
     }
 

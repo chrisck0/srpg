@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum WeaponDirection
+public enum DirectionType
 {
     None,
     Up,
