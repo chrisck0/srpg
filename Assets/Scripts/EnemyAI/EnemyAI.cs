@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         if (_isMoving) MoveUnit();
-        else if (_canAttack) Attack();
+        else if (_canAttack) Attack().Forget();
     }
 
     public void SetData(MapManager mapManager)
@@ -178,35 +179,38 @@ public class EnemyAI : MonoBehaviour
             * Time.deltaTime * _owner.MoveSpeed);
     }
 
-    private void Attack()
+    private async UniTask Attack()
     {
+        _canAttack = false;
+
         WeaponData weaponData = _maxAttackScore.AttackWeaponData;
-        _owner.Weapon.SetRange(weaponData, _mapManager, false);
-        _owner.Weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
+        Weapon weapon = _owner.Weapon;
+
+        weapon.SetRange(weaponData, _mapManager, false);
+        weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
             _maxAttackScore.WeaponDirection, weaponData, true);
 
-        _attackTargetCoords = _owner.Weapon.GetTargetCoords();
+        _attackTargetCoords = weapon.GetTargetCoords();
 
-        if (weaponData.WeaponType == WeaponType.SelectDirection
-            && !_owner.Weapon.GetCanAttackArea()) return;
+        if (!weapon.CanAttackTargets(weaponData)) return;
 
-        _owner.ConsumeEnergy(weaponData.EnergyCost);
+        await weapon.AttackTargets(
+            weaponData,
+            UnitType.Player,
+            _turn,
+            _totalEnemyUnits,
+            _currentTurnCount
+            );
 
-        foreach (Vector2Int coord in _attackTargetCoords)
-        {
-            UnitBase targetUnit = _mapManager.UnitMap[coord.x, coord.y];
+        await UniTask.Delay(2000, DelayType.DeltaTime);
 
-            if (targetUnit == null || targetUnit.UnitType != UnitType.Player) continue;
+        await weapon.GetAttackReturn(
+            UnitType.Player,
+            _turn,
+            _totalEnemyUnits,
+            _currentTurnCount
+            );
 
-            _owner.Weapon.AttackTarget(targetUnit, weaponData,
-                _turn, _totalEnemyUnits, _currentTurnCount);
-
-            if (_owner.Weapon.CalculateGetReturnAttack(
-                targetUnit, VectorExtensions.CoordDistance(coord, transform.position.WorldToCoord()),
-                _turn, _totalEnemyUnits, _currentTurnCount))
-                _owner.Weapon.GetReturnAttack(targetUnit);
-        }
-        _canAttack = false;
         _owner.OnEnemyActioned?.Invoke();
     }
 

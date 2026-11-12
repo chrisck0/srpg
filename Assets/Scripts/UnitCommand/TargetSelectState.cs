@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -35,6 +36,8 @@ public class TargetSelectState : StateBase
 
     public override void Update()
     {
+        if (!_controller.SelectedPlayerUnit.CanAction) return;
+
         Vector2 screen = _cursorPosition.action.ReadValue<Vector2>();
         Ray ray = Camera.main.ScreenPointToRay(screen);
         RaycastHit hit;
@@ -135,38 +138,35 @@ public class TargetSelectState : StateBase
 
     private void Select(InputAction.CallbackContext context)
     {
-        if (_globalTargetCoords.Count == 0) return;
+        Attack().Forget();
+    }
+
+    private async UniTask Attack()
+    {
+        _controller.SelectedPlayerUnit?.Action();
 
         WeaponData weaponData = _controller.SelectedWeaponData;
+        Weapon playerWeapon = _controller.SelectedPlayerUnit.Weapon;
 
-        if (weaponData.WeaponType == WeaponType.SelectDirection
-            && !_controller.SelectedPlayerUnit.Weapon.GetCanAttackArea()) return;
+        if (!playerWeapon.CanAttackTargets(weaponData)) return;
 
-        _controller.SelectedPlayerUnit.ConsumeEnergy(weaponData.EnergyCost);
+        await playerWeapon.AttackTargets(
+            weaponData,
+            UnitType.Enemy,
+            _controller.Turn,
+            _controller.TotalPlayerUnits,
+            _controller.CurrentTurnCount
+            );
 
-        foreach (Vector2Int coord in _globalTargetCoords)
-        {
-            UnitBase targetUnit = _mapManager.UnitMap[coord.x, coord.y];
+        await UniTask.Delay(2000, DelayType.DeltaTime);
 
-            if (targetUnit == null || targetUnit.UnitType != UnitType.Enemy) continue;
+        await playerWeapon.GetAttackReturn(
+            UnitType.Enemy,
+            _controller.Turn,
+            _controller.TotalPlayerUnits,
+            _controller.CurrentTurnCount
+            );
 
-            _controller.SelectedPlayerUnit.Weapon.AttackTarget(
-                targetUnit,
-                weaponData,
-                _controller.Turn,
-                _controller.TotalPlayerUnits,
-                _controller.CurrentTurnCount
-                );
-
-            if (_controller.SelectedPlayerUnit.Weapon.CalculateGetReturnAttack(
-                targetUnit,
-                VectorExtensions.CoordDistance(coord, _controller.SelectedPlayerUnit.transform.position.WorldToCoord()),
-                _controller.Turn,
-                _controller.TotalPlayerUnits,
-                _controller.CurrentTurnCount
-                ))
-                _controller.SelectedPlayerUnit.Weapon.GetReturnAttack(targetUnit);
-        }
         _controller.SetState(_controller.CommandEndState);
     }
 

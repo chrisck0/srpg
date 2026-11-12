@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
@@ -64,6 +65,12 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
     public void Die()
     {
         OnDead?.Invoke(this);
+        WaitAndReturnToPool().Forget();
+    }
+
+    private async UniTask WaitAndReturnToPool()
+    {
+        await UniTask.Delay(2000, DelayType.Realtime);
         ReturnToPool();
     }
 

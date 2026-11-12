@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -26,8 +27,6 @@ public class Weapon : MonoBehaviour
     /// </summary>
     public void Attack(WeaponData weaponData, UnitBase target)
     {
-        _owner.OnAttackWeapon?.Invoke(weaponData.Id);
-
         Debug.Log($"{_owner.UnitStat.UnitData.Name} attacked {target.UnitStat.UnitData.Name} DMG {weaponData.Attack}");
         target.TakeDamage(weaponData.Attack);
     }
@@ -258,6 +257,76 @@ public class Weapon : MonoBehaviour
     }
 
     /// <summary>
+    /// 타겟 공격 가능한지 여부
+    /// </summary>
+    public bool CanAttackTargets(WeaponData weaponData)
+    {
+        if (_globalTargetCoords.Count == 0) return false;
+
+        if (weaponData.WeaponType == WeaponType.SelectDirection
+            && !GetCanAttackArea()) return false;
+
+        return true;
+    }
+
+    /// <summary>
+    /// 타겟 좌표 전체에 공격 
+    /// </summary>
+    public async UniTask AttackTargets(WeaponData weaponData, UnitType targetType,
+        int turn, int totalPlayerUnits, int currentTurnCount)
+    {
+        Debug.Log("Attack Targets");
+        _owner.ConsumeEnergy(weaponData.EnergyCost);
+
+        _owner.OnAttackWeapon?.Invoke(weaponData.Id);
+
+        await UniTask.Delay(1000, DelayType.DeltaTime);
+
+        foreach (Vector2Int coord in _globalTargetCoords)
+        {
+            UnitBase targetUnit = _mapManager.UnitMap[coord.x, coord.y];
+
+            if (targetUnit == null || targetUnit.UnitType != targetType) continue;
+
+            AttackTarget(
+                targetUnit,
+                weaponData,
+                turn,
+                totalPlayerUnits,
+                currentTurnCount
+                );
+        }
+    }
+
+
+    /// <summary>
+    /// 공격한 타겟 좌표 유닛에게 반격
+    /// </summary>
+    public async UniTask GetAttackReturn(UnitType targetType,
+        int turn, int totalPlayerUnits, int currentTurnCount)
+    {
+        Debug.Log("Get Attack Return");
+        foreach (Vector2Int coord in _globalTargetCoords)
+        {
+            UnitBase targetUnit = _mapManager.UnitMap[coord.x, coord.y];
+
+            if (targetUnit == null || targetUnit.UnitType != targetType) continue;
+
+            if (CalculateGetReturnAttack(
+                targetUnit,
+                VectorExtensions.CoordDistance(coord, transform.position.WorldToCoord()),
+                turn,
+                totalPlayerUnits,
+                currentTurnCount
+                ))
+            {
+                await GetReturnAttack(targetUnit);
+                await UniTask.Delay(2000, DelayType.DeltaTime);
+            }
+        }
+    }
+
+    /// <summary>
     /// 타겟 공격
     /// </summary>
     public void AttackTarget(UnitBase targetUnit, WeaponData weaponData,
@@ -282,9 +351,13 @@ public class Weapon : MonoBehaviour
     /// <summary>
     /// 타겟에게서 반격
     /// </summary>
-    public void GetReturnAttack(UnitBase targetUnit)
+    public async UniTask GetReturnAttack(UnitBase targetUnit)
     {
         WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
+        targetUnit.OnAttackWeapon?.Invoke(targetWeapon.Id);
+
+        await UniTask.Delay(1000, DelayType.DeltaTime);
+
         targetUnit.Weapon.Attack(targetWeapon, _owner);
     }
 
