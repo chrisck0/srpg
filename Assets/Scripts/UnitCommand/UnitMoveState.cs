@@ -104,6 +104,8 @@ public sealed class UnitMoveState : StateBase
 
     private void MoveToDestination(Vector2Int currentCoord, Vector2Int destinationCoord)
     {
+        _controller.SelectedPlayerUnit.ToggleMove();
+
         _hasSelected = true;
 
         _mapManager.UnitMap[currentCoord.x, currentCoord.y] = null;
@@ -133,6 +135,7 @@ public sealed class UnitMoveState : StateBase
         {
             _mapManager.UnitMap[_targetCoord.x, _targetCoord.y] = _selectedUnit;
             _hasSelected = false;
+            _controller.SelectedPlayerUnit.ToggleMove();
             _controller.SetState(_controller.UnitCommandState);
             return;
         }
@@ -146,6 +149,7 @@ public sealed class UnitMoveState : StateBase
     private void Cancel(InputAction.CallbackContext context)
     {
         if (_hasSelected) return;
+        _controller.SelectedPlayerUnit.UnSelect();
         _controller.SetState(_controller.UnitSelectState);
     }
 

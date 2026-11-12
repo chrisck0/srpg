@@ -76,6 +76,7 @@ public sealed class UnitSelectState : StateBase
             if (playerUnit == null || !playerUnit.CanAction) return;
 
             _controller.SetSelectedPlayerUnit(playerUnit);
+            playerUnit.Select();
             _controller.SetState(_controller.UnitMoveState);
         }
     }

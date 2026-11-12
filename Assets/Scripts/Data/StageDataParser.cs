@@ -124,11 +124,13 @@ public class StageDataParser : DataParserBase
 
             int unitId, unitPositionX, unitPositionY;
             Vector2Int unitPosition;
+            DirectionType directionType;
             string[] unitPositionCoord = cells[1].Split('.');
 
             if (!int.TryParse(cells[0], out unitId)
                 || !int.TryParse(unitPositionCoord[0], out unitPositionX)
                 || !int.TryParse(unitPositionCoord[1], out unitPositionY)
+                || !Enum.TryParse<DirectionType>(cells[2], out directionType)
                 )
             {
                 Debug.LogError("UnitPosition Parse Error");
@@ -136,7 +138,7 @@ public class StageDataParser : DataParserBase
             }
 
             unitPosition = new Vector2Int(unitPositionX, unitPositionY);
-            unitPositionList.Add(new UnitPosition(unitId, unitPosition));
+            unitPositionList.Add(new UnitPosition(unitId, unitPosition, directionType));
         }
 
         _stageDataList[index].SetData(stageId, stageName, stageWinCondition, targetIds, mainIds, map, unitPositionList);

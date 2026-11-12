@@ -221,11 +221,11 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private void BindUnitEvents(UnitBase unit)
     {
-        unit.OnUnitDead += UnitDead;
+        unit.OnDead += UnitDead;
     }
 
     private void UnbindUnitEvents(UnitBase unit)
     {
-        unit.OnUnitDead -= UnitDead;
+        unit.OnDead -= UnitDead;
     }
 }
