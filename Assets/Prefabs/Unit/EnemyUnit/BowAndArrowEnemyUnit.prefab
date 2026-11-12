@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3226035149217672612}
   - component: {fileID: 4784945867654183154}
   m_Layer: 0
-  m_Name: EnemyUnit
+  m_Name: BowAndArrowEnemyUnit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -151,6 +151,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6616087276238536129, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6655098897533309161, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.6
@@ -169,7 +173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6655098897533309161, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6655098897533309161, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
       propertyPath: m_LocalPosition.z
