@@ -10,6 +10,7 @@ public class EnemyAI : MonoBehaviour
     private TileCost[,] _tileCostMap;
     private HashSet<Vector2Int> _reachableTiles;
     private Stack<Vector2Int> _pathCoordStack = new();
+    private HashSet<Vector2Int> _dangerCoords = new();
     private AttackScore _maxAttackScore;
     private bool _isMoving;
     private bool _canAttack;
@@ -32,20 +33,42 @@ public class EnemyAI : MonoBehaviour
         _mapManager = mapManager;
     }
 
+    public void ShowDanger()
+    {
+        Debug.Log(_dangerCoords.Count);
+        foreach (Vector2Int coord in _dangerCoords)
+        {
+            _mapManager.TileMap[coord.x, coord.y].ShowDanger();
+        }
+    }
+
+    public void HideDanger()
+    {
+        foreach (Vector2Int coord in _dangerCoords)
+        {
+            _mapManager.TileMap[coord.x, coord.y].HideDanger();
+        }
+    }
+
+    public void CalculateScore()
+    {
+        Vector2Int currentCoord = transform.position.WorldToCoord();
+
+        _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord, _dangerCoords);
+
+        Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
+            $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
+    }
+
     public void Behave(int turn, int totalEnemyUnits, int currentTurnCount)
     {
+        CalculateScore();
+        ShowDanger();
         _turn = turn;
         _totalEnemyUnits = totalEnemyUnits;
         _currentTurnCount = currentTurnCount;
 
         Vector2Int currentCoord = transform.position.WorldToCoord();
-
-        _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord);
-
-        
-        Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
-            $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
-        
 
         _tileCostMap = _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(
             currentCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);

@@ -8,6 +8,7 @@ public class AttackScoreCalculator
     private HashSet<Vector2Int> _reachableTiles;
     private List<Vector2Int> _targetableLists = new();
     private List<Vector2Int> _targetLists = new();
+    private HashSet<Vector2Int> _dangerCoords;
     private DirectionType[] _directions = { DirectionType.Up, DirectionType.Right, DirectionType.Down, DirectionType.Left };
 
     public AttackScoreCalculator(EnemyUnit owner)
@@ -15,8 +16,11 @@ public class AttackScoreCalculator
         _owner = owner;
     } 
 
-    public AttackScore CalculateScore(MapManager mapManager, Vector2Int initialCoord)
+    public AttackScore CalculateScore(MapManager mapManager, Vector2Int initialCoord, HashSet<Vector2Int> dangerCoords)
     {
+        _dangerCoords = dangerCoords;
+        _dangerCoords.Clear();
+
         _mapManager = mapManager;
 
         _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(
@@ -74,6 +78,8 @@ public class AttackScoreCalculator
         AttackScore maxAttackScore = default;
         foreach (Vector2Int targetableCoord in _targetableLists)
         {
+            _dangerCoords.Add(targetableCoord);
+
             UnitBase target = _mapManager.UnitMap[targetableCoord.x, targetableCoord.y];
             if (target == null || target.UnitType != UnitType.Player) continue;
 
@@ -95,6 +101,7 @@ public class AttackScoreCalculator
         int score = 0;
         foreach (Vector2Int targetCoord in _targetLists)
         {
+            _dangerCoords.Add(targetCoord);
             score += AttackScore(currentCoord, targetCoord, weaponData.Attack);
         }
 
@@ -141,7 +148,6 @@ public class AttackScoreCalculator
 
     private AttackScore CalculateSelectDirectionRangeScore(Vector2Int coord, DirectionType direction, WeaponData weaponData)
     {
-        _targetLists.Clear();
         bool _canAttackArea = false;
 
         AttackScore attackScore = default;
@@ -172,6 +178,8 @@ public class AttackScoreCalculator
                 || globalCoord.y < 0
                 || globalCoord.x >= _mapManager.TileMap.GetLength(0)
                 || globalCoord.y >= _mapManager.TileMap.GetLength(1)) continue;
+
+            _dangerCoords.Add(globalCoord);
 
             UnitBase unit = _mapManager.UnitMap[globalCoord.x, globalCoord.y];
 

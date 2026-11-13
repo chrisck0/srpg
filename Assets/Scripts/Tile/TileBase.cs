@@ -8,8 +8,10 @@ public abstract class TileBase : MonoBehaviour, IPoolable
     [SerializeField] private TileData _tileData;
     [SerializeField] private GameObject _blueTransparentTile;
     [SerializeField] private GameObject _redTransparentTile;
+    [SerializeField] private GameObject _darkRedTransparentTile;
     [SerializeField] private TextMeshProUGUI _distanceText;
     private bool _canSelect;
+    private int _dangerCount;
 
     public TileData TileData => _tileData;
     public bool CanSelect => _canSelect;
@@ -42,6 +44,18 @@ public abstract class TileBase : MonoBehaviour, IPoolable
     public void HideRange()
     {
         _redTransparentTile.gameObject.SetActive(false);
+    }
+
+    public void ShowDanger()
+    {
+        _dangerCount++;
+        _darkRedTransparentTile.gameObject.SetActive(true);
+    }
+
+    public void HideDanger()
+    {
+        _dangerCount--;
+        if (_dangerCount == 0) _darkRedTransparentTile.gameObject.SetActive(false);
     }
 
     public void InitTile()
