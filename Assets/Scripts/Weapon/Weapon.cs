@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
-using Unity.Cinemachine;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
@@ -37,6 +36,7 @@ public class Weapon : MonoBehaviour
     public bool CanGetReturnAttack(int distance)
     {
         WeaponData weapon = WeaponDataList[0];
+
         if (weapon.MinRange <= distance
             && weapon.MaxRange >= distance)
         {
@@ -218,6 +218,18 @@ public class Weapon : MonoBehaviour
     }
 
     /// <summary>
+    /// 반격 가능한 거리인지 여부
+    /// </summary>
+    public bool CanGetReturnAttack(UnitBase targetUnit, int distance)
+    {
+        WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
+        if (targetWeapon.MinRange <= distance
+            && targetWeapon.MaxRange >= distance)
+            return true;
+        return false;
+    }
+
+    /// <summary>
     /// 반격 확률 계산하여 반격 받는지 여부
     /// </summary>
     /// <returns></returns>
@@ -288,7 +300,6 @@ public class Weapon : MonoBehaviour
         _mapManager.TileRange.HideRange();
     }
 
-
     /// <summary>
     /// 공격한 타겟 좌표 유닛에게 반격
     /// </summary>
@@ -301,18 +312,13 @@ public class Weapon : MonoBehaviour
 
             if (targetUnit == null || targetUnit.UnitType != targetType) continue;
 
-            if (CalculateGetReturnAttack(
-                targetUnit,
-                VectorExtensions.CoordDistance(coord, transform.position.WorldToCoord()),
-                turn,
-                totalPlayerUnits,
-                currentTurnCount
-                ))
-            {
-                await GetReturnAttack(targetUnit);
-                await UniTask.Delay(2000, DelayType.DeltaTime);
-                _mapManager.TileRange.HideRange();
-            }
+            int distance = VectorExtensions.CoordDistance(coord, transform.position.WorldToCoord());
+
+            if (!targetUnit.Weapon.CanGetReturnAttack(distance)) continue;
+
+            await GetReturnAttack(targetUnit, distance, turn, totalPlayerUnits, currentTurnCount);
+            await UniTask.Delay(2000, DelayType.DeltaTime);
+            _mapManager.TileRange.HideRange();
         }
     }
 
@@ -341,7 +347,8 @@ public class Weapon : MonoBehaviour
     /// <summary>
     /// 타겟에게서 반격
     /// </summary>
-    private async UniTask GetReturnAttack(UnitBase targetUnit)
+    private async UniTask GetReturnAttack(UnitBase targetUnit, int distance,
+        int turn, int totalPlayerUnits, int currentTurnCount)
     {
         WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
         targetUnit.OnAttackWeapon?.Invoke(targetWeapon.Id);
@@ -356,7 +363,15 @@ public class Weapon : MonoBehaviour
 
         await UniTask.Delay(1000, DelayType.DeltaTime);
 
-        targetUnit.Weapon.Attack(targetWeapon, _owner);
+        if (CalculateGetReturnAttack(
+                targetUnit,
+                distance,
+                turn,
+                totalPlayerUnits,
+                currentTurnCount
+                ))
+            targetUnit.Weapon.Attack(targetWeapon, _owner);
+        else _owner.Avoid();
     }
 
     private void CacheComponents()
