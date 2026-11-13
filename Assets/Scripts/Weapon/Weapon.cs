@@ -275,7 +275,6 @@ public class Weapon : MonoBehaviour
     public async UniTask AttackTargets(WeaponData weaponData, UnitType targetType,
         int turn, int totalPlayerUnits, int currentTurnCount)
     {
-        Debug.Log("Attack Targets");
         _owner.ConsumeEnergy(weaponData.EnergyCost);
 
         _owner.OnAttackWeapon?.Invoke(weaponData.Id);
@@ -305,7 +304,6 @@ public class Weapon : MonoBehaviour
     public async UniTask GetAttackReturn(UnitType targetType,
         int turn, int totalPlayerUnits, int currentTurnCount)
     {
-        Debug.Log("Get Attack Return");
         foreach (Vector2Int coord in _globalTargetCoords)
         {
             UnitBase targetUnit = _mapManager.UnitMap[coord.x, coord.y];

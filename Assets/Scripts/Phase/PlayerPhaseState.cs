@@ -25,12 +25,10 @@ public sealed class PlayerPhaseState : StateBase
     {
         foreach (PlayerUnit playerUnit in _playerUnitList)
         {
-            playerUnit.InitAction();
             playerUnit.UnitStat.AddEnergy(5);
         }
         _activePlayerUnit = _playerUnitList.Count;
         BindCommandEvents();
-        Debug.Log("PlayerPhase Start");
     }
 
     public override void Update()
@@ -39,6 +37,10 @@ public sealed class PlayerPhaseState : StateBase
 
     public override void Exit()
     {
+        foreach (PlayerUnit playerUnit in _playerUnitList)
+        {
+            playerUnit.InitAction();
+        }
         UnbindCommandEvents();
     }
 

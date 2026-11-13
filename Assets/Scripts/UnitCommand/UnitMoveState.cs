@@ -97,9 +97,11 @@ public sealed class UnitMoveState : StateBase
 
         UnitBase unit = _mapManager.UnitMap[nextCoord.x, nextCoord.y];
 
-        if (unit != null && unit != _selectedUnit && unit.UnitType == UnitType.Player)
+        if (unit != null && unit != _selectedUnit
+            && unit.UnitType == UnitType.Player && (unit as PlayerUnit).CanAction)
         {
             PlayerUnit playerUnit = unit as PlayerUnit;
+
             _controller.SetSelectedPlayerUnit(playerUnit);
             playerUnit.Select();
             ShowMoveRange();

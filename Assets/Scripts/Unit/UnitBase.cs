@@ -14,6 +14,8 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
     private bool _isMoving;
     private ObjectPool<UnitBase> _objectPool;
 
+    public Action OnUnitCanAction;
+    public Action OnUnitActioned;
     public Action<int> OnAttackWeapon;
     public Action OnSelect;
     public Action<bool> OnMove;

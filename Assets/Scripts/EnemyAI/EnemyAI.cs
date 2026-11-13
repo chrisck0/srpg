@@ -86,7 +86,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Wait()
     {
-        _owner.OnEnemyActioned?.Invoke();
+        _owner.OnUnitActioned?.Invoke();
     }
 
     private Vector2Int FindClosestTargetCoord()
@@ -169,7 +169,7 @@ public class EnemyAI : MonoBehaviour
         {
             _mapManager.UnitMap[_moveTargetCoord.x, _moveTargetCoord.y] = _owner;
             _isMoving = false;
-            if (!_canAttack) _owner.OnEnemyActioned?.Invoke();
+            if (!_canAttack) _owner.OnUnitActioned?.Invoke();
             return;
         }
 
@@ -211,7 +211,7 @@ public class EnemyAI : MonoBehaviour
             _currentTurnCount
             );
 
-        _owner.OnEnemyActioned?.Invoke();
+        _owner.OnUnitActioned?.Invoke();
     }
 
     private void Init()

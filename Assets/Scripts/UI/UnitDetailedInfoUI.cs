@@ -68,7 +68,6 @@ public class UnitDetailedInfoUI : MonoBehaviour
 
     public void Hide()
     {
-        Debug.Log("Hide UnitDetailedInfo");
         gameObject.SetActive(false);
     }
 }

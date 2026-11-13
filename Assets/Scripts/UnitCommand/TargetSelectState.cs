@@ -15,6 +15,7 @@ public class TargetSelectState : StateBase
     private LayerMask _ground;
     private TileBase _currentTile;
     private List<Vector2Int> _globalTargetCoords;
+    private bool _hasSelected;
 
     public TargetSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
@@ -37,7 +38,7 @@ public class TargetSelectState : StateBase
 
     public override void Update()
     {
-        if (!_controller.SelectedPlayerUnit.CanAction) return;
+        if (_hasSelected) return;
 
         Vector2 screen = _cursorPosition.action.ReadValue<Vector2>();
         Ray ray = Camera.main.ScreenPointToRay(screen);
@@ -71,6 +72,7 @@ public class TargetSelectState : StateBase
 
     public override void Exit()
     {
+        _hasSelected = false;
         UnbindInputActions();
         _mapManager.TileRange.InitTiles();
         _controller.SelectedPlayerUnit.Weapon.ClearCoords();
@@ -144,12 +146,13 @@ public class TargetSelectState : StateBase
 
     private async UniTask Attack()
     {
-        _controller.SelectedPlayerUnit?.Action();
-
         WeaponData weaponData = _controller.SelectedWeaponData;
         Weapon playerWeapon = _controller.SelectedPlayerUnit.Weapon;
 
         if (!playerWeapon.CanAttackTargets(weaponData)) return;
+
+        _hasSelected = true;
+        HideUI();
 
         await playerWeapon.AttackTargets(
             weaponData,
@@ -169,6 +172,7 @@ public class TargetSelectState : StateBase
             );
 
         _controller.SetState(_controller.CommandEndState);
+        _controller.SelectedPlayerUnit?.Action();
     }
 
     private void Cancel(InputAction.CallbackContext context)

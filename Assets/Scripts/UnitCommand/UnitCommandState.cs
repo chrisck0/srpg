@@ -79,6 +79,7 @@ public sealed class UnitCommandState : StateBase
     private void Wait()
     {
         _controller.SetState(_controller.CommandEndState);
+        _controller.SelectedPlayerUnit?.Action();
     }
 
     private void WeaponSelected(WeaponData weaponData)

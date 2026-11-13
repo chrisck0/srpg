@@ -28,7 +28,6 @@ public sealed class EnemyPhaseState : StateBase
             enemyUnit.UnitStat.AddEnergy(5);
             _activeEnemyUnit.Enqueue(enemyUnit);
         }
-        Debug.Log("EnemyPhase Start");
     }
 
     public override void Update()
@@ -65,6 +64,11 @@ public sealed class EnemyPhaseState : StateBase
     {
         _activeEnemyUnit.Clear();
         _currentEnemyUnit = null;
+
+        foreach (EnemyUnit enemyUnit in _enemyUnitList)
+        {
+            enemyUnit.OnUnitCanAction?.Invoke();
+        }
     }
 
     private void EnemyPhaseEnd()
@@ -87,11 +91,11 @@ public sealed class EnemyPhaseState : StateBase
 
     private void BindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned += EnemyActioned;
+        _currentEnemyUnit.OnUnitActioned += EnemyActioned;
     }
 
     private void UnbindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned -= EnemyActioned;
+        _currentEnemyUnit.OnUnitActioned -= EnemyActioned;
     }
 }
