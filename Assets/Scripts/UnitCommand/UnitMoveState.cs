@@ -51,7 +51,6 @@ public sealed class UnitMoveState : StateBase
     public override void Exit()
     {
         UnbindInputActions();
-        // _mapManager.TileRange.InitTiles();
         _mapManager.TileRange.HideDistance();
         HideUI();
     }
@@ -60,7 +59,6 @@ public sealed class UnitMoveState : StateBase
     {
         _selectedUnit = _controller.SelectedPlayerUnit;
         Vector2Int currentCoord = _selectedUnit.transform.position.WorldToCoord();
-        _mapManager.TileRange.HideDistance();
         _tileCostMap = _mapManager.TileRange.UnitMoveRange(
             currentCoord, _selectedUnit.UnitStat.UnitData.Move, UnitType.Enemy);
         _mapManager.TileRange.ShowDistance();
@@ -106,6 +104,7 @@ public sealed class UnitMoveState : StateBase
 
             _controller.SetSelectedPlayerUnit(playerUnit);
             playerUnit.Select();
+            _mapManager.TileRange.HideDistance();
             ShowMoveRange();
         }
         else if (!_mapManager.TileMap[nextCoord.x, nextCoord.y].CanSelect)

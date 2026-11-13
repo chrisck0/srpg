@@ -186,9 +186,10 @@ public class EnemyAI : MonoBehaviour
         WeaponData weaponData = _maxAttackScore.AttackWeaponData;
         Weapon weapon = _owner.Weapon;
 
-        weapon.SetRange(weaponData, _mapManager, false);
+        weapon.SetRange(weaponData, _mapManager);
         weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
-            _maxAttackScore.WeaponDirection, weaponData, true);
+            _maxAttackScore.WeaponDirection, weaponData);
+        _mapManager.TileRange.ShowRange();
 
         _attackTargetCoords = weapon.GetTargetCoords();
 
@@ -201,10 +202,6 @@ public class EnemyAI : MonoBehaviour
             _totalEnemyUnits,
             _currentTurnCount
             );
-
-        await UniTask.Delay(2000, DelayType.DeltaTime);
-
-        // _mapManager.TileRange.InitTiles();
 
         await weapon.GetAttackReturn(
             UnitType.Player,

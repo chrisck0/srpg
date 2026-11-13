@@ -33,7 +33,8 @@ public class TargetSelectState : StateBase
     public override void Enter()
     {
         BindInputActions();
-        _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager, true);
+        _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager);
+        if (_controller.SelectedWeaponData.WeaponType == WeaponType.SelectTarget) _mapManager.TileRange.ShowDistance();
     }
 
     public override void Update()
@@ -59,11 +60,16 @@ public class TargetSelectState : StateBase
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
         DirectionType weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
-        
+
+        _mapManager.TileRange.HideRange();
+
         _controller.SelectedPlayerUnit.Weapon.SelectWeaponRange(
             coord, UnitType.Enemy,
             _mapManager, weaponDirection,
-            _controller.SelectedWeaponData, true);
+            _controller.SelectedWeaponData
+            );
+
+        _mapManager.TileRange.ShowRange();
 
         _globalTargetCoords = _controller.SelectedPlayerUnit.Weapon.GetTargetCoords();
         _controller.ShowCursor(coord);
@@ -74,7 +80,9 @@ public class TargetSelectState : StateBase
     {
         _hasSelected = false;
         UnbindInputActions();
-        // _mapManager.TileRange.InitTiles();
+        _mapManager.TileRange.HideDistance();
+        _mapManager.TileRange.HideRange();
+
         _controller.SelectedPlayerUnit.Weapon.ClearCoords();
         HideUI();
     }
@@ -154,6 +162,8 @@ public class TargetSelectState : StateBase
         _hasSelected = true;
         HideUI();
 
+        _mapManager.TileRange.HideDistance();
+
         await playerWeapon.AttackTargets(
             weaponData,
             UnitType.Enemy,
@@ -161,10 +171,6 @@ public class TargetSelectState : StateBase
             _controller.TotalPlayerUnits,
             _controller.CurrentTurnCount
             );
-
-        await UniTask.Delay(2000, DelayType.DeltaTime);
-
-        // _mapManager.TileRange.InitTiles();
 
         await playerWeapon.GetAttackReturn(
             UnitType.Enemy,

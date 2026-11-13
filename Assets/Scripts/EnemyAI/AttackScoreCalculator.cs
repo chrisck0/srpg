@@ -68,8 +68,8 @@ public class AttackScoreCalculator
     {
         _targetableLists.Clear();
 
-        _mapManager.TileRange.SelectTargetWeaponRange(
-            currentCoord, weaponData.MinRange, weaponData.MaxRange, false, false, _targetableLists);
+        _mapManager.TileRange.SelectTargetWeaponDistance(
+            currentCoord, weaponData.MinRange, weaponData.MaxRange, _targetableLists);
 
         AttackScore maxAttackScore = default;
         foreach (Vector2Int targetableCoord in _targetableLists)
@@ -90,7 +90,7 @@ public class AttackScoreCalculator
     {
         _targetLists.Clear();
 
-        _mapManager.TileRange.SelectTargetWeaponRange(targetableCoord, 0, weaponData.ExplosionRange, false, false, _targetLists);
+        _mapManager.TileRange.SelectTargetWeaponRange(targetableCoord, 0, weaponData.ExplosionRange, _targetLists);
 
         int score = 0;
         foreach (Vector2Int targetCoord in _targetLists)

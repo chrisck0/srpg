@@ -52,6 +52,11 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _canSelect = false;
     }
 
+    public void InitSelect()
+    {
+        _canSelect = false;
+    }
+
     public void Activate()
     {
         gameObject.SetActive(true);
