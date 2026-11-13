@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WeaponContainerUI : MonoBehaviour, IPoolable
+public class WeaponCommandContainerUI : MonoBehaviour, IPoolable
 {
     [SerializeField] private Button _button;
     [SerializeField] private Image _weaponIcon;

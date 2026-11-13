@@ -9,6 +9,7 @@ public class TargetSelectState : StateBase
     private UnitCommandStateController _controller;
     private MapManager _mapManager => _controller.MapManager;
     private InputActionReference _selectAction;
+    private InputActionReference _infoAction;
     private InputActionReference _cancelAction;
     private InputActionReference _cursorPosition;
     private LayerMask _ground;

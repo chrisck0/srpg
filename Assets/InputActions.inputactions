@@ -25,6 +25,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "CursorPosition",
+                    "type": "Value",
+                    "id": "8f60140b-6027-4313-b33f-57c45970109d",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "Select",
                     "type": "Button",
                     "id": "6feca6ce-d196-47fc-80b2-ad5049456b32",
@@ -34,13 +43,13 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CursorPosition",
-                    "type": "Value",
-                    "id": "8f60140b-6027-4313-b33f-57c45970109d",
-                    "expectedControlType": "Vector2",
+                    "name": "Info",
+                    "type": "Button",
+                    "id": "d3837680-78a5-4551-9295-cfeef34df4fe",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 },
                 {
                     "name": "Cancel",
@@ -105,6 +114,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b8b378f8-fd35-42dc-b1c2-e702b018db14",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Info",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

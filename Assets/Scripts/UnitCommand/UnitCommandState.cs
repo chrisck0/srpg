@@ -71,7 +71,7 @@ public sealed class UnitCommandState : StateBase
 
     private void Attack()
     {
-        _attackCommandUI.InitWeaponInfo(_controller.SelectedPlayerUnit, _controller.SelectedPlayerUnit.Weapon.WeaponDataList);
+        _attackCommandUI.InitWeaponInfo(_controller.SelectedPlayerUnit);
         _attackCommandUI.Show();
         _isAttackSelected = true;
     }

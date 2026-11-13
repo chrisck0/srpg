@@ -6,10 +6,10 @@ public class TileInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _tileNameText;
     [SerializeField] private TextMeshProUGUI _tileDescriptionText;
 
-    public void SetData(string tileName, string tileDescription)
+    public void SetData(TileBase tile)
     {
-        _tileNameText.text = tileName;
-        _tileDescriptionText.text = tileDescription;
+        _tileNameText.text = tile.TileData.Name;
+        _tileDescriptionText.text = tile.TileData.Description;
     }
 
     public void Show()
