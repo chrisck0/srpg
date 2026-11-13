@@ -6365,8 +6365,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneReferenceSample
   _nextScene:
     _sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
-    _scenePath: Assets/Scenes/TitleScene.unity
-    _sceneName: TitleScene
+    _scenePath: Assets/Scenes/MainMenuScene.unity
+    _sceneName: MainMenuScene
 --- !u!1 &1050434319
 GameObject:
   m_ObjectHideFlags: 0
@@ -8143,7 +8143,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1205060250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15495,6 +15495,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 1559206610}
   - {fileID: 966485421}
+  - {fileID: 1092137276}
+  - {fileID: 1205060251}
   - {fileID: 149537493}
   - {fileID: 1589420422}
   - {fileID: 927113038}
@@ -15503,5 +15505,3 @@ SceneRoots:
   - {fileID: 2012098560}
   - {fileID: 1162715266}
   - {fileID: 1050434320}
-  - {fileID: 1092137276}
-  - {fileID: 1205060251}

@@ -123,6 +123,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MC21
       objectReference: {fileID: 0}
+    - target: {fileID: 6616087274412431640, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 50e2dae998ba7fb4baf050c9c533a413, type: 2}
     - target: {fileID: 6616087274511023728, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
       propertyPath: m_Controller
       value: 
@@ -139,6 +143,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6616087276062179194, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: ef373263592334b40b40527223028810, type: 2}
     - target: {fileID: 6616087276113069361, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -222,7 +230,20 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6273647886590888531, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2637411370604514657}
+    - targetCorrespondingSourceObject: {fileID: 6273647886590888531, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1608484771983660270}
   m_SourcePrefab: {fileID: 100100000, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
+--- !u!95 &202099321938485976 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 6616087276062179194, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
+  m_PrefabInstance: {fileID: 6421869262106221986}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &202099322442122426 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 6616087274412431640, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
+  m_PrefabInstance: {fileID: 6421869262106221986}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &202099322549003218 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 6616087274511023728, guid: 4b03e97acd7646168b7c456c376708e5, type: 3}
@@ -252,4 +273,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitAnimationController
   _owner: {fileID: 3226035149217672612}
   _animator: {fileID: 202099322549003218}
+  _selectInput: {fileID: 6248903269001061691, guid: 1fb15236ea930174ebfda5b423948a3e, type: 3}
+--- !u!114 &1608484771983660270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013144520188368881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfb7cc60ee679ac4c8c00e3b81c3a903, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BowAndArrowAnimationController
+  _owner: {fileID: 3226035149217672612}
+  _bowAnimator: {fileID: 202099322442122426}
+  _arrowAnimator: {fileID: 202099321938485976}
   _selectInput: {fileID: 6248903269001061691, guid: 1fb15236ea930174ebfda5b423948a3e, type: 3}
