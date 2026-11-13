@@ -6,10 +6,10 @@ using UnityEngine;
 public class AttackCommandUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _currentEnergyText;
-    [SerializeField] private WeaponContainerUI _weaponContainerPrefab;
+    [SerializeField] private WeaponCommandContainerUI _weaponContainerPrefab;
     [SerializeField] private Transform _verticalLayout;
-    private ObjectPool<WeaponContainerUI> _weaponContainerObjectPool;
-    private List<WeaponContainerUI> _activatedWeaponContainers = new();
+    private ObjectPool<WeaponCommandContainerUI> _containerObjectPool;
+    private List<WeaponCommandContainerUI> _activatedContainers = new();
 
     public Action<WeaponData> OnWeaponSelected;
 
@@ -18,9 +18,9 @@ public class AttackCommandUI : MonoBehaviour
 
     private void CreatePool()
     {
-        List<WeaponContainerUI> weaponContainers = new();
+        List<WeaponCommandContainerUI> weaponContainers = new();
         weaponContainers.Add(_weaponContainerPrefab);
-        _weaponContainerObjectPool = new ObjectPool<WeaponContainerUI>(weaponContainers, _verticalLayout, false);
+        _containerObjectPool = new ObjectPool<WeaponCommandContainerUI>(weaponContainers, _verticalLayout, false);
     }
 
     public void SelectWeapon(WeaponData weaponData)
@@ -29,28 +29,30 @@ public class AttackCommandUI : MonoBehaviour
         ReturnWeaponContainers();
     }
 
-    public void InitWeaponInfo(UnitBase selectedUnit, List<WeaponData> weaponDataList)
+    public void InitWeaponInfo(UnitBase selectedUnit)
     {
-        _activatedWeaponContainers.Clear();
+        _activatedContainers.Clear();
         int currentEnergy = selectedUnit.UnitStat.Energy;
         _currentEnergyText.text = $"EN {currentEnergy} / {selectedUnit.UnitStat.UnitData.Energy}";
 
-        foreach (WeaponData weaponData in weaponDataList)
+        foreach (WeaponData weaponData in selectedUnit.Weapon.WeaponDataList)
         {
-            WeaponContainerUI weaponContainer = _weaponContainerObjectPool.Take(_weaponContainerPrefab);
+            Debug.Log(_containerObjectPool);
+            Debug.Log(_weaponContainerPrefab);
+            WeaponCommandContainerUI weaponContainer = _containerObjectPool.Take(_weaponContainerPrefab);
             weaponContainer.SetData(weaponData, this, currentEnergy);
-            _activatedWeaponContainers.Add(weaponContainer);
+            _activatedContainers.Add(weaponContainer);
         }
     }
 
     private void ReturnWeaponContainers()
     {
-        foreach (WeaponContainerUI weaponContainer in _activatedWeaponContainers)
+        foreach (WeaponCommandContainerUI weaponContainer in _activatedContainers)
         {
-            _weaponContainerObjectPool.Return(weaponContainer);
+            _containerObjectPool.Return(weaponContainer);
         }
 
-        _activatedWeaponContainers.Clear();
+        _activatedContainers.Clear();
     }
 
     public void Show()

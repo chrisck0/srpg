@@ -11,6 +11,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     [SerializeField] private TileCursor _tileCursor;
     [SerializeField] private CommandUIController _commandUIController;
     [SerializeField] private InputActionReference _selectAction;
+    [SerializeField] private InputActionReference _infoAction;
     [SerializeField] private InputActionReference _cancelAction;
     [SerializeField] private InputActionReference _cursorPosition;
     [SerializeField] private LayerMask _ground;
@@ -49,9 +50,9 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private void InitUnitCommandStates()
     {
         _unitSelectState = new UnitSelectState(
-            this, _selectAction, _cursorPosition, _ground);
+            this, _selectAction, _infoAction, _cancelAction, _cursorPosition, _ground);
         _unitMoveState = new UnitMoveState(
-            this, _selectAction, _cancelAction, _cursorPosition, _ground);
+            this, _selectAction, _infoAction, _cancelAction, _cursorPosition, _ground);
         _unitCommandState = new UnitCommandState(
             this, _cancelAction, _commandUIController);
         _targetSelectState = new TargetSelectState(
@@ -107,8 +108,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public void ShowTileInfo(TileBase tile)
     {
         _commandUIController.TileInfoUI.Show();
-        TileData tileData = tile.TileData;
-        _commandUIController.TileInfoUI.SetData(tileData.Name, tileData.Description);
+        _commandUIController.TileInfoUI.SetData(tile);
     }
 
     public void ShowUnitInfo(TileBase tile)
@@ -123,11 +123,22 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         }
 
         _commandUIController.UnitInfoUI.Show();
-        UnitStat unitStat = unit.UnitStat;
-        _commandUIController.UnitInfoUI.SetData(unitStat.UnitData.Name,
-            $"HP {unitStat.Health}/{unitStat.UnitData.Health}",
-            $"EN {unitStat.Energy}/{unitStat.UnitData.Energy}",
-            unit.Weapon.WeaponDataList[0].Name); // 임시로 첫번째 무기 등록
+        _commandUIController.UnitInfoUI.SetData(unit);
+    }
+
+    public void ShowUnitDetailedInfo(TileBase tile)
+    {
+        Vector2Int coord = tile.transform.position.WorldToCoord();
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit == null)
+        {
+            _commandUIController.UnitDetailedInfoUI.Hide();
+            return;
+        }
+
+        _commandUIController.UnitDetailedInfoUI.Show();
+        _commandUIController.UnitDetailedInfoUI.SetData(unit);
     }
 
     public void ShowBattleInfo(UnitStat playerStat, UnitStat enemyStat,
@@ -149,6 +160,22 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _tileCursor.Hide();
     }
 
+    public void ShowTileUI(TileBase tile)
+    {
+        if (tile == null) return;
+
+        Vector2Int coord = tile.transform.position.WorldToCoord();
+
+        ShowUnitInfo(tile);
+        ShowCursor(coord);
+    }
+
+    public void HideTileUI()
+    {
+        HideTileInfo();
+        HideUnitInfo();
+    }
+
     public void HideTileInfo()
     {
         _commandUIController.TileInfoUI.Hide();
@@ -157,6 +184,11 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public void HideUnitInfo()
     {
         _commandUIController.UnitInfoUI.Hide();
+    }
+
+    public void HideUnitDetailedInfo()
+    {
+        _commandUIController.UnitDetailedInfoUI.Hide();
     }
 
     public void HideBattleInfo()

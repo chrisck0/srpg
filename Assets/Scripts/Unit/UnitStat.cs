@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System;
 
 public class UnitStat : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class UnitStat : MonoBehaviour
     [SerializeField] private UnitData _unitData;
     [SerializeField] private int _health;
     [SerializeField] private int _energy;
+
+    public event Action<int> OnHealthChanged;
 
     public UnitData UnitData => _unitData;
     public int Health => _health;
@@ -38,6 +41,7 @@ public class UnitStat : MonoBehaviour
         {
             _unit.Die();
         }
+        OnHealthChanged?.Invoke(_health);
     }
 
     private void CacheComponents()

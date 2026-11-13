@@ -8,12 +8,12 @@ public class UnitInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _unitEnergyText;
     [SerializeField] private TextMeshProUGUI _unitWeaponNameText;
 
-    public void SetData(string unitName, string unitHealth, string unitEnergy, string unitWeaponName)
+    public void SetData(UnitBase selectedUnit)
     {
-        _unitNameText.text = unitName;
-        _unitHealthText.text = unitHealth;
-        _unitEnergyText.text = unitEnergy;
-        _unitWeaponNameText.text = unitWeaponName;
+        _unitNameText.text = selectedUnit.UnitStat.UnitData.Name;
+        _unitHealthText.text = $"{selectedUnit.UnitStat.Health} / {selectedUnit.UnitStat.UnitData.Health}";
+        _unitEnergyText.text = $"{selectedUnit.UnitStat.Energy} / {selectedUnit.UnitStat.UnitData.Energy}";
+        _unitWeaponNameText.text = selectedUnit.Weapon.WeaponDataList[0].Name;
     }
 
     public void Show()
