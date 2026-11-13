@@ -37,8 +37,6 @@ public class AttackCommandUI : MonoBehaviour
 
         foreach (WeaponData weaponData in selectedUnit.Weapon.WeaponDataList)
         {
-            Debug.Log(_containerObjectPool);
-            Debug.Log(_weaponContainerPrefab);
             WeaponCommandContainerUI weaponContainer = _containerObjectPool.Take(_weaponContainerPrefab);
             weaponContainer.SetData(weaponData, this, currentEnergy);
             _activatedContainers.Add(weaponContainer);
