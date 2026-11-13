@@ -204,6 +204,8 @@ public class EnemyAI : MonoBehaviour
 
         await UniTask.Delay(2000, DelayType.DeltaTime);
 
+        // _mapManager.TileRange.InitTiles();
+
         await weapon.GetAttackReturn(
             UnitType.Player,
             _turn,

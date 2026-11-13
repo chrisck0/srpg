@@ -11,8 +11,13 @@ public class TileRange
     private Dictionary<TileCost, int> _priorityQueueIndex = new();
     private Vector2Int[] _directions = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
     private HashSet<Vector2Int> _reachableTiles = new();
+    private HashSet<Vector2Int> _selectedTiles = new();
+    private HashSet<Vector2Int> _showDistanceTiles = new();
+    private HashSet<Vector2Int> _showRangeTiles = new();
 
     public HashSet<Vector2Int> ReachableTiles => _reachableTiles;
+    public HashSet<Vector2Int> ShowDistanceTiles => _showDistanceTiles;
+    public HashSet<Vector2Int> ShowRangeTiles => _showRangeTiles;
 
     public TileRange(TileBase[,] tileMap, UnitBase[,] unitMap)
     {
@@ -46,6 +51,8 @@ public class TileRange
 
         _priorityQueue.Clear();
         _priorityQueueIndex.Clear();
+        _showDistanceTiles.Clear();
+        _showRangeTiles.Clear();
     }
 
     /// <summary>
@@ -53,6 +60,7 @@ public class TileRange
     /// </summary>
     public void InitTiles()
     {
+        Debug.Log("InitTiles");
         for (int i = 0; i < _tileMap.GetLength(0); i++)
         {
             for (int j = 0; j < _tileMap.GetLength(1); j++)
@@ -86,8 +94,10 @@ public class TileRange
             UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
             if (!currentUnit || currentCoord == startCoord)
             {
-                _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                // _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                _showDistanceTiles.Add(currentCoord);
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
+                _selectedTiles.Add(currentCoord);
             }
 
             _visitedMap[currentCoord.x, currentCoord.y] = true;
@@ -151,8 +161,11 @@ public class TileRange
             if (!currentUnit || currentCoord == startCoord)
             {
                 // _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
-                _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
+                _showDistanceTiles.Add(currentCoord);
+                if (currentTileCost.Distance <= move) _showDistanceTiles.Add(currentCoord);
 
+                _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
+                _selectedTiles.Add(currentCoord);
                 if (currentTileCost.Distance <= move) _reachableTiles.Add(currentCoord);
             }
 
@@ -215,9 +228,13 @@ public class TileRange
             if (currentTileCost.Distance >= minRange
                 && currentTileCost.Distance <= maxRange)
             {
-                if (showDistance) _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
-                if (showRange) _tileMap[currentCoord.x, currentCoord.y].ShowRange();
+                // if (showDistance) _tileMap[currentCoord.x, currentCoord.y].ShowDistance(currentTileCost.Distance);
+                // if (showRange) _tileMap[currentCoord.x, currentCoord.y].ShowRange();
+                _showDistanceTiles.Add(currentCoord);
+                _showRangeTiles.Add(currentCoord);
+
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
+                _selectedTiles.Add(currentCoord);
 
                  coordList.Add(currentCoord);
             }
@@ -274,6 +291,7 @@ public class TileRange
             if (!_unitMap[currentCoord.x, currentCoord.y])
             {
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
+                _selectedTiles.Add(currentCoord);
             }
 
             _visitedMap[currentCoord.x, currentCoord.y] = true;
@@ -415,6 +433,42 @@ public class TileRange
             _priorityQueueIndex[_priorityQueue[index]] = index;
 
             index = parentIndex;
+        }
+    }
+
+    public void ShowDistance()
+    {
+        foreach (Vector2Int coord in _showDistanceTiles)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.ShowDistance(_tileCostMap[coord.x, coord.y].Distance);
+        }
+    }
+
+    public void HideDistance()
+    {
+        foreach (Vector2Int coord in _showDistanceTiles)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.HideDistance();
+        }
+    }
+
+    public void ShowRange()
+    {
+        foreach (Vector2Int coord in _showRangeTiles)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.ShowRange();
+        }
+    }
+
+    public void HideRange()
+    {
+        foreach (Vector2Int coord in _showRangeTiles)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.HideRange();
         }
     }
 }

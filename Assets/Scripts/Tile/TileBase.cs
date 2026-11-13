@@ -1,6 +1,4 @@
-using System;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class TileBase : MonoBehaviour, IPoolable
@@ -28,6 +26,12 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _distanceText.gameObject.SetActive(true);
         _distanceText.text = num.ToString();
         _blueTransparentTile.gameObject.SetActive(true);
+    }
+
+    public void HideDistance()
+    {
+        _distanceText.gameObject.SetActive(false);
+        _blueTransparentTile.gameObject.SetActive(false);
     }
 
     public void ShowRange()

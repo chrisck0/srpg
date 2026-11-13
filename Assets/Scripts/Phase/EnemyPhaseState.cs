@@ -85,7 +85,7 @@ public sealed class EnemyPhaseState : StateBase
     private async UniTask WaitForSeconds()
     {
         await UniTask.Delay(1000, DelayType.DeltaTime);
-        _controller.MapManager.TileRange.InitTiles();
+        // _controller.MapManager.TileRange.InitTiles();
         _currentEnemyUnit = null;
     }
 

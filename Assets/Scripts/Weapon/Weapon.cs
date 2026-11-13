@@ -146,6 +146,7 @@ public class Weapon : MonoBehaviour
         WeaponRangeShape weaponRangeShape, int explosionRange, bool showRange)
     {
         _globalTargetCoords.Clear();
+        _mapManager.TileRange.ShowRangeTiles.Clear();
 
         TileBase tile = _mapManager.TileMap[targetCoord.x, targetCoord.y];
         UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
@@ -155,7 +156,8 @@ public class Weapon : MonoBehaviour
         switch (weaponRangeShape)
         {
             case WeaponRangeShape.Single:
-                if (showRange) _mapManager.TileMap[targetCoord.x, targetCoord.y].ShowRange();
+                // if (showRange) _mapManager.TileMap[targetCoord.x, targetCoord.y].ShowRange();
+                if (showRange) _mapManager.TileRange.ShowRangeTiles.Add(targetCoord);
                 _globalTargetCoords.Add(targetCoord);
                 break;
 
@@ -170,6 +172,7 @@ public class Weapon : MonoBehaviour
     {
         _globalTargetCoords.Clear();
         _canAttackArea = false;
+        _mapManager.TileRange.ShowRangeTiles.Clear();
 
         foreach (Vector2Int localCoord in _localTargetCoords)
         {
@@ -210,7 +213,8 @@ public class Weapon : MonoBehaviour
                 if (showRange) _globalTargetCoords.Add(globalCoord);
             }
 
-            if (showRange) _mapManager.TileMap[globalCoord.x, globalCoord.y].ShowRange();
+            // if (showRange) _mapManager.TileMap[globalCoord.x, globalCoord.y].ShowRange();
+            if (showRange) _mapManager.TileRange.ShowRangeTiles.Add(globalCoord);
         }
     }
 
@@ -327,7 +331,7 @@ public class Weapon : MonoBehaviour
     /// <summary>
     /// 타겟 공격
     /// </summary>
-    public void AttackTarget(UnitBase targetUnit, WeaponData weaponData,
+    private void AttackTarget(UnitBase targetUnit, WeaponData weaponData,
         int turn, int totalPlayerUnits, int currentTurnCount)
     {
         if (targetUnit != null)
@@ -349,10 +353,17 @@ public class Weapon : MonoBehaviour
     /// <summary>
     /// 타겟에게서 반격
     /// </summary>
-    public async UniTask GetReturnAttack(UnitBase targetUnit)
+    private async UniTask GetReturnAttack(UnitBase targetUnit)
     {
         WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
         targetUnit.OnAttackWeapon?.Invoke(targetWeapon.Id);
+
+        _mapManager.TileRange.ShowRangeTiles.Clear();
+
+        Vector2Int coord = transform.position.WorldToCoord();
+        TileBase tile = _mapManager.TileMap[coord.x, coord.y];
+        // tile.ShowRange();
+        _mapManager.TileRange.ShowRangeTiles.Add(coord);
 
         await UniTask.Delay(1000, DelayType.DeltaTime);
 

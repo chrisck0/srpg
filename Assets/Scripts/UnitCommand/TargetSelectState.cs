@@ -74,7 +74,7 @@ public class TargetSelectState : StateBase
     {
         _hasSelected = false;
         UnbindInputActions();
-        _mapManager.TileRange.InitTiles();
+        // _mapManager.TileRange.InitTiles();
         _controller.SelectedPlayerUnit.Weapon.ClearCoords();
         HideUI();
     }
@@ -163,6 +163,8 @@ public class TargetSelectState : StateBase
             );
 
         await UniTask.Delay(2000, DelayType.DeltaTime);
+
+        // _mapManager.TileRange.InitTiles();
 
         await playerWeapon.GetAttackReturn(
             UnitType.Enemy,

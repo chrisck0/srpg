@@ -190,7 +190,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         _gameUIController.ResultUI.SetData(isGameWin, _turn,
             _initialEnemyNum - _enemyUnitList.Count, _initialPlayerNum - _playerUnitList.Count);
         _stateMachine.enabled = false;
-        _mapManager.TileRange.InitTiles();
+        // _mapManager.TileRange.InitTiles();
         OnGameEnd?.Invoke();
     }
 

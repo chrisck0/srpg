@@ -51,17 +51,19 @@ public sealed class UnitMoveState : StateBase
     public override void Exit()
     {
         UnbindInputActions();
-        _mapManager.TileRange.InitTiles();
+        // _mapManager.TileRange.InitTiles();
+        _mapManager.TileRange.HideDistance();
         HideUI();
     }
 
     private void ShowMoveRange()
     {
-        _mapManager.TileRange.InitTiles();
         _selectedUnit = _controller.SelectedPlayerUnit;
         Vector2Int currentCoord = _selectedUnit.transform.position.WorldToCoord();
+        _mapManager.TileRange.HideDistance();
         _tileCostMap = _mapManager.TileRange.UnitMoveRange(
             currentCoord, _selectedUnit.UnitStat.UnitData.Move, UnitType.Enemy);
+        _mapManager.TileRange.ShowDistance();
     }
 
     private void RaycastTiles()
