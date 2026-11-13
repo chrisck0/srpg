@@ -74,8 +74,8 @@ public class Weapon : MonoBehaviour
     // 무기 사거리 설정
     private void SelectTargetWeaponDistance(Vector2Int coord, int minRange, int maxRange)
     {
-        _mapManager.TileRange.SelectTargetWeaponDistance(
-            coord, minRange, maxRange, _globalTargetCoords);
+        _mapManager.TileRange.SelectTargetWeaponRange(
+            coord, minRange, maxRange, _globalTargetCoords, false);
     }
 
     // 범위 무기의 공격 범위 설정 (로컬)
@@ -150,7 +150,7 @@ public class Weapon : MonoBehaviour
                 break;
 
             case WeaponRangeShape.Explosion:
-                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, _globalTargetCoords);
+                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, _globalTargetCoords, true);
                 break;
         }
     }
