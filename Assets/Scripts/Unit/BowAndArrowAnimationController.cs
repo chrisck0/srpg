@@ -7,7 +7,7 @@ public class BowAndArrowAnimationController : MonoBehaviour
     [SerializeField] private UnitBase _owner;
     [SerializeField] private Animator _bowAnimator;
     [SerializeField] private Animator _arrowAnimator;
-    [SerializeField] private InputActionReference _selectInput;
+    // [SerializeField] private InputActionReference _selectInput;
 
     private const string PARAM_IS_FIRST_WEAPON_ATTACK = "IsFirstWeaponAttack";
     private const string PARAM_IS_SECOND_WEAPON_ATTACK = "IsSecondWeaponAttack";
