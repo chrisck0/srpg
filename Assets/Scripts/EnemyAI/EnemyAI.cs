@@ -6,17 +6,14 @@ using UnityEngine;
 public class EnemyAI : MonoBehaviour
 {
     [SerializeField] private EnemyUnit _owner;
-    private AttackScoreCalculator _calculator;
     private MapManager _mapManager;
     private TileCost[,] _tileCostMap;
     private HashSet<Vector2Int> _reachableCoords;
     private Stack<Vector2Int> _pathCoordStack = new();
-    private HashSet<Vector2Int> _dangerCoords = new();
     private AttackScore _maxAttackScore;
     private bool _isMoving;
     private bool _canAttack;
     private Vector2Int _moveTargetCoord;
-    private List<Vector2Int> _attackTargetCoords;
     private int _turn;
     private int _totalEnemyUnits;
     private int _currentTurnCount;
@@ -24,11 +21,8 @@ public class EnemyAI : MonoBehaviour
     private bool _hasCalculated;
 
     public event Action<bool> OnDangerRangeVisibilityChanged;
-    public HashSet<Vector2Int> DangerCoords => _dangerCoords;
     public bool IsShowingDanger => _isShowingDanger;
     public bool HasCalculated => _hasCalculated;
-
-    private void Awake() => Init();
 
     private void Update()
     {
@@ -43,18 +37,17 @@ public class EnemyAI : MonoBehaviour
 
     public void InitDanger()
     {
-        foreach (Vector2Int coord in _dangerCoords)
+        foreach (Vector2Int coord in _owner.DistanceRange.TargetableCoords)
         {
             _mapManager.TileMap[coord.x, coord.y].InitDanger();
         }
         _hasCalculated = false;
         OnDangerRangeVisibilityChanged?.Invoke(false);
-        _dangerCoords.Clear();
     }
 
     public void ShowDanger()
     {
-        foreach (Vector2Int coord in _dangerCoords)
+        foreach (Vector2Int coord in _owner.DistanceRange.TargetableCoords)
         {
             _mapManager.TileMap[coord.x, coord.y].ShowDanger();
         }
@@ -64,7 +57,7 @@ public class EnemyAI : MonoBehaviour
 
     public void HideDanger()
     {
-        foreach (Vector2Int coord in _dangerCoords)
+        foreach (Vector2Int coord in _owner.DistanceRange.TargetableCoords)
         {
             _mapManager.TileMap[coord.x, coord.y].HideDanger();
         }
@@ -74,11 +67,9 @@ public class EnemyAI : MonoBehaviour
 
     public void CalculateScore()
     {
-        _dangerCoords.Clear();
-
         Vector2Int currentCoord = transform.position.WorldToCoord();
 
-        _maxAttackScore = _calculator.CalculateScore(_owner, _mapManager, currentCoord, _dangerCoords);
+        _maxAttackScore = AttackScoreCalculator.CalculateScore(_owner, _mapManager, currentCoord);
         _hasCalculated = true;
 
         Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
@@ -237,8 +228,6 @@ public class EnemyAI : MonoBehaviour
             _maxAttackScore.WeaponDirection, weaponData);
         _owner.DistanceRange.ShowRange();
 
-        _attackTargetCoords = weapon.GetTargetCoords();
-
         if (!weapon.CanAttackTargets(weaponData)) return;
 
         await weapon.AttackTargets(
@@ -257,10 +246,5 @@ public class EnemyAI : MonoBehaviour
             );
 
         _owner.OnUnitActioned?.Invoke();
-    }
-
-    private void Init()
-    {
-        _calculator = new AttackScoreCalculator(_owner);
     }
 }

@@ -54,7 +54,6 @@ public class TileRange
     public TileCost[,] UnitMoveRange(UnitBase unit, Vector2Int startCoord)
     {
         Init();
-        unit.DistanceRange.ReachableCoords.Clear();
         unit.DistanceRange.DistanceCoords.Clear();
 
         TileCost startTileCost = _tileCostMap[startCoord.x, startCoord.y];
@@ -78,7 +77,7 @@ public class TileRange
             }
 
             _visitedMap[currentCoord.x, currentCoord.y] = true;
-            Debug.Log("Add");
+
             unit.DistanceRange.DistanceCoords.Add(currentCoord);
 
             foreach (Vector2Int direction in _directions)
@@ -192,6 +191,8 @@ public class TileRange
     public void SelectTargetWeaponRange(UnitBase unit, Vector2Int startCoord, int minRange, int maxRange, List<Vector2Int> coordList, bool isRange)
     {
         Init();
+        coordList.Clear();
+
         if (!isRange) unit.DistanceRange.DistanceCoords.Clear();
         else unit.DistanceRange.RangeCoords.Clear();
 
@@ -215,7 +216,7 @@ public class TileRange
 
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
 
-                 coordList.Add(currentCoord);
+                coordList.Add(currentCoord);
             }
                 
             _visitedMap[currentCoord.x, currentCoord.y] = true;

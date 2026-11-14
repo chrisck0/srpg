@@ -11,6 +11,7 @@ public sealed class UnitSelectState : StateBase
     private InputActionReference _cursorPosition;
     private LayerMask _ground;
     private TileBase _currentTile;
+    private UnitBase _prevUnit;
     private bool _isInfoOpen;
 
     public UnitSelectState(UnitCommandStateController controller,
@@ -46,6 +47,7 @@ public sealed class UnitSelectState : StateBase
             _currentTile = null;
             _controller.HideCursor();
             _controller.HideTileUI();
+            HideDistanceRange();
             return;
         }
 
@@ -55,11 +57,13 @@ public sealed class UnitSelectState : StateBase
         _currentTile = tile;
         _controller.ShowCursor(tile.transform.position.WorldToCoord());
         _controller.ShowTileUI(tile);
+        ShowDistanceRange(tile);
     }
 
     public override void Exit()
     {
         _currentTile = null;
+        HideDistanceRange();
         UnbindInputActions();
     }
 
@@ -98,7 +102,53 @@ public sealed class UnitSelectState : StateBase
                 }
                 break;
         }
-        
+    }
+
+    private void Cancel(InputAction.CallbackContext context)
+    {
+        HideDetailedInfo();
+    }
+
+    private void ShowDistanceRange(TileBase tile)
+    {
+        Vector2Int coord = _currentTile.transform.position.WorldToCoord();
+
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit == _prevUnit) return;
+
+        HideDistanceRange();
+
+        if (unit == null
+            || unit.UnitType == UnitType.Player && !(unit as PlayerUnit).CanAction) return;
+
+        _prevUnit = unit;
+
+        foreach (Vector2Int targetableCoord in unit.DistanceRange.TargetableCoords)
+        {
+            _mapManager.TileMap[targetableCoord.x, targetableCoord.y].ShowRange();
+        }
+
+        foreach (Vector2Int reachableCoord in unit.DistanceRange.ReachableCoords)
+        {
+            _mapManager.TileMap[reachableCoord.x, reachableCoord.y].ShowDistance(0);
+        }
+    }
+
+    private void HideDistanceRange()
+    {
+        if (_prevUnit == null) return;
+
+        foreach (Vector2Int targetableCoord in _prevUnit.DistanceRange.TargetableCoords)
+        {
+            _mapManager.TileMap[targetableCoord.x, targetableCoord.y].HideRange();
+        }
+
+        foreach (Vector2Int reachableCoord in _prevUnit.DistanceRange.ReachableCoords)
+        {
+            _mapManager.TileMap[reachableCoord.x, reachableCoord.y].HideDistance();
+        }
+        _prevUnit = null;
     }
 
     private void ShowDetailedInfo(InputAction.CallbackContext context)
@@ -118,11 +168,6 @@ public sealed class UnitSelectState : StateBase
             _controller.ShowUnitDetailedInfo(_currentTile);
             _isInfoOpen = true;
         }
-    }
-
-    private void Cancel(InputAction.CallbackContext context)
-    {
-        HideDetailedInfo();
     }
 
     private void HideDetailedInfo()

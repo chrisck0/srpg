@@ -27,7 +27,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private int _currentTurnCount;
 
     public Action<StateBase> OnStateChanged { get; set; }
-    public Action OnUnitCommandEnd;
+    public Action<PlayerUnit> OnUnitCommandEnd;
 
     public MapManager MapManager => _mapManager;
     public StateBase UnitSelectState => _unitSelectState;

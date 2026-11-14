@@ -6,11 +6,13 @@ public class UnitDistanceRange : MonoBehaviour
     [SerializeField] private UnitBase _owner;
 
     private HashSet<Vector2Int> _reachableCoords = new();
+    private HashSet<Vector2Int> _targetableCoords = new();
     private HashSet<Vector2Int> _distanceCoords = new();
     private HashSet<Vector2Int> _rangeCoords = new();
     private TileBase[,] _tileMap;
 
     public HashSet<Vector2Int> ReachableCoords => _reachableCoords;
+    public HashSet<Vector2Int> TargetableCoords => _targetableCoords;
     public HashSet<Vector2Int> DistanceCoords => _distanceCoords;
     public HashSet<Vector2Int> RangeCoords => _rangeCoords;
 
@@ -21,7 +23,6 @@ public class UnitDistanceRange : MonoBehaviour
 
     public void ShowDistance(TileCost[,] tileCostMap)
     {
-        Debug.Log($"Show Distance {_distanceCoords.Count}");
         foreach (Vector2Int coord in _distanceCoords)
         {
             TileBase tile = _tileMap[coord.x, coord.y];

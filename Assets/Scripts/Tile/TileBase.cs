@@ -28,6 +28,7 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _distanceText.gameObject.SetActive(true);
         _distanceText.text = distance.ToString();
         _blueTransparentTile.gameObject.SetActive(true);
+        _redTransparentTile.gameObject.SetActive(false);
     }
 
     public void HideDistance()

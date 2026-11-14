@@ -74,7 +74,8 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private void InitPhaseStates(Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
-        _playerPhaseState = new PlayerPhaseState(this, _unitCommandStateController, spawnedUnitDict);
+        _playerPhaseState = new PlayerPhaseState(
+            this, _unitCommandStateController, _mapManager, spawnedUnitDict);
         _enemyPhaseState = new EnemyPhaseState(this, spawnedUnitDict);
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;

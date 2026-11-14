@@ -13,6 +13,8 @@ public class Weapon : MonoBehaviour
     private bool _canAttackArea;
 
     public List<WeaponData> WeaponDataList => _weaponDataList;
+    public List<Vector2Int > LocalTargetCoords => _localTargetCoords;
+    public List<Vector2Int> GlobalTargetCoords => _globalTargetCoords;
 
     private void Awake() => CacheComponents();
 
@@ -150,7 +152,8 @@ public class Weapon : MonoBehaviour
                 break;
 
             case WeaponRangeShape.Explosion:
-                _mapManager.TileRange.SelectTargetWeaponRange(_owner, targetCoord, 0, explosionRange, _globalTargetCoords, true);
+                _mapManager.TileRange.SelectTargetWeaponRange(
+                    _owner, targetCoord, 0, explosionRange, _globalTargetCoords, true);
                 break;
         }
     }
