@@ -26,7 +26,7 @@ public class Weapon : MonoBehaviour
     /// </summary>
     public void Attack(WeaponData weaponData, UnitBase target)
     {
-        Debug.Log($"{_owner.UnitStat.UnitData.Name} attacked {target.UnitStat.UnitData.Name} DMG {weaponData.Attack}");
+        Debug.Log($"{_owner.Stat.Data.Name} attacked {target.Stat.Data.Name} DMG {weaponData.Attack}");
         target.TakeDamage(weaponData.Attack);
     }
 
@@ -75,7 +75,7 @@ public class Weapon : MonoBehaviour
     private void SelectTargetWeaponDistance(Vector2Int coord, int minRange, int maxRange)
     {
         _mapManager.TileRange.SelectTargetWeaponRange(
-            coord, minRange, maxRange, _globalTargetCoords, false);
+            _owner, coord, minRange, maxRange, _globalTargetCoords, false);
     }
 
     // 범위 무기의 공격 범위 설정 (로컬)
@@ -135,7 +135,7 @@ public class Weapon : MonoBehaviour
         WeaponRangeShape weaponRangeShape, int explosionRange)
     {
         _globalTargetCoords.Clear();
-        _mapManager.TileRange.ShowRangeTiles.Clear();
+        _owner.DistanceRange.RangeCoords.Clear();
 
         TileBase tile = _mapManager.TileMap[targetCoord.x, targetCoord.y];
         UnitBase unit = _mapManager.UnitMap[targetCoord.x, targetCoord.y];
@@ -145,12 +145,12 @@ public class Weapon : MonoBehaviour
         switch (weaponRangeShape)
         {
             case WeaponRangeShape.Single:
-                _mapManager.TileRange.ShowRangeTiles.Add(targetCoord);
+                _owner.DistanceRange.RangeCoords.Add(targetCoord);
                 _globalTargetCoords.Add(targetCoord);
                 break;
 
             case WeaponRangeShape.Explosion:
-                _mapManager.TileRange.SelectTargetWeaponRange(targetCoord, 0, explosionRange, _globalTargetCoords, true);
+                _mapManager.TileRange.SelectTargetWeaponRange(_owner, targetCoord, 0, explosionRange, _globalTargetCoords, true);
                 break;
         }
     }
@@ -160,7 +160,7 @@ public class Weapon : MonoBehaviour
     {
         _globalTargetCoords.Clear();
         _canAttackArea = false;
-        _mapManager.TileRange.ShowRangeTiles.Clear();
+        _owner.DistanceRange.RangeCoords.Clear();
 
         foreach (Vector2Int localCoord in _localTargetCoords)
         {
@@ -197,7 +197,7 @@ public class Weapon : MonoBehaviour
                 _globalTargetCoords.Add(globalCoord);
             }
 
-            _mapManager.TileRange.ShowRangeTiles.Add(globalCoord);
+            _owner.DistanceRange.RangeCoords.Add(globalCoord);
         }
     }
 
@@ -246,9 +246,9 @@ public class Weapon : MonoBehaviour
                 turn,
                 totalPlayerUnits,
                 currentTurnCount,
-                targetUnit.UnitStat,
+                targetUnit.Stat,
                 targetWeapon,
-                _owner.UnitStat
+                _owner.Stat
                 );
         }
 
@@ -297,7 +297,7 @@ public class Weapon : MonoBehaviour
 
         await UniTask.Delay(2000, DelayType.DeltaTime);
 
-        _mapManager.TileRange.HideRange();
+        _owner.DistanceRange.HideRange();
     }
 
     /// <summary>
@@ -318,7 +318,7 @@ public class Weapon : MonoBehaviour
 
             await GetReturnAttack(targetUnit, distance, turn, totalPlayerUnits, currentTurnCount);
             await UniTask.Delay(2000, DelayType.DeltaTime);
-            _mapManager.TileRange.HideRange();
+            _owner.DistanceRange.HideRange();
         }
     }
 
@@ -334,9 +334,9 @@ public class Weapon : MonoBehaviour
                 turn,
                 totalPlayerUnits,
                 currentTurnCount,
-                _owner.UnitStat,
+                _owner.Stat,
                 weaponData,
-                targetUnit.UnitStat
+                targetUnit.Stat
                 );
 
             if (canHit) Attack(weaponData, targetUnit);
@@ -353,13 +353,13 @@ public class Weapon : MonoBehaviour
         WeaponData targetWeapon = targetUnit.Weapon.WeaponDataList[0];
         targetUnit.OnAttackWeapon?.Invoke(targetWeapon.Id);
 
-        _mapManager.TileRange.ShowRangeTiles.Clear();
+        _owner.DistanceRange.RangeCoords.Clear();
 
         Vector2Int coord = transform.position.WorldToCoord();
         TileBase tile = _mapManager.TileMap[coord.x, coord.y];
 
-        _mapManager.TileRange.ShowRangeTiles.Add(coord);
-        _mapManager.TileRange.ShowRange();
+        _owner.DistanceRange.RangeCoords.Add(coord);
+        _owner.DistanceRange.ShowRange();
 
         await UniTask.Delay(1000, DelayType.DeltaTime);
 

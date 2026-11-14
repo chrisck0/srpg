@@ -25,7 +25,7 @@ public sealed class EnemyPhaseState : StateBase
         _isStateEnd = false;
         foreach (EnemyUnit enemyUnit in _enemyUnitList)
         {
-            enemyUnit.UnitStat.AddEnergy(5);
+            enemyUnit.Stat.AddEnergy(5);
             enemyUnit.EnemyAI.InitDanger();
             _activeEnemyUnit.Enqueue(enemyUnit);
         }
@@ -42,7 +42,7 @@ public sealed class EnemyPhaseState : StateBase
                 _currentTurnCount++;
                 _currentEnemyUnit = _activeEnemyUnit.Dequeue();
 
-                Debug.Log($"Current turn : {_currentEnemyUnit.UnitStat.UnitData.Name}");
+                Debug.Log($"Current turn : {_currentEnemyUnit.Stat.Data.Name}");
 
                 BindEnemyUnitEvents();
 

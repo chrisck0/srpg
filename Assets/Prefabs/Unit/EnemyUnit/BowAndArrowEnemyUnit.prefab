@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 747646531193069973}
   - component: {fileID: 1099915533610543554}
   - component: {fileID: 131796892742605370}
+  - component: {fileID: 7675845103827567986}
   - component: {fileID: 3226035149217672612}
   - component: {fileID: 4784945867654183154}
   m_Layer: 0
@@ -50,7 +51,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unit: {fileID: 3226035149217672612}
-  _unitData: {fileID: 0}
+  _data: {fileID: 0}
   _health: 0
   _energy: 0
 --- !u!114 &131796892742605370
@@ -66,6 +67,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   _weaponDataList: []
+--- !u!114 &7675845103827567986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4351846834819390981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3f5484d479d7f479e1950fad6eeede, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitDistanceRange
+  _owner: {fileID: 3226035149217672612}
 --- !u!114 &3226035149217672612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,7 +92,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aece18268ad6a254589813d03c5501b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyUnit
-  _unitStat: {fileID: 1099915533610543554}
+  _stat: {fileID: 1099915533610543554}
+  _distanceRange: {fileID: 7675845103827567986}
   _weapon: {fileID: 131796892742605370}
   _animationController: {fileID: 2637411370604514657}
   _moveSpeed: 8

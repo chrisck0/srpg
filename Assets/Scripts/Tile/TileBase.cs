@@ -23,10 +23,10 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _canSelect = true;
     }
 
-    public void ShowDistance(int num)
+    public void ShowDistance(int distance)
     {
         _distanceText.gameObject.SetActive(true);
-        _distanceText.text = num.ToString();
+        _distanceText.text = distance.ToString();
         _blueTransparentTile.gameObject.SetActive(true);
     }
 

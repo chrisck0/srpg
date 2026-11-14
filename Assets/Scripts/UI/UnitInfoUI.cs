@@ -10,9 +10,9 @@ public class UnitInfoUI : MonoBehaviour
 
     public void SetData(UnitBase selectedUnit)
     {
-        _unitNameText.text = selectedUnit.UnitStat.UnitData.Name;
-        _unitHealthText.text = $"{selectedUnit.UnitStat.Health} / {selectedUnit.UnitStat.UnitData.Health}";
-        _unitEnergyText.text = $"{selectedUnit.UnitStat.Energy} / {selectedUnit.UnitStat.UnitData.Energy}";
+        _unitNameText.text = selectedUnit.Stat.Data.Name;
+        _unitHealthText.text = $"{selectedUnit.Stat.Health} / {selectedUnit.Stat.Data.Health}";
+        _unitEnergyText.text = $"{selectedUnit.Stat.Energy} / {selectedUnit.Stat.Data.Energy}";
         _unitWeaponNameText.text = selectedUnit.Weapon.WeaponDataList[0].Name;
     }
 

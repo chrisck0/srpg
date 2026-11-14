@@ -111,6 +111,18 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         _commandUIController.TileInfoUI.SetData(tile);
     }
 
+    public void ShowUnitMoveandAttack(TileBase tile)
+    {
+        Vector2Int coord = tile.transform.position.WorldToCoord();
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit == null)
+        {
+            tile.HideRange();
+            return;
+        }
+    }
+
     public void ShowUnitInfo(TileBase tile)
     {
         Vector2Int coord = tile.transform.position.WorldToCoord();

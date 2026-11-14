@@ -25,7 +25,7 @@ public sealed class PlayerPhaseState : StateBase
     {
         foreach (PlayerUnit playerUnit in _playerUnitList)
         {
-            playerUnit.UnitStat.AddEnergy(5);
+            playerUnit.Stat.AddEnergy(5);
         }
         _activePlayerUnit = _playerUnitList.Count;
         BindCommandEvents();

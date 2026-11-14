@@ -20,7 +20,7 @@ public class BowAndArrowAnimationController : MonoBehaviour
 
     private void Attack(int weaponId)
     {
-        if (weaponId == _owner.UnitStat.UnitData.WeaponIdList[0])
+        if (weaponId == _owner.Stat.Data.WeaponIdList[0])
         {
             _bowAnimator.SetTrigger(_isFirstWeaponAttackId);
             _arrowAnimator.SetTrigger(_isFirstWeaponAttackId);

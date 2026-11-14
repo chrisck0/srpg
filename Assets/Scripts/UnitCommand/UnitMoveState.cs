@@ -51,7 +51,7 @@ public sealed class UnitMoveState : StateBase
     public override void Exit()
     {
         UnbindInputActions();
-        _mapManager.TileRange.HideDistance();
+        _controller.SelectedPlayerUnit.DistanceRange.HideDistance();
         HideUI();
     }
 
@@ -59,9 +59,8 @@ public sealed class UnitMoveState : StateBase
     {
         _selectedUnit = _controller.SelectedPlayerUnit;
         Vector2Int currentCoord = _selectedUnit.transform.position.WorldToCoord();
-        _tileCostMap = _mapManager.TileRange.UnitMoveRange(
-            currentCoord, _selectedUnit.UnitStat.UnitData.Move, UnitType.Enemy);
-        _mapManager.TileRange.ShowDistance();
+        _tileCostMap = _mapManager.TileRange.UnitMoveRange(_selectedUnit, currentCoord);
+        _selectedUnit.DistanceRange.ShowDistance(_mapManager.TileRange.TileCostMap);
     }
 
     private void RaycastTiles()
@@ -102,9 +101,9 @@ public sealed class UnitMoveState : StateBase
         {
             PlayerUnit playerUnit = unit as PlayerUnit;
 
+            _controller.SelectedPlayerUnit.DistanceRange.HideDistance();
             _controller.SetSelectedPlayerUnit(playerUnit);
             playerUnit.Select();
-            _mapManager.TileRange.HideDistance();
             ShowMoveRange();
         }
         else if (!_mapManager.TileMap[nextCoord.x, nextCoord.y].CanSelect)

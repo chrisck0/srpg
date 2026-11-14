@@ -9,12 +9,8 @@ public class TileRange
     private bool[,] _visitedMap;
     private TileCost[,] _tileCostMap;
     private Vector2Int[] _directions = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
-    private HashSet<Vector2Int> _reachableTiles = new();
-    private HashSet<Vector2Int> _showDistanceTiles = new();
-    private HashSet<Vector2Int> _showRangeTiles = new();
 
-    public HashSet<Vector2Int> ReachableTiles => _reachableTiles;
-    public HashSet<Vector2Int> ShowRangeTiles => _showRangeTiles;
+    public TileCost[,] TileCostMap => _tileCostMap;
 
     public TileRange(TileBase[,] tileMap, UnitBase[,] unitMap)
     {
@@ -55,11 +51,11 @@ public class TileRange
     /// <summary>
     /// 이동 가능 위치 표시 및 이동 가능 거리까지만 계산
     /// </summary>
-    public TileCost[,] UnitMoveRange(Vector2Int startCoord, int move, UnitType targetUnitType)
+    public TileCost[,] UnitMoveRange(UnitBase unit, Vector2Int startCoord)
     {
         Init();
-        _reachableTiles.Clear();
-        _showDistanceTiles.Clear();
+        unit.DistanceRange.ReachableCoords.Clear();
+        unit.DistanceRange.DistanceCoords.Clear();
 
         TileCost startTileCost = _tileCostMap[startCoord.x, startCoord.y];
         startTileCost.SetData(_tileMap[startCoord.x, startCoord.y].TileData, null, 0);
@@ -71,18 +67,19 @@ public class TileRange
             TileCost currentTileCost = _priorityQueue.Remove();
             Vector2Int currentCoord = currentTileCost.Coord;
 
-            if (currentTileCost.Distance > move) break;
+            if (currentTileCost.Distance > unit.Stat.Data.Move) break;
+
 
             // 유닛이 좌표 위에 없거나 시작 좌표인 경우
             UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
             if (!currentUnit || currentCoord == startCoord)
             {
-                _showDistanceTiles.Add(currentCoord);
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
             }
 
             _visitedMap[currentCoord.x, currentCoord.y] = true;
-            _reachableTiles.Add(currentCoord);
+            Debug.Log("Add");
+            unit.DistanceRange.DistanceCoords.Add(currentCoord);
 
             foreach (Vector2Int direction in _directions)
             {
@@ -96,7 +93,7 @@ public class TileRange
 
                 // 도착할 수 없는 타일인 경우
                 if (nextTileData.Cost == int.MaxValue
-                    || _unitMap[nextCoord.x, nextCoord.y]?.UnitType == targetUnitType)
+                    || _unitMap[nextCoord.x, nextCoord.y] != null && _unitMap[nextCoord.x, nextCoord.y]?.UnitType != unit.UnitType)
                 {
                     _visitedMap[nextCoord.x, nextCoord.y] = true;
                     continue;
@@ -123,11 +120,11 @@ public class TileRange
     /// <summary>
     /// 이동 가능 위치 표시 및 맵 전체 거리 계산
     /// </summary>
-    public TileCost[,] UnitMoveRangeAndCalculateTotal(Vector2Int startCoord, int move, UnitType targetUnitType)
+    public TileCost[,] UnitMoveRangeAndCalculateTotal(UnitBase unit, Vector2Int startCoord)
     {
         Init();
-        _reachableTiles.Clear();
-        _showDistanceTiles.Clear();
+        unit.DistanceRange.ReachableCoords.Clear();
+        unit.DistanceRange.DistanceCoords.Clear();
 
         TileCost startTileCost = _tileCostMap[startCoord.x, startCoord.y];
         startTileCost.SetData(_tileMap[startCoord.x, startCoord.y].TileData, null, 0);
@@ -143,11 +140,11 @@ public class TileRange
             UnitBase currentUnit = _unitMap[currentCoord.x, currentCoord.y];
             if (!currentUnit || currentCoord == startCoord)
             {
-                if (currentTileCost.Distance <= move)
+                if (currentTileCost.Distance <= unit.Stat.Data.Move)
                 {
                     _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
-                    _showDistanceTiles.Add(currentCoord);
-                    _reachableTiles.Add(currentCoord);
+                    unit.DistanceRange.ReachableCoords.Add(currentCoord);
+                    unit.DistanceRange.DistanceCoords.Add(currentCoord);
                 }
             }
 
@@ -165,7 +162,7 @@ public class TileRange
 
                 // 도착할 수 없는 타일인 경우
                 if (nextTileData.Cost == int.MaxValue
-                    || _unitMap[nextCoord.x, nextCoord.y]?.UnitType == targetUnitType)
+                    || _unitMap[nextCoord.x, nextCoord.y] != null && _unitMap[nextCoord.x, nextCoord.y]?.UnitType != unit.UnitType)
                 {
                     _visitedMap[nextCoord.x, nextCoord.y] = true;
                     continue;
@@ -192,11 +189,11 @@ public class TileRange
     /// <summary>
     /// 타겟 선택 무기 내 범위의 좌표 저장
     /// </summary>
-    public void SelectTargetWeaponRange(Vector2Int startCoord, int minRange, int maxRange, List<Vector2Int> coordList, bool isRange)
+    public void SelectTargetWeaponRange(UnitBase unit, Vector2Int startCoord, int minRange, int maxRange, List<Vector2Int> coordList, bool isRange)
     {
         Init();
-        if (!isRange) _showDistanceTiles.Clear();
-        else _showRangeTiles.Clear();
+        if (!isRange) unit.DistanceRange.DistanceCoords.Clear();
+        else unit.DistanceRange.RangeCoords.Clear();
 
         TileCost startTileCost = _tileCostMap[startCoord.x, startCoord.y];
         startTileCost.SetData(_tileMap[startCoord.x, startCoord.y].TileData, null, 0);
@@ -213,8 +210,8 @@ public class TileRange
             if (currentTileCost.Distance >= minRange
                 && currentTileCost.Distance <= maxRange)
             {
-                if (!isRange) _showDistanceTiles.Add(currentCoord);
-                else _showRangeTiles.Add(currentCoord);
+                if (!isRange) unit.DistanceRange.DistanceCoords.Add(currentCoord);
+                else unit.DistanceRange.RangeCoords.Add(currentCoord);
 
                 _tileMap[currentCoord.x, currentCoord.y].SetCanSelect();
 
@@ -335,41 +332,5 @@ public class TileRange
             if (neighborDistance < distance) distance = neighborDistance;
         }
         return distance;
-    }
-
-    public void ShowDistance()
-    {
-        foreach (Vector2Int coord in _showDistanceTiles)
-        {
-            TileBase tile = _tileMap[coord.x, coord.y];
-            tile.ShowDistance(_tileCostMap[coord.x, coord.y].Distance);
-        }
-    }
-
-    public void HideDistance()
-    {
-        foreach (Vector2Int coord in _showDistanceTiles)
-        {
-            TileBase tile = _tileMap[coord.x, coord.y];
-            tile.HideDistance();
-        }
-    }
-
-    public void ShowRange()
-    {
-        foreach (Vector2Int coord in _showRangeTiles)
-        {
-            TileBase tile = _tileMap[coord.x, coord.y];
-            tile.ShowRange();
-        }
-    }
-
-    public void HideRange()
-    {
-        foreach (Vector2Int coord in _showRangeTiles)
-        {
-            TileBase tile = _tileMap[coord.x, coord.y];
-            tile.HideRange();
-        }
     }
 }

@@ -33,7 +33,8 @@ public class TargetSelectState : StateBase
     {
         BindInputActions();
         _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager);
-        if (_controller.SelectedWeaponData.WeaponType == WeaponType.SelectTarget) _mapManager.TileRange.ShowDistance();
+        if (_controller.SelectedWeaponData.WeaponType == WeaponType.SelectTarget)
+            _controller.SelectedPlayerUnit.DistanceRange.ShowDistance(_mapManager.TileRange.TileCostMap);
     }
 
     public override void Update()
@@ -60,7 +61,7 @@ public class TargetSelectState : StateBase
 
         DirectionType weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
 
-        _mapManager.TileRange.HideRange();
+        _controller.SelectedPlayerUnit.DistanceRange.HideRange();
 
         _controller.SelectedPlayerUnit.Weapon.SelectWeaponRange(
             coord, UnitType.Enemy,
@@ -68,7 +69,7 @@ public class TargetSelectState : StateBase
             _controller.SelectedWeaponData
             );
 
-        _mapManager.TileRange.ShowRange();
+        _controller.SelectedPlayerUnit.DistanceRange.ShowRange();
 
         _globalTargetCoords = _controller.SelectedPlayerUnit.Weapon.GetTargetCoords();
         _controller.ShowCursor(coord);
@@ -79,8 +80,9 @@ public class TargetSelectState : StateBase
     {
         _hasSelected = false;
         UnbindInputActions();
-        _mapManager.TileRange.HideDistance();
-        _mapManager.TileRange.HideRange();
+        
+        _controller.SelectedPlayerUnit.DistanceRange.HideDistance();
+        _controller.SelectedPlayerUnit.DistanceRange.HideRange();
 
         _controller.SelectedPlayerUnit.Weapon.ClearCoords();
         HideUI();
@@ -135,8 +137,8 @@ public class TargetSelectState : StateBase
             bool canReturnAttack = targetWeapon.MinRange <= distance
                 && targetWeapon.MaxRange >= distance;
 
-                _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.UnitStat,
-                targetUnit.UnitStat,
+                _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.Stat,
+                targetUnit.Stat,
                 _controller.SelectedWeaponData,
                 targetUnit.Weapon.WeaponDataList[0],
                 canReturnAttack,
@@ -161,7 +163,7 @@ public class TargetSelectState : StateBase
         _hasSelected = true;
         HideUI();
 
-        _mapManager.TileRange.HideDistance();
+        _controller.SelectedPlayerUnit.DistanceRange.HideDistance();
 
         await playerWeapon.AttackTargets(
             weaponData,

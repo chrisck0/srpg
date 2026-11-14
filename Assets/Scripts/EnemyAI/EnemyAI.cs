@@ -9,7 +9,7 @@ public class EnemyAI : MonoBehaviour
     private AttackScoreCalculator _calculator;
     private MapManager _mapManager;
     private TileCost[,] _tileCostMap;
-    private HashSet<Vector2Int> _reachableTiles;
+    private HashSet<Vector2Int> _reachableCoords;
     private Stack<Vector2Int> _pathCoordStack = new();
     private HashSet<Vector2Int> _dangerCoords = new();
     private AttackScore _maxAttackScore;
@@ -78,7 +78,7 @@ public class EnemyAI : MonoBehaviour
 
         Vector2Int currentCoord = transform.position.WorldToCoord();
 
-        _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord, _dangerCoords);
+        _maxAttackScore = _calculator.CalculateScore(_owner, _mapManager, currentCoord, _dangerCoords);
         _hasCalculated = true;
 
         Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
@@ -94,10 +94,9 @@ public class EnemyAI : MonoBehaviour
 
         Vector2Int currentCoord = transform.position.WorldToCoord();
 
-        _tileCostMap = _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(
-            currentCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);
+        _tileCostMap = _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(_owner, currentCoord);
 
-        switch(_owner.UnitStat.UnitData.BehaviorType)
+        switch(_owner.Stat.Data.BehaviorType)
         {
             case BehaviorType.Aggressive:
                 if (_maxAttackScore.Score == 0) MoveToTarget();
@@ -110,7 +109,7 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case BehaviorType.Stationary:
-                if (_owner.UnitStat.UnitData.Move != 0) Debug.LogError("Stationary Move Stat Error");
+                if (_owner.Stat.Data.Move != 0) Debug.LogError("Stationary Move Stat Error");
                 if (_maxAttackScore.Score != 0) AttackTarget();
                 else Wait();
                 break;
@@ -165,9 +164,9 @@ public class EnemyAI : MonoBehaviour
     {
         int destinationToTargetMinDistance = int.MaxValue;
         Vector2Int destinationCoord = Vector2Int.zero;
-        _reachableTiles = _mapManager.TileRange.ReachableTiles;
+        _reachableCoords = _owner.DistanceRange.ReachableCoords;
 
-        foreach (Vector2Int coord in _reachableTiles)
+        foreach (Vector2Int coord in _reachableCoords)
         {
             TileCost tileCost = _mapManager.TileRange.CalculateTileCost(coord, targetCoord, UnitType.Player);
             if (destinationToTargetMinDistance > tileCost.Distance)
@@ -236,7 +235,7 @@ public class EnemyAI : MonoBehaviour
         weapon.SetRange(weaponData, _mapManager);
         weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
             _maxAttackScore.WeaponDirection, weaponData);
-        _mapManager.TileRange.ShowRange();
+        _owner.DistanceRange.ShowRange();
 
         _attackTargetCoords = weapon.GetTargetCoords();
 

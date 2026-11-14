@@ -35,12 +35,12 @@ public class BattleInfoUI : MonoBehaviour
         bool canReturnAttack, bool isPlayerPhase)
     {
         // Player Info
-        _playerUnitNameText.text = playerStat.UnitData.Name.ToString();
+        _playerUnitNameText.text = playerStat.Data.Name.ToString();
         _playerUnitWeaponText.text = playerWeaponData.Name.ToString();
         _playerUnitEnergyCostText.text = playerWeaponData.EnergyCost.ToString();
         // _playerUnitImage TODO: 나중에 추가
 
-        int playerMaxHealth = playerStat.UnitData.Health;
+        int playerMaxHealth = playerStat.Data.Health;
         int playerCurrentHealth = playerStat.Health;
         int playerResultHealth = playerCurrentHealth;
 
@@ -77,12 +77,12 @@ public class BattleInfoUI : MonoBehaviour
         }
 
         // Enemy Info
-        _enemyUnitNameText.text = enemyStat.UnitData.Name.ToString();
+        _enemyUnitNameText.text = enemyStat.Data.Name.ToString();
         _enemyUnitWeaponText.text = enemyWeaponData.Name.ToString();
         _enemyUnitEnergyCostText.text = enemyWeaponData.EnergyCost.ToString();
         // _enemyUnitImage TODO: 나중에 추가
 
-        int enemyMaxHealth = enemyStat.UnitData.Health;
+        int enemyMaxHealth = enemyStat.Data.Health;
         int enemyCurrentHealth = enemyStat.Health;
         int enemyResultHealth = enemyCurrentHealth;
 

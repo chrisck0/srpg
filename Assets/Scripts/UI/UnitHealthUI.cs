@@ -21,7 +21,7 @@ public class UnitHealthUI : MonoBehaviour
     private void SetHealth(int health)
     {
         _healthImage.transform.localScale = new Vector3(
-            (float)health / _ownerStat.UnitData.Health,
+            (float)health / _ownerStat.Data.Health,
             _healthImage.transform.localScale.y,
             _healthImage.transform.localScale.z
             );

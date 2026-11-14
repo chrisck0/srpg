@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8754257685816782402}
   - component: {fileID: 5214722165782981439}
   - component: {fileID: 1814263688122856066}
+  - component: {fileID: 6796746468387900796}
   - component: {fileID: 5098266066512719581}
   m_Layer: 0
   m_Name: SingleSwordPlayerUnit
@@ -49,7 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitStat
   _unit: {fileID: 5098266066512719581}
-  _unitData: {fileID: 0}
+  _data: {fileID: 0}
   _health: 0
   _energy: 0
 --- !u!114 &1814263688122856066
@@ -65,6 +66,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   _weaponDataList: []
+--- !u!114 &6796746468387900796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7166089189032202824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3f5484d479d7f479e1950fad6eeede, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitDistanceRange
+  _owner: {fileID: 5098266066512719581}
 --- !u!114 &5098266066512719581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,7 +91,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 753ca01a93e6c9e40896a9baf06c2143, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerUnit
-  _unitStat: {fileID: 5214722165782981439}
+  _stat: {fileID: 5214722165782981439}
+  _distanceRange: {fileID: 6796746468387900796}
   _weapon: {fileID: 1814263688122856066}
   _animationController: {fileID: 9162698382826408855}
   _moveSpeed: 8

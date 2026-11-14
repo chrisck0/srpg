@@ -140,7 +140,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private void UnitDead(UnitBase unit)
     {
-        Debug.Log($"{unit.UnitStat.UnitData.Name} Died");
+        Debug.Log($"{unit.Stat.Data.Name} Died");
         switch (unit.UnitType)
         {
             case UnitType.Player:
@@ -169,7 +169,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
                 break;
 
             case StageWinCondition.Targets:
-                if (_spawnManager.StageData.TargetIds[0] == unit.UnitStat.UnitData.Id) return true;
+                if (_spawnManager.StageData.TargetIds[0] == unit.Stat.Data.Id) return true;
                 break;
         }
 
@@ -180,7 +180,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         foreach (int mainUnitId in _spawnManager.StageData.MainUnitIds)
         {
-            if (mainUnitId == unit.UnitStat.UnitData.Id) return true;
+            if (mainUnitId == unit.Stat.Data.Id) return true;
         }
         return false;
     }

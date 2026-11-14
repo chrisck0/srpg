@@ -5,7 +5,7 @@ public class AttackScoreCalculator
 {
     private EnemyUnit _owner;
     private MapManager _mapManager;
-    private HashSet<Vector2Int> _reachableTiles;
+    private HashSet<Vector2Int> _reachableCoords;
     private List<Vector2Int> _targetableLists = new();
     private List<Vector2Int> _targetLists = new();
     private HashSet<Vector2Int> _dangerCoords;
@@ -16,22 +16,21 @@ public class AttackScoreCalculator
         _owner = owner;
     } 
 
-    public AttackScore CalculateScore(MapManager mapManager, Vector2Int initialCoord, HashSet<Vector2Int> dangerCoords)
+    public AttackScore CalculateScore(UnitBase unit, MapManager mapManager, Vector2Int initialCoord, HashSet<Vector2Int> dangerCoords)
     {
         _dangerCoords = dangerCoords;
         _dangerCoords.Clear();
 
         _mapManager = mapManager;
 
-        _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(
-            initialCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);
-        _reachableTiles = _mapManager.TileRange.ReachableTiles;
+        _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(unit, initialCoord);
+        _reachableCoords = unit.DistanceRange.ReachableCoords;
 
         AttackScore maxAttackScore = default;
 
-        foreach (Vector2Int coord in _reachableTiles)
+        foreach (Vector2Int coord in _reachableCoords)
         {
-            AttackScore currentAttackScore = CalculateAttackScore(coord);
+            AttackScore currentAttackScore = CalculateAttackScore(unit, coord);
             if (currentAttackScore.Score > maxAttackScore.Score)
             {
                 maxAttackScore = currentAttackScore;
@@ -41,23 +40,23 @@ public class AttackScoreCalculator
         return maxAttackScore;
     }
 
-    private AttackScore CalculateAttackScore(Vector2Int currentCoord)
+    private AttackScore CalculateAttackScore(UnitBase unit, Vector2Int currentCoord)
     {
         AttackScore maxAttackScore = default;
         foreach (WeaponData weaponData in _owner.Weapon.WeaponDataList)
         {
-            if (weaponData.EnergyCost > _owner.UnitStat.Energy) continue;
+            if (weaponData.EnergyCost > _owner.Stat.Energy) continue;
 
             AttackScore currentAttackScore = default;
 
             switch (weaponData.WeaponType)
             {
                 case WeaponType.SelectTarget:
-                    currentAttackScore = CalculateSelectTargetScore(currentCoord, weaponData);
+                    currentAttackScore = CalculateSelectTargetScore(unit, currentCoord, weaponData);
                     break;
 
                 case WeaponType.SelectDirection:
-                    currentAttackScore = CalculateSelectDirectionScore(currentCoord, weaponData);
+                    currentAttackScore = CalculateSelectDirectionScore(unit, currentCoord, weaponData);
                     break;
             }
 
@@ -68,12 +67,12 @@ public class AttackScoreCalculator
     }
 
     // Weapon이 Select Target
-    private AttackScore CalculateSelectTargetScore(Vector2Int currentCoord, WeaponData weaponData)
+    private AttackScore CalculateSelectTargetScore(UnitBase unit, Vector2Int currentCoord, WeaponData weaponData)
     {
         _targetableLists.Clear();
 
         _mapManager.TileRange.SelectTargetWeaponRange(
-            currentCoord, weaponData.MinRange, weaponData.MaxRange, _targetableLists, false);
+            unit, currentCoord, weaponData.MinRange, weaponData.MaxRange, _targetableLists, false);
 
         AttackScore maxAttackScore = default;
         foreach (Vector2Int targetableCoord in _targetableLists)
@@ -83,7 +82,7 @@ public class AttackScoreCalculator
             UnitBase target = _mapManager.UnitMap[targetableCoord.x, targetableCoord.y];
             if (target == null || target.UnitType != UnitType.Player) continue;
 
-            AttackScore newAttackScore = CalculateSelectTargetRangeScore(currentCoord, targetableCoord, weaponData);
+            AttackScore newAttackScore = CalculateSelectTargetRangeScore(unit, currentCoord, targetableCoord, weaponData);
             if (newAttackScore.Score > maxAttackScore.Score)
             {
                 maxAttackScore = newAttackScore;
@@ -92,11 +91,11 @@ public class AttackScoreCalculator
         return maxAttackScore;
     }
 
-    private AttackScore CalculateSelectTargetRangeScore(Vector2Int currentCoord, Vector2Int targetableCoord, WeaponData weaponData)
+    private AttackScore CalculateSelectTargetRangeScore(UnitBase unit, Vector2Int currentCoord, Vector2Int targetableCoord, WeaponData weaponData)
     {
         _targetLists.Clear();
 
-        _mapManager.TileRange.SelectTargetWeaponRange(targetableCoord, 0, weaponData.ExplosionRange, _targetLists, true);
+        _mapManager.TileRange.SelectTargetWeaponRange(unit, targetableCoord, 0, weaponData.ExplosionRange, _targetLists, true);
 
         int score = 0;
         foreach (Vector2Int targetCoord in _targetLists)
@@ -108,7 +107,7 @@ public class AttackScoreCalculator
         return new AttackScore(currentCoord, weaponData, DirectionType.None, targetableCoord, score);
     }
 
-    private AttackScore CalculateSelectDirectionScore(Vector2Int currentCoord, WeaponData weaponData)
+    private AttackScore CalculateSelectDirectionScore(UnitBase unit, Vector2Int currentCoord, WeaponData weaponData)
     {
         AttackScore maxAttackScore = default;
         SetLocalTargetCoords(currentCoord, weaponData.WeaponRangeShape, weaponData.ExplosionRange);
@@ -202,7 +201,7 @@ public class AttackScoreCalculator
 
         if (targetUnit == null || targetUnit.UnitType != UnitType.Player) return 0;
 
-        if (targetUnit.UnitStat.Health < attack) return 100 + attack;
+        if (targetUnit.Stat.Health < attack) return 100 + attack;
 
         if (!targetUnit.Weapon.CanGetReturnAttack(distance)) return 50 + attack;
 
