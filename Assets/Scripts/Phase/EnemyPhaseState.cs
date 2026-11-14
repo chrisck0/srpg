@@ -65,16 +65,6 @@ public sealed class EnemyPhaseState : StateBase
     {
         _activeEnemyUnit.Clear();
         _currentEnemyUnit = null;
-
-        foreach (EnemyUnit enemyUnit in _enemyUnitList)
-        {
-            enemyUnit.OnUnitCanAction?.Invoke();
-
-            if (!enemyUnit.EnemyAI.IsShowingDanger) continue;
-
-            enemyUnit.EnemyAI.CalculateScore();
-            enemyUnit.EnemyAI.ShowDanger();
-        }
     }
 
     private void EnemyPhaseEnd()
@@ -85,7 +75,8 @@ public sealed class EnemyPhaseState : StateBase
     private void EnemyActioned()
     {
         UnbindEnemyUnitEvents();
-        WaitForSeconds().Forget();
+        if (_activeEnemyUnit.Count != 0) WaitForSeconds().Forget();
+        else _currentEnemyUnit = null;
     }
 
     private async UniTask WaitForSeconds()

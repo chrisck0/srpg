@@ -62,8 +62,7 @@ public static class AttackScoreCalculator
             EnemyUnit enemy = unit as EnemyUnit;
 
             UnitBase target = mapManager.UnitMap[targetableCoord.x, targetableCoord.y];
-            // if (target == null || target.UnitType == unit.UnitType) continue;
-
+            
             AttackScore newAttackScore = CalculateSelectTargetRangeScore(unit, mapManager, currentCoord, targetableCoord, weaponData);
             if (newAttackScore.Score > maxAttackScore.Score)
             {
@@ -170,7 +169,7 @@ public static class AttackScoreCalculator
             if (targetUnit == null || targetUnit.UnitType != unit.UnitType)
                 unit.DistanceRange.TargetableCoords.Add(globalCoord);
 
-            if (unit != null && unit.UnitType == UnitType.Player) _canAttackArea = true;
+            if (targetUnit != null && targetUnit.UnitType != unit.UnitType) _canAttackArea = true;
 
             score += AttackScore(mapManager, coord, globalCoord, weaponData.Attack);
         }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public sealed class UnitSelectState : StateBase
 {
@@ -13,6 +14,7 @@ public sealed class UnitSelectState : StateBase
     private TileBase _currentTile;
     private UnitBase _prevUnit;
     private bool _isInfoOpen;
+    private List<EnemyUnit> _showingDangerEnemyList = new();
 
     public UnitSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
@@ -94,11 +96,16 @@ public sealed class UnitSelectState : StateBase
 
                 if (enemyUnit == null) return;
 
-                if (enemyUnit.EnemyAI.IsShowingDanger) enemyUnit.EnemyAI.HideDanger();
+                if (enemyUnit.EnemyAI.IsShowingDanger)
+                {
+                    enemyUnit.EnemyAI.HideDanger();
+                    _controller.ShowingDangerEnemyList.Remove(enemyUnit);
+                }
+
                 else
                 {
-                    if (!enemyUnit.EnemyAI.HasCalculated) enemyUnit.EnemyAI.CalculateScore();
                     enemyUnit.EnemyAI.ShowDanger();
+                    _controller.ShowingDangerEnemyList.Add(enemyUnit);
                 }
                 break;
         }
@@ -124,30 +131,16 @@ public sealed class UnitSelectState : StateBase
 
         _prevUnit = unit;
 
-        foreach (Vector2Int targetableCoord in unit.DistanceRange.TargetableCoords)
-        {
-            _mapManager.TileMap[targetableCoord.x, targetableCoord.y].ShowRange();
-        }
-
-        foreach (Vector2Int reachableCoord in unit.DistanceRange.ReachableCoords)
-        {
-            _mapManager.TileMap[reachableCoord.x, reachableCoord.y].ShowDistance(0);
-        }
+        unit.DistanceRange.ShowTargetable();
+        unit.DistanceRange.ShowReachable();
     }
 
     private void HideDistanceRange()
     {
         if (_prevUnit == null) return;
 
-        foreach (Vector2Int targetableCoord in _prevUnit.DistanceRange.TargetableCoords)
-        {
-            _mapManager.TileMap[targetableCoord.x, targetableCoord.y].HideRange();
-        }
-
-        foreach (Vector2Int reachableCoord in _prevUnit.DistanceRange.ReachableCoords)
-        {
-            _mapManager.TileMap[reachableCoord.x, reachableCoord.y].HideDistance();
-        }
+        _prevUnit.DistanceRange.HideTargetable();
+        _prevUnit.DistanceRange.HideReachable();
         _prevUnit = null;
     }
 

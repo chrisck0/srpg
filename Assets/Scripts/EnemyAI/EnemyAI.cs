@@ -18,11 +18,9 @@ public class EnemyAI : MonoBehaviour
     private int _totalEnemyUnits;
     private int _currentTurnCount;
     private bool _isShowingDanger;
-    private bool _hasCalculated;
 
     public event Action<bool> OnDangerRangeVisibilityChanged;
     public bool IsShowingDanger => _isShowingDanger;
-    public bool HasCalculated => _hasCalculated;
 
     private void Update()
     {
@@ -41,7 +39,6 @@ public class EnemyAI : MonoBehaviour
         {
             _mapManager.TileMap[coord.x, coord.y].InitDanger();
         }
-        _hasCalculated = false;
         OnDangerRangeVisibilityChanged?.Invoke(false);
     }
 
@@ -70,7 +67,6 @@ public class EnemyAI : MonoBehaviour
         Vector2Int currentCoord = transform.position.WorldToCoord();
 
         _maxAttackScore = AttackScoreCalculator.CalculateScore(_owner, _mapManager, currentCoord);
-        _hasCalculated = true;
 
         Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
             $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");

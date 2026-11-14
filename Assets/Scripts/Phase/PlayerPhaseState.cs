@@ -54,10 +54,6 @@ public sealed class PlayerPhaseState : StateBase
 
     public override void Exit()
     {
-        foreach (PlayerUnit playerUnit in _playerUnitList)
-        {
-            playerUnit.InitAction();
-        }
         UnbindCommandEvents();
     }
 

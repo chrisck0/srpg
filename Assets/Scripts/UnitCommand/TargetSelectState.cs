@@ -150,6 +150,7 @@ public class TargetSelectState : StateBase
 
     private void Select(InputAction.CallbackContext context)
     {
+        _controller.HideAllDanger();
         Attack().Forget();
     }
 
@@ -180,8 +181,9 @@ public class TargetSelectState : StateBase
             _controller.CurrentTurnCount
             );
 
-        _controller.SetState(_controller.CommandEndState);
+        _controller.ShowAllDanger();
         _controller.SelectedPlayerUnit?.Action();
+        _controller.SetState(_controller.CommandEndState);
     }
 
     private void Cancel(InputAction.CallbackContext context)

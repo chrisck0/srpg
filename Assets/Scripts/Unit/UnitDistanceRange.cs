@@ -21,6 +21,42 @@ public class UnitDistanceRange : MonoBehaviour
         _tileMap = tileMap;
     }
 
+    public void ShowReachable()
+    {
+        foreach (Vector2Int coord in _reachableCoords)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.ShowDistance(0);
+        }
+    }
+
+    public void HideReachable()
+    {
+        foreach (Vector2Int coord in _reachableCoords)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.HideDistance();
+        }
+    }
+
+    public void ShowTargetable()
+    {
+        foreach (Vector2Int coord in _targetableCoords)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.ShowRange();
+        }
+    }
+
+    public void HideTargetable()
+    {
+        foreach (Vector2Int coord in _targetableCoords)
+        {
+            TileBase tile = _tileMap[coord.x, coord.y];
+            tile.HideRange();
+        }
+    }
+
     public void ShowDistance(TileCost[,] tileCostMap)
     {
         foreach (Vector2Int coord in _distanceCoords)

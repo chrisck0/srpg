@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +26,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private Vector2Int _previousPlayerCoord;
     private WeaponData _selectedWeaponData;
     private int _currentTurnCount;
+    private List<EnemyUnit> _showingDangerEnemyList = new();
 
     public Action<StateBase> OnStateChanged { get; set; }
     public Action<PlayerUnit> OnUnitCommandEnd;
@@ -41,6 +43,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public int Turn => _phaseStateController.Turn;
     public int TotalPlayerUnits => _phaseStateController.TotalPlayerUnits;
     public int CurrentTurnCount => _currentTurnCount;
+    public List<EnemyUnit> ShowingDangerEnemyList => _showingDangerEnemyList;
 
     private void Awake() => InitUnitCommandStates();
     private void OnEnable() => BindPhaseEvents();
@@ -206,6 +209,22 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public void HideBattleInfo()
     {
         _commandUIController.BattleInfoUI.Hide();
+    }
+
+    public void ShowAllDanger()
+    {
+        foreach (EnemyUnit enemyUnit in _showingDangerEnemyList)
+        {
+            enemyUnit.EnemyAI.ShowDanger();
+        }
+    }
+
+    public void HideAllDanger()
+    {
+        foreach (EnemyUnit enemyUnit in _showingDangerEnemyList)
+        {
+            enemyUnit.EnemyAI.HideDanger();
+        }
     }
 
     private void BindPhaseEvents()
