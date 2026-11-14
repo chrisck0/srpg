@@ -95,18 +95,8 @@ public sealed class UnitSelectState : StateBase
                 EnemyUnit enemyUnit = (unit as EnemyUnit);
 
                 if (enemyUnit == null) return;
-
-                if (enemyUnit.EnemyAI.IsShowingDanger)
-                {
-                    enemyUnit.EnemyAI.HideDanger();
-                    _controller.ShowingDangerEnemyList.Remove(enemyUnit);
-                }
-
-                else
-                {
-                    enemyUnit.EnemyAI.ShowDanger();
-                    _controller.ShowingDangerEnemyList.Add(enemyUnit);
-                }
+                
+                _controller.ToggleDanger(enemyUnit);
                 break;
         }
     }

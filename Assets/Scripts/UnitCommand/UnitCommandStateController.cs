@@ -227,6 +227,21 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
         }
     }
 
+    public void ToggleDanger(EnemyUnit enemyUnit)
+    {
+        if (enemyUnit.EnemyAI.IsShowingDanger)
+        {
+            enemyUnit.EnemyAI.HideDanger();
+            ShowingDangerEnemyList.Remove(enemyUnit);
+        }
+
+        else
+        {
+            enemyUnit.EnemyAI.ShowDanger();
+            ShowingDangerEnemyList.Add(enemyUnit);
+        }
+    }
+
     private void BindPhaseEvents()
     {
         _phaseStateController.OnPlayerPhaseStarted += InitUnitCommand;

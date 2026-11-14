@@ -98,16 +98,28 @@ public sealed class UnitMoveState : StateBase
 
         UnitBase unit = _mapManager.UnitMap[nextCoord.x, nextCoord.y];
 
-        if (unit != null && unit != _controller.SelectedPlayerUnit
-            && unit.UnitType == UnitType.Player && (unit as PlayerUnit).CanAction)
+        if (unit != null && unit != _controller.SelectedPlayerUnit)
         {
-            PlayerUnit playerUnit = unit as PlayerUnit;
+            if (unit.UnitType == UnitType.Player && (unit as PlayerUnit).CanAction)
+            {
+                PlayerUnit playerUnit = unit as PlayerUnit;
 
-            HideDistanceRange();
-            _controller.SetSelectedPlayerUnit(playerUnit);
-            playerUnit.Select();
-            ShowDistanceRange();
-            return;
+                HideDistanceRange();
+                _controller.SetSelectedPlayerUnit(playerUnit);
+                playerUnit.Select();
+                ShowDistanceRange();
+                return;
+            }
+            
+            if (unit.UnitType == UnitType.Enemy)
+            {
+                EnemyUnit enemyUnit = unit as EnemyUnit;
+
+                if (enemyUnit == null) return;
+
+                _controller.ToggleDanger(enemyUnit);
+                _controller.SetState(_controller.UnitSelectState);
+            }
         }
 
         foreach (Vector2Int coord in _controller.SelectedPlayerUnit.DistanceRange.ReachableCoords)
