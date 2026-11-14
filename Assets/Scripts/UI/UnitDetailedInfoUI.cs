@@ -43,12 +43,12 @@ public class UnitDetailedInfoUI : MonoBehaviour
 
     private void SetUnitInfo(UnitBase selectedUnit)
     {
-        _unitNameText.text = selectedUnit.UnitStat.UnitData.Name;
-        _unitHealthText.text = selectedUnit.UnitStat.UnitData.Health.ToString();
-        _unitEnergyText.text = selectedUnit.UnitStat.UnitData.Energy.ToString();
-        _unitMoveText.text = selectedUnit.UnitStat.UnitData.Move.ToString();
-        _unitAccuracyText.text = selectedUnit.UnitStat.UnitData.Accuracy.ToString();
-        _unitAvoidText.text = selectedUnit.UnitStat.UnitData.Avoid.ToString();
+        _unitNameText.text = selectedUnit.Stat.Data.Name;
+        _unitHealthText.text = selectedUnit.Stat.Data.Health.ToString();
+        _unitEnergyText.text = selectedUnit.Stat.Data.Energy.ToString();
+        _unitMoveText.text = selectedUnit.Stat.Data.Move.ToString();
+        _unitAccuracyText.text = selectedUnit.Stat.Data.Accuracy.ToString();
+        _unitAvoidText.text = selectedUnit.Stat.Data.Avoid.ToString();
     }
 
     private void ReturnWeaponContainers()
@@ -68,7 +68,6 @@ public class UnitDetailedInfoUI : MonoBehaviour
 
     public void Hide()
     {
-        Debug.Log("Hide UnitDetailedInfo");
         gameObject.SetActive(false);
     }
 }

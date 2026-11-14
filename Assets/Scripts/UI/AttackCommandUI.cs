@@ -32,13 +32,11 @@ public class AttackCommandUI : MonoBehaviour
     public void InitWeaponInfo(UnitBase selectedUnit)
     {
         _activatedContainers.Clear();
-        int currentEnergy = selectedUnit.UnitStat.Energy;
-        _currentEnergyText.text = $"EN {currentEnergy} / {selectedUnit.UnitStat.UnitData.Energy}";
+        int currentEnergy = selectedUnit.Stat.Energy;
+        _currentEnergyText.text = $"EN {currentEnergy} / {selectedUnit.Stat.Data.Energy}";
 
         foreach (WeaponData weaponData in selectedUnit.Weapon.WeaponDataList)
         {
-            Debug.Log(_containerObjectPool);
-            Debug.Log(_weaponContainerPrefab);
             WeaponCommandContainerUI weaponContainer = _containerObjectPool.Take(_weaponContainerPrefab);
             weaponContainer.SetData(weaponData, this, currentEnergy);
             _activatedContainers.Add(weaponContainer);

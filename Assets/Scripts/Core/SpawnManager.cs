@@ -100,7 +100,8 @@ public class SpawnManager : MonoBehaviour
             Vector2Int coord = unitPosition.Position;
             unit.transform.position = coord.CoordToWorld();
             unit.transform.eulerAngles = _rotations[(int)unitPosition.Direction];
-            unit.UnitStat.InitStat(unitData);
+            unit.Stat.InitStat(unitData);
+            unit.DistanceRange.SetMap(_tileMap);
 
             Dictionary<int, WeaponData> weaponDataDict = _dataManager.WeaponDataDict;
 

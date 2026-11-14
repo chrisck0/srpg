@@ -78,12 +78,13 @@ public sealed class UnitCommandState : StateBase
 
     private void Wait()
     {
+        _controller.SelectedPlayerUnit?.Action();
         _controller.SetState(_controller.CommandEndState);
     }
 
     private void WeaponSelected(WeaponData weaponData)
     {
-        if (_controller.SelectedPlayerUnit.UnitStat.Energy < weaponData.EnergyCost) return;
+        if (_controller.SelectedPlayerUnit.Stat.Energy < weaponData.EnergyCost) return;
         _controller.SetSelectedWeaponData(weaponData);
         _controller.SetState(_controller.TargetSelectState);
     }

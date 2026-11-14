@@ -74,7 +74,8 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
     private void InitPhaseStates(Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
-        _playerPhaseState = new PlayerPhaseState(this, _unitCommandStateController, spawnedUnitDict);
+        _playerPhaseState = new PlayerPhaseState(
+            this, _unitCommandStateController, _mapManager, spawnedUnitDict);
         _enemyPhaseState = new EnemyPhaseState(this, spawnedUnitDict);
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
@@ -118,10 +119,12 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         _turn++;
         _gameUIController.PhaseUI.SetPlayerPhaseText();
         _gameUIController.PhaseUI.Show();
+        SetEnemyUnitActive();
 
         await UniTask.Delay(3000, DelayType.Realtime);
 
         _gameUIController.PhaseUI.Hide();
+        _unitCommandStateController.ShowAllDanger();
         SetState(_playerPhaseState);
         OnPlayerPhaseStarted?.Invoke();
     }
@@ -130,6 +133,8 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         _gameUIController.PhaseUI.SetEnemyPhaseText();
         _gameUIController.PhaseUI.Show();
+        _unitCommandStateController.HideAllDanger();
+        SetPlayerUnitActive();
 
         await UniTask.Delay(3000, DelayType.Realtime);
 
@@ -138,9 +143,25 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         OnEnemyPhaseStarted?.Invoke();
     }
 
+    private void SetPlayerUnitActive()
+    {
+        foreach (PlayerUnit playerUnit in _playerUnitList)
+        {
+            playerUnit.InitAction();
+        }
+    }
+
+    private void SetEnemyUnitActive()
+    {
+        foreach (EnemyUnit enemyUnit in _enemyUnitList)
+        {
+            enemyUnit.OnUnitCanAction?.Invoke();
+        }
+    }
+
     private void UnitDead(UnitBase unit)
     {
-        Debug.Log($"{unit.UnitStat.UnitData.Name} Died");
+        Debug.Log($"{unit.Stat.Data.Name} Died");
         switch (unit.UnitType)
         {
             case UnitType.Player:
@@ -149,6 +170,11 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
 
             case UnitType.Enemy:
                 _enemyUnitList.Remove(unit);
+
+                EnemyUnit enemyUnit = unit as EnemyUnit;
+                if (enemyUnit == null) return;
+                _unitCommandStateController.ShowingDangerEnemyList.Remove(enemyUnit);
+                enemyUnit.EnemyAI.HideDanger();
                 break;
         }
 
@@ -169,7 +195,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
                 break;
 
             case StageWinCondition.Targets:
-                if (_spawnManager.StageData.TargetIds[0] == unit.UnitStat.UnitData.Id) return true;
+                if (_spawnManager.StageData.TargetIds[0] == unit.Stat.Data.Id) return true;
                 break;
         }
 
@@ -180,7 +206,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
     {
         foreach (int mainUnitId in _spawnManager.StageData.MainUnitIds)
         {
-            if (mainUnitId == unit.UnitStat.UnitData.Id) return true;
+            if (mainUnitId == unit.Stat.Data.Id) return true;
         }
         return false;
     }
@@ -190,7 +216,7 @@ public class PhaseStateController : MonoBehaviour, IStateEvent
         _gameUIController.ResultUI.SetData(isGameWin, _turn,
             _initialEnemyNum - _enemyUnitList.Count, _initialPlayerNum - _playerUnitList.Count);
         _stateMachine.enabled = false;
-        _mapManager.TileRange.InitTiles();
+        // _mapManager.TileRange.InitTiles();
         OnGameEnd?.Invoke();
     }
 

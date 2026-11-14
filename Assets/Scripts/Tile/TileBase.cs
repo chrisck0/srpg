@@ -1,6 +1,4 @@
-using System;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class TileBase : MonoBehaviour, IPoolable
@@ -10,8 +8,10 @@ public abstract class TileBase : MonoBehaviour, IPoolable
     [SerializeField] private TileData _tileData;
     [SerializeField] private GameObject _blueTransparentTile;
     [SerializeField] private GameObject _redTransparentTile;
+    [SerializeField] private GameObject _darkRedTransparentTile;
     [SerializeField] private TextMeshProUGUI _distanceText;
     private bool _canSelect;
+    private int _dangerCount;
 
     public TileData TileData => _tileData;
     public bool CanSelect => _canSelect;
@@ -23,11 +23,18 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _canSelect = true;
     }
 
-    public void ShowDistance(int num)
+    public void ShowDistance(int distance)
     {
         _distanceText.gameObject.SetActive(true);
-        _distanceText.text = num.ToString();
+        _distanceText.text = distance.ToString();
         _blueTransparentTile.gameObject.SetActive(true);
+        _redTransparentTile.gameObject.SetActive(false);
+    }
+
+    public void HideDistance()
+    {
+        _distanceText.gameObject.SetActive(false);
+        _blueTransparentTile.gameObject.SetActive(false);
     }
 
     public void ShowRange()
@@ -40,11 +47,34 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         _redTransparentTile.gameObject.SetActive(false);
     }
 
+    public void ShowDanger()
+    {
+        _dangerCount++;
+        _darkRedTransparentTile.gameObject.SetActive(true);
+    }
+
+    public void HideDanger()
+    {
+        _dangerCount--;
+        if (_dangerCount == 0) _darkRedTransparentTile.gameObject.SetActive(false);
+    }
+
+    public void InitDanger()
+    {
+        _dangerCount = 0;
+        _darkRedTransparentTile.gameObject.SetActive(false);
+    }
+
     public void InitTile()
     {
         _distanceText.gameObject.SetActive(false);
         _blueTransparentTile.gameObject.SetActive(false);
         _redTransparentTile.gameObject.SetActive(false);
+        _canSelect = false;
+    }
+
+    public void InitSelect()
+    {
         _canSelect = false;
     }
 

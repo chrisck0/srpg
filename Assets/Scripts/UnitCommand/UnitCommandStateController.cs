@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,9 +26,10 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     private Vector2Int _previousPlayerCoord;
     private WeaponData _selectedWeaponData;
     private int _currentTurnCount;
+    private List<EnemyUnit> _showingDangerEnemyList = new();
 
     public Action<StateBase> OnStateChanged { get; set; }
-    public Action OnUnitCommandEnd;
+    public Action<PlayerUnit> OnUnitCommandEnd;
 
     public MapManager MapManager => _mapManager;
     public StateBase UnitSelectState => _unitSelectState;
@@ -41,6 +43,7 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public int Turn => _phaseStateController.Turn;
     public int TotalPlayerUnits => _phaseStateController.TotalPlayerUnits;
     public int CurrentTurnCount => _currentTurnCount;
+    public List<EnemyUnit> ShowingDangerEnemyList => _showingDangerEnemyList;
 
     private void Awake() => InitUnitCommandStates();
     private void OnEnable() => BindPhaseEvents();
@@ -109,6 +112,18 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     {
         _commandUIController.TileInfoUI.Show();
         _commandUIController.TileInfoUI.SetData(tile);
+    }
+
+    public void ShowUnitMoveandAttack(TileBase tile)
+    {
+        Vector2Int coord = tile.transform.position.WorldToCoord();
+        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+        if (unit == null)
+        {
+            tile.HideRange();
+            return;
+        }
     }
 
     public void ShowUnitInfo(TileBase tile)
@@ -194,6 +209,37 @@ public class UnitCommandStateController : MonoBehaviour, IStateEvent
     public void HideBattleInfo()
     {
         _commandUIController.BattleInfoUI.Hide();
+    }
+
+    public void ShowAllDanger()
+    {
+        foreach (EnemyUnit enemyUnit in _showingDangerEnemyList)
+        {
+            enemyUnit.EnemyAI.ShowDanger();
+        }
+    }
+
+    public void HideAllDanger()
+    {
+        foreach (EnemyUnit enemyUnit in _showingDangerEnemyList)
+        {
+            enemyUnit.EnemyAI.HideDanger();
+        }
+    }
+
+    public void ToggleDanger(EnemyUnit enemyUnit)
+    {
+        if (enemyUnit.EnemyAI.IsShowingDanger)
+        {
+            enemyUnit.EnemyAI.HideDanger();
+            ShowingDangerEnemyList.Remove(enemyUnit);
+        }
+
+        else
+        {
+            enemyUnit.EnemyAI.ShowDanger();
+            ShowingDangerEnemyList.Add(enemyUnit);
+        }
     }
 
     private void BindPhaseEvents()

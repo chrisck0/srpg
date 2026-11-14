@@ -6,36 +6,36 @@ using System;
 public class UnitStat : MonoBehaviour
 {
     [SerializeField] private UnitBase _unit;
-    [SerializeField] private UnitData _unitData;
+    [SerializeField] private UnitData _data;
     [SerializeField] private int _health;
     [SerializeField] private int _energy;
 
     public event Action<int> OnHealthChanged;
 
-    public UnitData UnitData => _unitData;
+    public UnitData Data => _data;
     public int Health => _health;
     public int Energy => _energy;
 
     private void Awake() => CacheComponents();
 
-    public void InitStat(UnitData unitData)
+    public void InitStat(UnitData data)
     {
-        _unitData = unitData;
-        _health = _unitData.Health;
-        _energy = _unitData.Energy;
+        _data = data;
+        _health = _data.Health;
+        _energy = _data.Energy;
     }
 
     public void AddEnergy(int num)
     {
         _energy += num;
 
-        _energy = Mathf.Clamp(_energy, 0, _unitData.Energy);
+        _energy = Mathf.Clamp(_energy, 0, _data.Energy);
     }
 
     public void AddHealth(int num)
     {
         _health += num;
-        _health = Mathf.Clamp(_health, 0, _unitData.Health);
+        _health = Mathf.Clamp(_health, 0, _data.Health);
 
         if (_health == 0)
         {

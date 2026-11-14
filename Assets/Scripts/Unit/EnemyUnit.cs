@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(EnemyAI))]
 public class EnemyUnit : UnitBase
@@ -9,5 +7,4 @@ public class EnemyUnit : UnitBase
 
     public EnemyAI EnemyAI => _enemyAI;
     public override UnitType UnitType => UnitType.Enemy;
-    public Action OnEnemyActioned;
 }

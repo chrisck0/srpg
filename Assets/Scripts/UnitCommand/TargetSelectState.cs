@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,6 +14,7 @@ public class TargetSelectState : StateBase
     private LayerMask _ground;
     private TileBase _currentTile;
     private List<Vector2Int> _globalTargetCoords;
+    private bool _hasSelected;
 
     public TargetSelectState(UnitCommandStateController controller,
         InputActionReference selectAction,
@@ -32,12 +32,14 @@ public class TargetSelectState : StateBase
     public override void Enter()
     {
         BindInputActions();
-        _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager, true);
+        _controller.SelectedPlayerUnit.Weapon.SetRange(_controller.SelectedWeaponData, _mapManager);
+        if (_controller.SelectedWeaponData.WeaponType == WeaponType.SelectTarget)
+            _controller.SelectedPlayerUnit.DistanceRange.ShowDistance(_mapManager.TileRange.TileCostMap);
     }
 
     public override void Update()
     {
-        if (!_controller.SelectedPlayerUnit.CanAction) return;
+        if (_hasSelected) return;
 
         Vector2 screen = _cursorPosition.action.ReadValue<Vector2>();
         Ray ray = Camera.main.ScreenPointToRay(screen);
@@ -58,11 +60,16 @@ public class TargetSelectState : StateBase
         Vector2Int coord = hit.transform.position.WorldToCoord();
 
         DirectionType weaponDirection = GetWeaponDirection(_controller.SelectedPlayerUnit.transform.position.WorldToCoord(), coord);
-        
+
+        _controller.SelectedPlayerUnit.DistanceRange.HideRange();
+
         _controller.SelectedPlayerUnit.Weapon.SelectWeaponRange(
             coord, UnitType.Enemy,
             _mapManager, weaponDirection,
-            _controller.SelectedWeaponData, true);
+            _controller.SelectedWeaponData
+            );
+
+        _controller.SelectedPlayerUnit.DistanceRange.ShowRange();
 
         _globalTargetCoords = _controller.SelectedPlayerUnit.Weapon.GetTargetCoords();
         _controller.ShowCursor(coord);
@@ -71,8 +78,11 @@ public class TargetSelectState : StateBase
 
     public override void Exit()
     {
+        _hasSelected = false;
         UnbindInputActions();
-        _mapManager.TileRange.InitTiles();
+        
+        _controller.SelectedPlayerUnit.DistanceRange.HideDistance();
+        _controller.SelectedPlayerUnit.DistanceRange.HideRange();
         _controller.SelectedPlayerUnit.Weapon.ClearCoords();
         HideUI();
     }
@@ -126,8 +136,8 @@ public class TargetSelectState : StateBase
             bool canReturnAttack = targetWeapon.MinRange <= distance
                 && targetWeapon.MaxRange >= distance;
 
-                _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.UnitStat,
-                targetUnit.UnitStat,
+                _controller.ShowBattleInfo(_controller.SelectedPlayerUnit.Stat,
+                targetUnit.Stat,
                 _controller.SelectedWeaponData,
                 targetUnit.Weapon.WeaponDataList[0],
                 canReturnAttack,
@@ -139,17 +149,29 @@ public class TargetSelectState : StateBase
 
     private void Select(InputAction.CallbackContext context)
     {
-        Attack().Forget();
+        WeaponData weaponData = _controller.SelectedWeaponData;
+        Weapon playerWeapon = _controller.SelectedPlayerUnit.Weapon;
+
+        if (playerWeapon.CanAttackTargets(weaponData))
+        {
+            _controller.HideAllDanger();
+            Attack().Forget();
+        }
+        else
+        {
+            _controller.SetState(_controller.UnitCommandState);
+        }
     }
 
     private async UniTask Attack()
     {
-        _controller.SelectedPlayerUnit?.Action();
-
         WeaponData weaponData = _controller.SelectedWeaponData;
         Weapon playerWeapon = _controller.SelectedPlayerUnit.Weapon;
 
-        if (!playerWeapon.CanAttackTargets(weaponData)) return;
+        _hasSelected = true;
+        HideUI();
+
+        _controller.SelectedPlayerUnit.DistanceRange.HideDistance();
 
         await playerWeapon.AttackTargets(
             weaponData,
@@ -159,8 +181,6 @@ public class TargetSelectState : StateBase
             _controller.CurrentTurnCount
             );
 
-        await UniTask.Delay(2000, DelayType.DeltaTime);
-
         await playerWeapon.GetAttackReturn(
             UnitType.Enemy,
             _controller.Turn,
@@ -168,13 +188,14 @@ public class TargetSelectState : StateBase
             _controller.CurrentTurnCount
             );
 
+        _controller.ShowAllDanger();
+        _controller.SelectedPlayerUnit?.Action();
         _controller.SetState(_controller.CommandEndState);
     }
 
     private void Cancel(InputAction.CallbackContext context)
     {
         _controller.SetState(_controller.UnitCommandState);
-        _controller.HideCursor();
     }
 
     private void HideUI()

@@ -1,25 +1,26 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
     [SerializeField] private EnemyUnit _owner;
-    private AttackScoreCalculator _calculator;
     private MapManager _mapManager;
     private TileCost[,] _tileCostMap;
-    private HashSet<Vector2Int> _reachableTiles;
+    private HashSet<Vector2Int> _reachableCoords;
     private Stack<Vector2Int> _pathCoordStack = new();
     private AttackScore _maxAttackScore;
     private bool _isMoving;
     private bool _canAttack;
     private Vector2Int _moveTargetCoord;
-    private List<Vector2Int> _attackTargetCoords;
     private int _turn;
     private int _totalEnemyUnits;
     private int _currentTurnCount;
+    private bool _isShowingDanger;
 
-    private void Awake() => Init();
+    public event Action<bool> OnDangerRangeVisibilityChanged;
+    public bool IsShowingDanger => _isShowingDanger;
 
     private void Update()
     {
@@ -32,25 +33,57 @@ public class EnemyAI : MonoBehaviour
         _mapManager = mapManager;
     }
 
+    public void InitDanger()
+    {
+        foreach (Vector2Int coord in _owner.DistanceRange.TargetableCoords)
+        {
+            _mapManager.TileMap[coord.x, coord.y].InitDanger();
+        }
+        OnDangerRangeVisibilityChanged?.Invoke(false);
+    }
+
+    public void ShowDanger()
+    {
+        foreach (Vector2Int coord in _owner.DistanceRange.TargetableCoords)
+        {
+            _mapManager.TileMap[coord.x, coord.y].ShowDanger();
+        }
+        _isShowingDanger = true;
+        OnDangerRangeVisibilityChanged?.Invoke(true);
+    }
+
+    public void HideDanger()
+    {
+        foreach (Vector2Int coord in _owner.DistanceRange.TargetableCoords)
+        {
+            _mapManager.TileMap[coord.x, coord.y].HideDanger();
+        }
+        _isShowingDanger = false;
+        OnDangerRangeVisibilityChanged?.Invoke(false);
+    }
+
+    public void CalculateScore()
+    {
+        Vector2Int currentCoord = transform.position.WorldToCoord();
+
+        _maxAttackScore = AttackScoreCalculator.CalculateScore(_owner, _mapManager, currentCoord);
+
+        Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
+            $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
+    }
+
     public void Behave(int turn, int totalEnemyUnits, int currentTurnCount)
     {
+        CalculateScore();
         _turn = turn;
         _totalEnemyUnits = totalEnemyUnits;
         _currentTurnCount = currentTurnCount;
 
         Vector2Int currentCoord = transform.position.WorldToCoord();
 
-        _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord);
+        _tileCostMap = _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(_owner, currentCoord);
 
-        
-        Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
-            $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
-        
-
-        _tileCostMap = _mapManager.TileRange.UnitMoveRangeAndCalculateTotal(
-            currentCoord, _owner.UnitStat.UnitData.Move, UnitType.Player);
-
-        switch(_owner.UnitStat.UnitData.BehaviorType)
+        switch(_owner.Stat.Data.BehaviorType)
         {
             case BehaviorType.Aggressive:
                 if (_maxAttackScore.Score == 0) MoveToTarget();
@@ -63,7 +96,7 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case BehaviorType.Stationary:
-                if (_owner.UnitStat.UnitData.Move != 0) Debug.LogError("Stationary Move Stat Error");
+                if (_owner.Stat.Data.Move != 0) Debug.LogError("Stationary Move Stat Error");
                 if (_maxAttackScore.Score != 0) AttackTarget();
                 else Wait();
                 break;
@@ -86,7 +119,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Wait()
     {
-        _owner.OnEnemyActioned?.Invoke();
+        _owner.OnUnitActioned?.Invoke();
     }
 
     private Vector2Int FindClosestTargetCoord()
@@ -118,9 +151,9 @@ public class EnemyAI : MonoBehaviour
     {
         int destinationToTargetMinDistance = int.MaxValue;
         Vector2Int destinationCoord = Vector2Int.zero;
-        _reachableTiles = _mapManager.TileRange.ReachableTiles;
+        _reachableCoords = _owner.DistanceRange.ReachableCoords;
 
-        foreach (Vector2Int coord in _reachableTiles)
+        foreach (Vector2Int coord in _reachableCoords)
         {
             TileCost tileCost = _mapManager.TileRange.CalculateTileCost(coord, targetCoord, UnitType.Player);
             if (destinationToTargetMinDistance > tileCost.Distance)
@@ -169,7 +202,7 @@ public class EnemyAI : MonoBehaviour
         {
             _mapManager.UnitMap[_moveTargetCoord.x, _moveTargetCoord.y] = _owner;
             _isMoving = false;
-            if (!_canAttack) _owner.OnEnemyActioned?.Invoke();
+            if (!_canAttack) _owner.OnUnitActioned?.Invoke();
             return;
         }
 
@@ -186,11 +219,10 @@ public class EnemyAI : MonoBehaviour
         WeaponData weaponData = _maxAttackScore.AttackWeaponData;
         Weapon weapon = _owner.Weapon;
 
-        weapon.SetRange(weaponData, _mapManager, false);
+        weapon.SetRange(weaponData, _mapManager);
         weapon.SelectWeaponRange(_maxAttackScore.TargetCoord, UnitType.Player, _mapManager,
-            _maxAttackScore.WeaponDirection, weaponData, true);
-
-        _attackTargetCoords = weapon.GetTargetCoords();
+            _maxAttackScore.WeaponDirection, weaponData);
+        _owner.DistanceRange.ShowRange();
 
         if (!weapon.CanAttackTargets(weaponData)) return;
 
@@ -202,8 +234,6 @@ public class EnemyAI : MonoBehaviour
             _currentTurnCount
             );
 
-        await UniTask.Delay(2000, DelayType.DeltaTime);
-
         await weapon.GetAttackReturn(
             UnitType.Player,
             _turn,
@@ -211,11 +241,6 @@ public class EnemyAI : MonoBehaviour
             _currentTurnCount
             );
 
-        _owner.OnEnemyActioned?.Invoke();
-    }
-
-    private void Init()
-    {
-        _calculator = new AttackScoreCalculator(_owner);
+        _owner.OnUnitActioned?.Invoke();
     }
 }

@@ -25,10 +25,10 @@ public sealed class EnemyPhaseState : StateBase
         _isStateEnd = false;
         foreach (EnemyUnit enemyUnit in _enemyUnitList)
         {
-            enemyUnit.UnitStat.AddEnergy(5);
+            enemyUnit.Stat.AddEnergy(5);
+            enemyUnit.EnemyAI.InitDanger();
             _activeEnemyUnit.Enqueue(enemyUnit);
         }
-        Debug.Log("EnemyPhase Start");
     }
 
     public override void Update()
@@ -42,7 +42,7 @@ public sealed class EnemyPhaseState : StateBase
                 _currentTurnCount++;
                 _currentEnemyUnit = _activeEnemyUnit.Dequeue();
 
-                Debug.Log($"Current turn : {_currentEnemyUnit.UnitStat.UnitData.Name}");
+                Debug.Log($"Current turn : {_currentEnemyUnit.Stat.Data.Name}");
 
                 BindEnemyUnitEvents();
 
@@ -75,23 +75,23 @@ public sealed class EnemyPhaseState : StateBase
     private void EnemyActioned()
     {
         UnbindEnemyUnitEvents();
-        WaitForSeconds().Forget();
+        if (_activeEnemyUnit.Count != 0) WaitForSeconds().Forget();
+        else _currentEnemyUnit = null;
     }
 
     private async UniTask WaitForSeconds()
     {
         await UniTask.Delay(1000, DelayType.DeltaTime);
-        _controller.MapManager.TileRange.InitTiles();
         _currentEnemyUnit = null;
     }
 
     private void BindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned += EnemyActioned;
+        _currentEnemyUnit.OnUnitActioned += EnemyActioned;
     }
 
     private void UnbindEnemyUnitEvents()
     {
-        _currentEnemyUnit.OnEnemyActioned -= EnemyActioned;
+        _currentEnemyUnit.OnUnitActioned -= EnemyActioned;
     }
 }

@@ -2,10 +2,11 @@ using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(UnitStat), typeof(Weapon))]
+[RequireComponent(typeof(UnitStat), typeof(Weapon), typeof(UnitDistanceRange))]
 public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
 {
-    [SerializeField] protected UnitStat _unitStat;
+    [SerializeField] protected UnitStat _stat;
+    [SerializeField] protected UnitDistanceRange _distanceRange;
     [SerializeField] protected Weapon _weapon;
     [SerializeField] protected UnitAnimationController _animationController;
     [SerializeField] protected float _moveSpeed = 8f;
@@ -14,6 +15,8 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
     private bool _isMoving;
     private ObjectPool<UnitBase> _objectPool;
 
+    public Action OnUnitCanAction;
+    public Action OnUnitActioned;
     public Action<int> OnAttackWeapon;
     public Action OnSelect;
     public Action<bool> OnMove;
@@ -22,7 +25,8 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
     public Action OnDamage;
     public event Action<UnitBase> OnDead;
 
-    public UnitStat UnitStat => _unitStat;
+    public UnitStat Stat => _stat;
+    public UnitDistanceRange DistanceRange => _distanceRange;
     public Weapon Weapon => _weapon;
     public float MoveSpeed => _moveSpeed;
     public int Health => _health;
@@ -31,13 +35,13 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
 
     public void ConsumeEnergy(int num)
     {
-        _unitStat.AddEnergy(-num);
+        _stat.AddEnergy(-num);
     }
 
     public void TakeDamage(int num)
     {
-        _unitStat.AddHealth(-num);
-        if (UnitStat.Health > num) OnDamage?.Invoke();
+        _stat.AddHealth(-num);
+        if (Stat.Health > num) OnDamage?.Invoke();
     }
 
     public void Select()
@@ -58,7 +62,7 @@ public abstract class UnitBase : MonoBehaviour, IPoolable, IDamageable
 
     public void Avoid()
     {
-        Debug.Log($"{_unitStat.UnitData.Name} avoided");
+        Debug.Log($"{_stat.Data.Name} avoided");
         OnAvoid?.Invoke();
     }
 

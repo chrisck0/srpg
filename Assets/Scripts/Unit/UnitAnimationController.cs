@@ -32,7 +32,7 @@ public class UnitAnimationController : MonoBehaviour
 
     private void Attack(int weaponId)
     {
-        if (weaponId == _owner.UnitStat.UnitData.WeaponIdList[0])
+        if (weaponId == _owner.Stat.Data.WeaponIdList[0])
         {
             _animator.SetTrigger(_isFirstWeaponAttackId);
         }

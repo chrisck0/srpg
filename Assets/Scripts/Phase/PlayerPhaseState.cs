@@ -5,32 +5,47 @@ public sealed class PlayerPhaseState : StateBase
 {
     private PhaseStateController _controller;
     private UnitCommandStateController _unitCommandStateController;
+    private MapManager _mapManager;
     private List<UnitBase> _playerUnitList;
-    private int _activePlayerUnit;
+    private List<UnitBase> _enemyUnitList;
+    private List<PlayerUnit> _activePlayerUnit = new();
+    private PlayerUnit _currentPlayerUnit;
 
     public PlayerPhaseState(PhaseStateController controller,
         UnitCommandStateController unitCommandStateController,
-        Dictionary<UnitType,
-        List<UnitBase>> spawnedUnitDict)
+        MapManager mapManager,
+        Dictionary<UnitType, List<UnitBase>> spawnedUnitDict)
     {
         _controller = controller;
         _unitCommandStateController = unitCommandStateController;
+        _mapManager = mapManager;
 
         if (!spawnedUnitDict.TryGetValue(UnitType.Player, out List<UnitBase> playerUnitList)) return;
-
         _playerUnitList = playerUnitList;
+
+        if (!spawnedUnitDict.TryGetValue(UnitType.Enemy, out List<UnitBase> enemyUnitList)) return;
+        _enemyUnitList = enemyUnitList;
     }
 
     public override void Enter()
     {
+        _activePlayerUnit.Clear();
         foreach (PlayerUnit playerUnit in _playerUnitList)
         {
-            playerUnit.InitAction();
-            playerUnit.UnitStat.AddEnergy(5);
+            _activePlayerUnit.Add(playerUnit);
+            playerUnit.Stat.AddEnergy(5);
+            AttackScoreCalculator.CalculateScore(
+                playerUnit, _mapManager, playerUnit.transform.position.WorldToCoord());
         }
-        _activePlayerUnit = _playerUnitList.Count;
+
+        foreach (EnemyUnit enemyUnit in _enemyUnitList)
+        {
+            enemyUnit.Stat.AddEnergy(5);
+            AttackScoreCalculator.CalculateScore(
+                enemyUnit, _mapManager, enemyUnit.transform.position.WorldToCoord());
+        }
+
         BindCommandEvents();
-        Debug.Log("PlayerPhase Start");
     }
 
     public override void Update()
@@ -42,14 +57,22 @@ public sealed class PlayerPhaseState : StateBase
         UnbindCommandEvents();
     }
 
-    private void UnitCommandEnd()
+    private void UnitCommandEnd(PlayerUnit actionedPlayerUnit)
     {
-        _activePlayerUnit--;
-        if (_activePlayerUnit == 0)
+        _activePlayerUnit.Remove(actionedPlayerUnit);
+        if (_activePlayerUnit.Count == 0)
         {
             PlayerPhaseEnd();
         }
-        else _unitCommandStateController.StartUnitCommand();
+        else
+        {
+            foreach (PlayerUnit playerUnit in _activePlayerUnit)
+            {
+                AttackScoreCalculator.CalculateScore(
+                    playerUnit, _mapManager, playerUnit.transform.position.WorldToCoord());
+            }
+            _unitCommandStateController.StartUnitCommand();
+        }
     }
 
     private void PlayerPhaseEnd()
