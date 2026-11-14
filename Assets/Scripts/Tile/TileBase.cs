@@ -58,6 +58,12 @@ public abstract class TileBase : MonoBehaviour, IPoolable
         if (_dangerCount == 0) _darkRedTransparentTile.gameObject.SetActive(false);
     }
 
+    public void InitDanger()
+    {
+        _dangerCount = 0;
+        _darkRedTransparentTile.gameObject.SetActive(false);
+    }
+
     public void InitTile()
     {
         _distanceText.gameObject.SetActive(false);

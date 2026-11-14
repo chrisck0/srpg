@@ -71,34 +71,61 @@ public sealed class UnitSelectState : StateBase
 
         UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
 
-        if (unit != null)
+        if (unit == null) return;
+
+        switch (unit.UnitType)
         {
-            PlayerUnit playerUnit = (unit as PlayerUnit);
+            case UnitType.Player:
+                PlayerUnit playerUnit = (unit as PlayerUnit);
 
-            if (playerUnit == null || !playerUnit.CanAction) return;
+                if (playerUnit == null || !playerUnit.CanAction) return;
 
-            _controller.SetSelectedPlayerUnit(playerUnit);
-            playerUnit.Select();
-            _controller.SetState(_controller.UnitMoveState);
+                _controller.SetSelectedPlayerUnit(playerUnit);
+                playerUnit.Select();
+                _controller.SetState(_controller.UnitMoveState);
+                break;
+
+            case UnitType.Enemy:
+                EnemyUnit enemyUnit = (unit as EnemyUnit);
+
+                if (enemyUnit == null) return;
+
+                if (enemyUnit.EnemyAI.IsShowingDanger) enemyUnit.EnemyAI.HideDanger();
+                else
+                {
+                    if (!enemyUnit.EnemyAI.HasCalculated) enemyUnit.EnemyAI.CalculateScore();
+                    enemyUnit.EnemyAI.ShowDanger();
+                }
+                break;
+        }
+        
+    }
+
+    private void ShowDetailedInfo(InputAction.CallbackContext context)
+    {
+        if (_currentTile == null) return;
+
+        if (_isInfoOpen) HideDetailedInfo();
+        else
+        {
+            Vector2Int coord = _currentTile.transform.position.WorldToCoord();
+
+            UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
+
+            if (unit == null) return;
+
+            _controller.HideTileUI();
+            _controller.ShowUnitDetailedInfo(_currentTile);
+            _isInfoOpen = true;
         }
     }
 
-    private void Info(InputAction.CallbackContext context)
+    private void Cancel(InputAction.CallbackContext context)
     {
-        if (_currentTile == null || _isInfoOpen) return;
-
-        Vector2Int coord = _currentTile.transform.position.WorldToCoord();
-
-        UnitBase unit = _mapManager.UnitMap[coord.x, coord.y];
-
-        if (unit == null) return;
-
-        _controller.HideTileUI();
-        _controller.ShowUnitDetailedInfo(_currentTile);
-        _isInfoOpen = true;
+        HideDetailedInfo();
     }
 
-    private void Cancel(InputAction.CallbackContext context)
+    private void HideDetailedInfo()
     {
         _controller.HideUnitDetailedInfo();
         _controller.ShowTileUI(_currentTile);
@@ -110,7 +137,7 @@ public sealed class UnitSelectState : StateBase
         _selectAction.action.Enable();
         _selectAction.action.performed += Select;
         _infoAction.action.Enable();
-        _infoAction.action.performed += Info;
+        _infoAction.action.performed += ShowDetailedInfo;
         _cancelAction.action.Enable();
         _cancelAction.action.performed += Cancel;
         _cursorPosition.action.Enable();
@@ -121,7 +148,7 @@ public sealed class UnitSelectState : StateBase
         _selectAction.action.Disable();
         _selectAction.action.performed -= Select;
         _infoAction.action.Disable();
-        _infoAction.action.performed -= Info;
+        _infoAction.action.performed -= ShowDetailedInfo;
         _cancelAction.action.Disable();
         _cancelAction.action.performed -= Cancel;
         _cursorPosition.action.Disable();

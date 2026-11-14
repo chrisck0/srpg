@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,6 +20,13 @@ public class EnemyAI : MonoBehaviour
     private int _turn;
     private int _totalEnemyUnits;
     private int _currentTurnCount;
+    private bool _isShowingDanger;
+    private bool _hasCalculated;
+
+    public event Action<bool> OnDangerRangeVisibilityChanged;
+    public HashSet<Vector2Int> DangerCoords => _dangerCoords;
+    public bool IsShowingDanger => _isShowingDanger;
+    public bool HasCalculated => _hasCalculated;
 
     private void Awake() => Init();
 
@@ -33,13 +41,25 @@ public class EnemyAI : MonoBehaviour
         _mapManager = mapManager;
     }
 
+    public void InitDanger()
+    {
+        foreach (Vector2Int coord in _dangerCoords)
+        {
+            _mapManager.TileMap[coord.x, coord.y].InitDanger();
+        }
+        _hasCalculated = false;
+        OnDangerRangeVisibilityChanged?.Invoke(false);
+        _dangerCoords.Clear();
+    }
+
     public void ShowDanger()
     {
-        Debug.Log(_dangerCoords.Count);
         foreach (Vector2Int coord in _dangerCoords)
         {
             _mapManager.TileMap[coord.x, coord.y].ShowDanger();
         }
+        _isShowingDanger = true;
+        OnDangerRangeVisibilityChanged?.Invoke(true);
     }
 
     public void HideDanger()
@@ -48,13 +68,18 @@ public class EnemyAI : MonoBehaviour
         {
             _mapManager.TileMap[coord.x, coord.y].HideDanger();
         }
+        _isShowingDanger = false;
+        OnDangerRangeVisibilityChanged?.Invoke(false);
     }
 
     public void CalculateScore()
     {
+        _dangerCoords.Clear();
+
         Vector2Int currentCoord = transform.position.WorldToCoord();
 
         _maxAttackScore = _calculator.CalculateScore(_mapManager, currentCoord, _dangerCoords);
+        _hasCalculated = true;
 
         Debug.Log($"Attack Score {_maxAttackScore.CurrentCoord} {_maxAttackScore.AttackWeaponData} " +
             $"{_maxAttackScore.WeaponDirection} {_maxAttackScore.TargetCoord} {_maxAttackScore.Score}");
@@ -63,7 +88,6 @@ public class EnemyAI : MonoBehaviour
     public void Behave(int turn, int totalEnemyUnits, int currentTurnCount)
     {
         CalculateScore();
-        ShowDanger();
         _turn = turn;
         _totalEnemyUnits = totalEnemyUnits;
         _currentTurnCount = currentTurnCount;

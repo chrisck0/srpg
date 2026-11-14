@@ -26,6 +26,7 @@ public sealed class EnemyPhaseState : StateBase
         foreach (EnemyUnit enemyUnit in _enemyUnitList)
         {
             enemyUnit.UnitStat.AddEnergy(5);
+            enemyUnit.EnemyAI.InitDanger();
             _activeEnemyUnit.Enqueue(enemyUnit);
         }
     }
@@ -68,6 +69,11 @@ public sealed class EnemyPhaseState : StateBase
         foreach (EnemyUnit enemyUnit in _enemyUnitList)
         {
             enemyUnit.OnUnitCanAction?.Invoke();
+
+            if (!enemyUnit.EnemyAI.IsShowingDanger) continue;
+
+            enemyUnit.EnemyAI.CalculateScore();
+            enemyUnit.EnemyAI.ShowDanger();
         }
     }
 
@@ -85,7 +91,6 @@ public sealed class EnemyPhaseState : StateBase
     private async UniTask WaitForSeconds()
     {
         await UniTask.Delay(1000, DelayType.DeltaTime);
-        _currentEnemyUnit.EnemyAI.HideDanger();
         _currentEnemyUnit = null;
     }
 

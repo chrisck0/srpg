@@ -96,6 +96,81 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   _owner: {fileID: 3226035149217672612}
+--- !u!1 &8701532818768059213
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5775467647328795462}
+  - component: {fileID: 5948828618513190323}
+  - component: {fileID: 6360164946477701399}
+  m_Layer: 5
+  m_Name: DangerRange
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5775467647328795462
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701532818768059213}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7765805587875278473}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0.214}
+  m_SizeDelta: {x: 0.12, y: 0.12}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &5948828618513190323
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701532818768059213}
+  m_CullTransparentMesh: 1
+--- !u!114 &6360164946477701399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701532818768059213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.50980395, g: 0.02745098, b: 0.14117648, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1001 &2981045036267524465
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -106,7 +181,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 930119133785875869, guid: a95c175f124b4124ca8a81443891f2bf, type: 3}
       propertyPath: m_Name
-      value: EnemyUnitHealthCanvas
+      value: EnemyUnitCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 4799539379794509816, guid: a95c175f124b4124ca8a81443891f2bf, type: 3}
       propertyPath: m_Pivot.x
@@ -194,9 +269,34 @@ PrefabInstance:
       objectReference: {fileID: 1099915533610543554}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4799539379794509816, guid: a95c175f124b4124ca8a81443891f2bf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5775467647328795462}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 930119133785875869, guid: a95c175f124b4124ca8a81443891f2bf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8403724014418778255}
   m_SourcePrefab: {fileID: 100100000, guid: a95c175f124b4124ca8a81443891f2bf, type: 3}
+--- !u!1 &2717569183149929708 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 930119133785875869, guid: a95c175f124b4124ca8a81443891f2bf, type: 3}
+  m_PrefabInstance: {fileID: 2981045036267524465}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8403724014418778255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2717569183149929708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 742dd5f39309c934caf7c4ade826cae1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDangerRangeUI
+  _dangerRangeImage: {fileID: 6360164946477701399}
+  _enemyAI: {fileID: 4784945867654183154}
 --- !u!224 &7765805587875278473 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4799539379794509816, guid: a95c175f124b4124ca8a81443891f2bf, type: 3}
