@@ -83,7 +83,6 @@ public class TargetSelectState : StateBase
         
         _controller.SelectedPlayerUnit.DistanceRange.HideDistance();
         _controller.SelectedPlayerUnit.DistanceRange.HideRange();
-
         _controller.SelectedPlayerUnit.Weapon.ClearCoords();
         HideUI();
     }
@@ -150,16 +149,24 @@ public class TargetSelectState : StateBase
 
     private void Select(InputAction.CallbackContext context)
     {
-        _controller.HideAllDanger();
-        Attack().Forget();
+        WeaponData weaponData = _controller.SelectedWeaponData;
+        Weapon playerWeapon = _controller.SelectedPlayerUnit.Weapon;
+
+        if (playerWeapon.CanAttackTargets(weaponData))
+        {
+            _controller.HideAllDanger();
+            Attack().Forget();
+        }
+        else
+        {
+            _controller.SetState(_controller.UnitCommandState);
+        }
     }
 
     private async UniTask Attack()
     {
         WeaponData weaponData = _controller.SelectedWeaponData;
         Weapon playerWeapon = _controller.SelectedPlayerUnit.Weapon;
-
-        if (!playerWeapon.CanAttackTargets(weaponData)) return;
 
         _hasSelected = true;
         HideUI();
@@ -189,7 +196,6 @@ public class TargetSelectState : StateBase
     private void Cancel(InputAction.CallbackContext context)
     {
         _controller.SetState(_controller.UnitCommandState);
-        _controller.HideCursor();
     }
 
     private void HideUI()
